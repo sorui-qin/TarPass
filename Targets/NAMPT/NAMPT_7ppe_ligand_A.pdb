@@ -1,0 +1,154 @@
+HEADER    TRANSFERASE                             13-SEP-21   7PPE
+REMARK   4 7PPE COMPLIES WITH FORMAT V. 3.30,
+REMARK 888
+REMARK 888 WRITTEN BY MAESTRO (A PRODUCT OF SCHRODINGER, LLC)
+TITLE     CRYSTAL STRUCTURE OF NAMPT IN COMPLEX WITH COMPOUND 1
+EXPDTA    X-RAY DIFFRACTION
+REMARK   2 RESOLUTION.    1.86 ANGSTROMS
+REMARK 200  TEMPERATURE           (KELVIN) : 100.00
+REMARK 200  PH                             : 7.60
+REMARK 350 BIOMOLECULE:  1
+REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B
+REMARK 350   BIOMT1  1   1.000000 0.000000 0.000000   0.000000
+REMARK 350   BIOMT2  1   0.000000 1.000000 0.000000   0.000000
+REMARK 350   BIOMT3  1   0.000000 0.000000 1.000000   0.000000
+CRYST1   60.823  106.771   82.625  90.00  96.35  90.00 P 1 21 1      4
+MODEL        1
+HETATM    1  CAJ 7YK A 502      17.792   2.740  -3.461  1.00 43.60           C  
+HETATM    2  CAK 7YK A 502      19.058   1.988  -3.832  1.00 42.75           C  
+HETATM    3  OAL 7YK A 502      19.720   2.856  -4.797  1.00 42.60           O  
+HETATM    4  CAM 7YK A 502      18.988   3.080  -6.070  1.00 33.10           C  
+HETATM    5  CAN 7YK A 502      17.538   3.569  -5.839  1.00 45.46           C  
+HETATM    6  CAI 7YK A 502      16.861   2.814  -4.660  1.00 43.49           C  
+HETATM    7  NAC 7YK A 502      15.579   3.491  -4.339  1.00 42.22           N  
+HETATM    8  NAB 7YK A 502      15.585   4.490  -3.435  1.00 44.54           N  
+HETATM    9  CAD 7YK A 502      14.454   3.162  -5.012  1.00 54.28           C  
+HETATM   10  OAE 7YK A 502      14.519   2.264  -5.855  1.00 52.58           O  
+HETATM   11  CAF 7YK A 502      13.244   3.859  -4.859  1.00 49.31           C  
+HETATM   12  CAG 7YK A 502      13.218   4.831  -3.680  1.00 36.09           C  
+HETATM   13  CAH 7YK A 502      12.533   4.024  -2.557  1.00 57.16           C  
+HETATM   14  CAA 7YK A 502      14.482   5.203  -3.123  1.00 30.83           C  
+HETATM   15  CAO 7YK A 502      14.626   6.178  -2.096  1.00 25.54           C  
+HETATM   16  CBF 7YK A 502      13.684   7.172  -1.857  1.00 21.26           C  
+HETATM   17  CBE 7YK A 502      13.856   8.126  -0.850  1.00 21.39           C  
+HETATM   18  CAP 7YK A 502      15.743   6.162  -1.284  1.00 21.69           C  
+HETATM   19  CAQ 7YK A 502      15.913   7.090  -0.269  1.00 22.68           C  
+HETATM   20  CAR 7YK A 502      15.005   8.136  -0.070  1.00 17.63           C  
+HETATM   21  NAS 7YK A 502      15.217   8.919   0.991  1.00 21.94           N  
+HETATM   22  CAT 7YK A 502      14.305   9.820   1.497  1.00 26.01           C  
+HETATM   23  OBD 7YK A 502      13.301  10.240   0.904  1.00 21.27           O  
+HETATM   24  NAU 7YK A 502      14.632  10.296   2.706  1.00 20.81           N  
+HETATM   25  CAY 7YK A 502      15.689   9.865   3.639  1.00 19.26           C  
+HETATM   26  CAX 7YK A 502      15.130  10.145   4.970  1.00 23.36           C  
+HETATM   27  CAZ 7YK A 502      15.529   9.740   6.186  1.00 20.49           C  
+HETATM   28  CBA 7YK A 502      14.916  10.140   7.390  1.00 19.10           C  
+HETATM   29  NBB 7YK A 502      13.760  10.964   7.326  1.00 21.66           N  
+HETATM   30  CBC 7YK A 502      13.379  11.348   6.024  1.00 18.41           C  
+HETATM   31  CAW 7YK A 502      14.051  10.979   4.892  1.00 21.54           C  
+HETATM   32  CAV 7YK A 502      13.860  11.227   3.531  1.00 21.89           C  
+HETATM   33 HAJ1 7YK A 502      18.049   3.748  -3.138  1.00  0.00           H  
+HETATM   34 HAJ2 7YK A 502      17.290   2.223  -2.643  1.00  0.00           H  
+HETATM   35 HAK1 7YK A 502      18.792   1.048  -4.316  1.00  0.00           H  
+HETATM   36 HAK2 7YK A 502      19.689   1.885  -2.949  1.00  0.00           H  
+HETATM   37 HAM1 7YK A 502      18.971   2.155  -6.646  1.00  0.00           H  
+HETATM   38 HAM2 7YK A 502      19.525   3.811  -6.673  1.00  0.00           H  
+HETATM   39 HAN1 7YK A 502      16.955   3.419  -6.748  1.00  0.00           H  
+HETATM   40 HAN2 7YK A 502      17.545   4.639  -5.629  1.00  0.00           H  
+HETATM   41  HAI 7YK A 502      16.640   1.798  -4.985  1.00  0.00           H  
+HETATM   42 HAF1 7YK A 502      12.427   3.145  -4.757  1.00  0.00           H  
+HETATM   43 HAF2 7YK A 502      13.021   4.401  -5.778  1.00  0.00           H  
+HETATM   44  HAG 7YK A 502      12.632   5.716  -3.926  1.00  0.00           H  
+HETATM   45 HAH1 7YK A 502      12.465   4.637  -1.658  1.00  0.00           H  
+HETATM   46 HAH2 7YK A 502      11.532   3.734  -2.876  1.00  0.00           H  
+HETATM   47 HAH3 7YK A 502      13.119   3.130  -2.343  1.00  0.00           H  
+HETATM   48  HBF 7YK A 502      12.788   7.223  -2.458  1.00  0.00           H  
+HETATM   49  HBE 7YK A 502      13.090   8.867  -0.672  1.00  0.00           H  
+HETATM   50  HAP 7YK A 502      16.508   5.414  -1.434  1.00  0.00           H  
+HETATM   51  HAQ 7YK A 502      16.763   7.017   0.394  1.00  0.00           H  
+HETATM   52 HNAS 7YK A 502      16.098   8.876   1.483  1.00  0.00           H  
+HETATM   53 HAY1 7YK A 502      16.577  10.478   3.485  1.00  0.00           H  
+HETATM   54 HAY2 7YK A 502      15.849   8.792   3.533  1.00  0.00           H  
+HETATM   55  HAZ 7YK A 502      16.368   9.067   6.283  1.00  0.00           H  
+HETATM   56  HBA 7YK A 502      15.325   9.821   8.337  1.00  0.00           H  
+HETATM   57  HBC 7YK A 502      12.508  11.970   5.878  1.00  0.00           H  
+HETATM   58 HAV1 7YK A 502      12.801  11.133   3.290  1.00  0.00           H  
+HETATM   59 HAV2 7YK A 502      14.162  12.249   3.303  1.00  0.00           H  
+CONECT    1    2    6   33   34
+CONECT    2    1    3   35   36
+CONECT    3    2    4
+CONECT    4    3    5   37   38
+CONECT    5    4    6   39   40
+CONECT    6    1    5    7   41
+CONECT    7    6    8    9
+CONECT    8    7   14
+CONECT    8   14
+CONECT    9    7   10   11
+CONECT    9   10
+CONECT   10    9
+CONECT   10    9
+CONECT   11    9   12   42   43
+CONECT   12   11   13   14   44
+CONECT   13   12   45   46   47
+CONECT   14    8   12   15
+CONECT   14    8
+CONECT   15   14   16   18
+CONECT   15   18
+CONECT   16   15   17   48
+CONECT   16   17
+CONECT   17   16   20   49
+CONECT   17   16
+CONECT   18   15   19   50
+CONECT   18   15
+CONECT   19   18   20   51
+CONECT   19   20
+CONECT   20   17   19   21
+CONECT   20   19
+CONECT   21   20   22   52
+CONECT   22   21   23   24
+CONECT   22   23
+CONECT   23   22
+CONECT   23   22
+CONECT   24   22   25   32
+CONECT   25   24   26   53   54
+CONECT   26   25   27   31
+CONECT   26   31
+CONECT   27   26   28   55
+CONECT   27   28
+CONECT   28   27   29   56
+CONECT   28   27
+CONECT   29   28   30
+CONECT   29   30
+CONECT   30   29   31   57
+CONECT   30   29
+CONECT   31   26   30   32
+CONECT   31   26
+CONECT   32   24   31   58   59
+CONECT   33    1
+CONECT   34    1
+CONECT   35    2
+CONECT   36    2
+CONECT   37    4
+CONECT   38    4
+CONECT   39    5
+CONECT   40    5
+CONECT   41    6
+CONECT   42   11
+CONECT   43   11
+CONECT   44   12
+CONECT   45   13
+CONECT   46   13
+CONECT   47   13
+CONECT   48   16
+CONECT   49   17
+CONECT   50   18
+CONECT   51   19
+CONECT   52   21
+CONECT   53   25
+CONECT   54   25
+CONECT   55   27
+CONECT   56   28
+CONECT   57   30
+CONECT   58   32
+CONECT   59   32
+ENDMDL
+END   
