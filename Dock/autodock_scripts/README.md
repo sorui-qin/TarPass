@@ -1,0 +1,1 @@
+Downloaded from [the official repository of AutoDock-Vina](https://github.com/ccsb-scripps/AutoDock-Vina/tree/develop/example/autodock_scripts).

@@ -5,15 +5,15 @@
 # Created by autogrid4 4.2.7.x.
 #
 #SPACING 0.375
-#NELEMENTS 20 20 20
+#NELEMENTS 54 54 54
 #CENTER 4.686 2.691 28.884
 #MACROMOLECULE HDAC6_8bjk_rec_A_tz.pdbqt
 #GRID_PARAMETER_FILE protein_tz.gpf
 #
 ndim=3			# number of dimensions in the field
-dim1=21			# number of x-elements
-dim2=21			# number of y-elements
-dim3=21			# number of z-elements
+dim1=55			# number of x-elements
+dim2=55			# number of y-elements
+dim3=55			# number of z-elements
 nspace=3		# number of physical coordinates per point
 veclen=10		# number of affinity values at each point
 data=float		# data type (byte, integer, float, double)
