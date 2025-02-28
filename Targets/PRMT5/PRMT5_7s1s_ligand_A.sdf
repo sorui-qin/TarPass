@@ -1,0 +1,223 @@
+85K
+                    3D
+ Schrodinger Suite 2021-2.
+ 52 56  0  0  1  0            999 V2000
+  -33.5180  -49.3380   -9.6790 N   0  0  0  0  0  0
+  -33.0880  -41.3560   -9.9890 N   0  3  0  0  0  0
+  -30.9440  -46.7490  -10.1090 C   0  0  0  0  0  0
+  -28.8200  -45.7650  -10.7480 C   0  0  0  0  0  0
+  -30.6880  -44.3070  -10.1760 C   0  0  0  0  0  0
+  -32.3720  -49.9370   -9.3120 N   0  0  0  0  0  0
+  -32.2030  -51.3020   -8.8690 C   0  0  0  0  0  0
+  -27.3640  -43.2710  -11.1760 O   0  0  0  0  0  0
+  -33.1380  -48.1250  -10.0060 C   0  0  0  0  0  0
+  -31.7570  -47.9400   -9.8590 C   0  0  0  0  0  0
+  -29.6020  -46.8780  -10.5160 C   0  0  0  0  0  0
+  -31.4640  -45.4660   -9.9450 C   0  0  0  0  0  0
+  -31.2030  -42.9530  -10.0140 C   0  0  0  0  0  0
+  -32.6560  -42.7020   -9.5680 C   0  0  0  0  0  0
+  -29.3470  -44.4740  -10.5850 C   0  0  0  0  0  0
+  -28.5400  -43.3000  -10.8210 C   0  0  0  0  0  0
+  -31.2930  -49.1420   -9.4130 C   0  0  0  0  0  0
+  -29.9980  -49.6700   -9.0340 C   0  0  0  0  0  0
+  -29.6380  -49.6350   -7.6830 C   0  0  0  0  0  0
+  -28.4250  -50.1340   -7.2190 C   0  0  0  0  0  0
+  -27.5490  -50.7180   -8.1270 C   0  0  0  0  0  0
+  -27.9040  -50.7920   -9.4720 C   0  0  0  0  0  0
+  -25.6040  -51.4430  -10.2350 C   0  0  0  0  0  0
+  -25.0090  -52.8170  -10.2680 C   0  0  0  0  0  0
+  -24.9260  -51.9220  -11.4840 C   0  0  0  0  0  0
+  -29.1240  -50.2910   -9.9470 C   0  0  0  0  0  0
+  -29.4610  -50.3770  -11.3410 C   0  0  0  0  0  0
+  -30.4900  -49.0650   -6.7980 F   0  0  0  0  0  0
+  -30.4490  -41.9220  -10.2390 N   0  0  0  0  0  0
+  -29.1400  -42.0850  -10.6350 N   0  0  0  0  0  0
+  -29.7190  -50.4490  -12.4490 N   0  0  0  0  0  0
+  -27.0360  -51.3710  -10.3740 O   0  0  0  0  0  0
+  -27.9950  -50.0410   -5.5460 Cl  0  0  0  0  0  0
+  -34.0409  -41.1998   -9.6929 H   0  0  0  0  0  0
+  -32.4870  -40.6620   -9.5680 H   0  0  0  0  0  0
+  -33.0323  -41.2833  -10.9948 H   0  0  0  0  0  0
+  -27.7921  -45.8823  -11.0581 H   0  0  0  0  0  0
+  -31.1521  -51.4841   -8.6443 H   0  0  0  0  0  0
+  -32.8001  -51.4702   -7.9727 H   0  0  0  0  0  0
+  -32.5292  -51.9828   -9.6553 H   0  0  0  0  0  0
+  -33.8672  -47.4030  -10.3428 H   0  0  0  0  0  0
+  -29.1705  -47.8588  -10.6509 H   0  0  0  0  0  0
+  -32.4894  -45.3348   -9.6323 H   0  0  0  0  0  0
+  -33.3084  -43.4501  -10.0184 H   0  0  0  0  0  0
+  -32.7216  -42.7815   -8.4829 H   0  0  0  0  0  0
+  -26.6016  -51.1100   -7.7877 H   0  0  0  0  0  0
+  -25.1051  -50.6795   -9.6381 H   0  0  0  0  0  0
+  -25.9019  -53.3830  -10.5337 H   0  0  0  0  0  0
+  -24.0385  -52.5931   -9.8251 H   0  0  0  0  0  0
+  -23.9371  -51.4963  -11.3138 H   0  0  0  0  0  0
+  -25.8008  -52.2864  -12.0225 H   0  0  0  0  0  0
+  -28.6173  -41.2347  -10.7895 H   0  0  0  0  0  0
+  1  6  1  0  0  0
+  1  9  2  0  0  0
+  2 14  1  0  0  0
+  2 34  1  0  0  0
+  2 35  1  0  0  0
+  2 36  1  0  0  0
+  3 10  1  0  0  0
+  3 11  1  0  0  0
+  3 12  2  0  0  0
+  4 11  2  0  0  0
+  4 15  1  0  0  0
+  4 37  1  0  0  0
+  5 12  1  0  0  0
+  5 13  1  0  0  0
+  5 15  2  0  0  0
+  6  7  1  0  0  0
+  6 17  1  0  0  0
+  7 38  1  0  0  0
+  7 39  1  0  0  0
+  7 40  1  0  0  0
+  8 16  2  0  0  0
+  9 10  1  0  0  0
+  9 41  1  0  0  0
+ 10 17  2  0  0  0
+ 11 42  1  0  0  0
+ 12 43  1  0  0  0
+ 13 14  1  0  0  0
+ 13 29  2  0  0  0
+ 14 44  1  0  0  0
+ 14 45  1  0  0  0
+ 15 16  1  0  0  0
+ 16 30  1  0  0  0
+ 17 18  1  0  0  0
+ 18 19  1  0  0  0
+ 18 26  2  0  0  0
+ 19 20  2  0  0  0
+ 19 28  1  0  0  0
+ 20 21  1  0  0  0
+ 20 33  1  0  0  0
+ 21 22  2  0  0  0
+ 21 46  1  0  0  0
+ 22 26  1  0  0  0
+ 22 32  1  0  0  0
+ 23 24  1  0  0  0
+ 23 25  1  0  0  0
+ 23 32  1  0  0  0
+ 23 47  1  0  0  0
+ 24 25  1  0  0  0
+ 24 48  1  0  0  0
+ 24 49  1  0  0  0
+ 25 50  1  0  0  0
+ 25 51  1  0  0  0
+ 26 27  1  0  0  0
+ 27 31  3  0  0  0
+ 29 30  1  0  0  0
+ 30 52  1  0  0  0
+M  CHG  1   2   1
+M  END
+> <i_m_stars>
+0
+
+> <s_m_entry_id>
+28
+
+> <s_m_entry_name>
+Structure28
+
+> <s_pdb_PDB_TITLE>
+PRMT5/MEP50 CRYSTAL STRUCTURE WITH MTA AND MRTX-1719 BOUND
+
+> <s_pdb_PDB_ID>
+7S1S
+
+> <r_pdb_PDB_CRYST1_a>
+103.14
+
+> <r_pdb_PDB_CRYST1_b>
+138.095
+
+> <r_pdb_PDB_CRYST1_c>
+178.8
+
+> <r_pdb_PDB_CRYST1_alpha>
+90
+
+> <r_pdb_PDB_CRYST1_beta>
+90
+
+> <r_pdb_PDB_CRYST1_gamma>
+90
+
+> <s_pdb_PDB_CRYST1_Space_Group>
+I 2 2 2
+
+> <i_pdb_PDB_CRYST1_z>
+8
+
+> <s_pdb_PDB_CLASSIFICATION>
+TRANSFERASE/INHIBITOR
+
+> <s_pdb_PDB_DEPOSITION_DATE>
+02-SEP-21
+
+> <s_pdb_PDB_format_version>
+3.30
+
+> <r_pdb_PDB_R>
+0.209
+
+> <r_pdb_PDB_Rfree>
+0.233
+
+> <r_pdb_PDB_RESOLUTION>
+2.62
+
+> <s_pdb_PDB_EXPDTA>
+X-RAY DIFFRACTION
+
+> <r_pdb_PDB_EXPDTA_TEMPERATURE>
+100
+
+> <s_pdb_PDB_REMARK_350_Biomolecule_1_Transform_1_Chains>
+A, B
+
+> <s_pdb_PDB_REMARK_350_Biomolecule_1_Transform_1_Matrix_1>
+1.000000 0.000000 0.000000   0.000000;0.000000 1.000000 0.000000   0.000000;0.000000 0.000000 1.000000   0.000000
+
+> <s_m_Source_Path>
+/home/sorui/Research/Tarpass/Targets/PRMT5
+
+> <s_m_Source_File>
+7s1s.pdb
+
+> <i_m_Source_File_Index>
+1
+
+> <s_ppw_entry_id_backup>
+26
+
+> <b_ppw_prepared>
+1
+
+> <s_ppw_prepared_with_version>
+2021-2
+
+> <b_ppw_assigned_bond_orders>
+1
+
+> <b_ppw_added_hydrogens>
+1
+
+> <b_ppw_treated_metals>
+1
+
+> <b_ppw_created_disulfur>
+1
+
+> <s_ppw_het_states>
+eJztVrtuGzEQ/JXDtbEvfBz3YXep3BoujRSC4yqKlEIpAsP/HnIpao40gvSBVC1H5M7ucji4t9nPd9Nz/iW36s3kvt5MOUwOoUcYEEaEK8KEkBAyQkEINgIbgY3ARmAjsBHYCGwENjK2Ep+7q4159Fjb8+i0NunRb221BwhANEAArAakEaAR2BwhAxiAGKAArHRyI4AcZL2U4QXMsY7QY5p1kD0gOGK9lPn6DkjYkQxAL2Sll4kHDL8VlhG3rN5l6G0uFWWhFSBXVpbpvCz/lzW3v/17Trck0Uw/P512p9fp5+thtz/9rhum7y+7/ecfx/399HD75Xj4Nr0cfx1Od1O8nx7zlrkwz+Eia4LQGCNkCI0hNIbQGEJjCI0hNIbQGLJmsAlkLWATsAnYBGwCNgGbgE3AJmBTsCnYFGwKNgWbgk3BpmBTsOmFzTuH0G9eGZkyeSOiCkAibFKV0N1EHWEP6ACUcbYcoe3oAIG6ObYjPeBHICKHPUzG062AbACTe7mqdoTH0qUdCbj4rtsKKOYhsSVtO4xWkVTs2QmendQ6eAAUhYkVJjIAuslRK9UesMtsgN2cYurqGovfACaFBtTmwgjEHuiOhHFHbR9TV2u/aC9CnG1AGfFLSMWHzWQ0P3u/rGklcxXltubsKrfOtjr8/EeLyenorxbjzWI++dnk/tFcWng1l6u5XM3lPzCXsMRYDl3MJX+ZRGGYi62lmIs/bx0NJadY/2Eo5Zvl/Q/AM26i
+
+> <b_ppw_ran_protassign>
+1
+
+> <b_ppw_deleted_far_waters>
+1
+
+$$$$

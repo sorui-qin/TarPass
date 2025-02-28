@@ -1,0 +1,193 @@
+Structure5
+                    3D
+ Structure written by MMmdl.
+ 37 38  0  0  1  0            999 V2000
+    8.7570   -0.6790   28.5210 Cl  0  0  0  0  0  0
+    7.5840    0.0090   29.5890 C   0  0  0  0  0  0
+    7.9240    0.2170   30.9120 C   0  0  0  0  0  0
+    6.9630    0.7240   31.7550 C   0  0  0  0  0  0
+    5.6930    1.0020   31.2840 C   0  0  0  0  0  0
+    5.3710    0.8200   29.9390 C   0  0  0  0  0  0
+    6.3200    0.2950   29.0720 C   0  0  0  0  0  0
+    4.0550    1.1340   29.5260 N   0  0  0  0  0  0
+    3.5130    2.4570   29.8050 C   0  0  0  0  0  0
+    3.8990    3.5410   28.8450 C   0  0  0  0  0  0
+    4.3190    3.2370   27.5640 C   0  0  0  0  0  0
+    4.6370    4.2780   26.7300 C   0  0  0  0  0  0
+    4.5260    5.5910   27.1660 C   0  0  0  0  0  0
+    4.1050    5.8090   28.4760 C   0  0  0  0  0  0
+    3.8230    4.7970   29.3090 N   0  0  0  0  0  0
+    4.8450    6.6950   26.2290 C   0  0  0  0  0  0
+    5.7170    6.5840   25.3500 O   0  5  0  0  0  0
+    4.0870    7.7880   26.3010 N   0  0  0  0  0  0
+    4.2360    8.8010   25.3220 N   0  0  0  0  0  0
+    2.9730   -0.0340   29.2150 S   0  0  0  0  0  0
+    2.3780   -0.3840   30.7810 C   0  0  0  0  0  0
+    3.6550   -1.1960   28.7410 O   0  0  0  0  0  0
+    1.9160    0.5280   28.4400 O   0  0  0  0  0  0
+    8.9203   -0.0174   31.2568 H   0  0  0  0  0  0
+    7.1978    0.9078   32.7930 H   0  0  0  0  0  0
+    4.9337    1.3656   31.9605 H   0  0  0  0  0  0
+    6.1076    0.1069   28.0299 H   0  0  0  0  0  0
+    3.7935    2.7548   30.8153 H   0  0  0  0  0  0
+    2.4261    2.3960   29.8603 H   0  0  0  0  0  0
+    4.3880    2.2064   27.2487 H   0  0  0  0  0  0
+    4.9772    4.0797   25.7243 H   0  0  0  0  0  0
+    3.9972    6.8172   28.8479 H   0  0  0  0  0  0
+    3.6667    9.6340   25.3666 H   0  0  0  0  0  0
+    4.9116    8.6902   24.5794 H   0  0  0  0  0  0
+    1.6258   -1.1703   30.7171 H   0  0  0  0  0  0
+    3.1988   -0.7177   31.4159 H   0  0  0  0  0  0
+    1.9299    0.5128   31.2088 H   0  0  0  0  0  0
+  1  2  1  0  0  0
+  2  3  1  0  0  0
+  2  7  2  0  0  0
+  3  4  2  0  0  0
+  3 24  1  0  0  0
+  4  5  1  0  0  0
+  4 25  1  0  0  0
+  5  6  2  0  0  0
+  5 26  1  0  0  0
+  6  7  1  0  0  0
+  6  8  1  0  0  0
+  7 27  1  0  0  0
+  8  9  1  0  0  0
+  8 20  1  0  0  0
+  9 10  1  0  0  0
+  9 28  1  0  0  0
+  9 29  1  0  0  0
+ 10 11  1  0  0  0
+ 10 15  2  0  0  0
+ 11 12  2  0  0  0
+ 11 30  1  0  0  0
+ 12 13  1  0  0  0
+ 12 31  1  0  0  0
+ 13 14  2  0  0  0
+ 13 16  1  0  0  0
+ 14 15  1  0  0  0
+ 14 32  1  0  0  0
+ 16 17  1  0  0  0
+ 16 18  2  0  0  0
+ 18 19  1  0  0  0
+ 19 33  1  0  0  0
+ 19 34  1  0  0  0
+ 20 21  1  0  0  0
+ 20 22  2  0  0  0
+ 20 23  2  0  0  0
+ 21 35  1  0  0  0
+ 21 36  1  0  0  0
+ 21 37  1  0  0  0
+M  CHG  1  17  -1
+M  END
+> <i_m_stars>
+0
+
+> <s_m_entry_id>
+5
+
+> <s_m_entry_name>
+Structure5
+
+> <s_pdb_PDB_TITLE>
+X-RAY STRUCTURE OF DANIO RERIO HISTONE DEACETYLASE 6 (HDAC6) CD2 IN COMPLEX WITH AN INHIBITOR CPD11352
+
+> <s_pdb_PDB_ID>
+8BJK
+
+> <r_pdb_PDB_CRYST1_a>
+51.49
+
+> <r_pdb_PDB_CRYST1_b>
+83.78
+
+> <r_pdb_PDB_CRYST1_c>
+94.33
+
+> <r_pdb_PDB_CRYST1_alpha>
+90
+
+> <r_pdb_PDB_CRYST1_beta>
+90
+
+> <r_pdb_PDB_CRYST1_gamma>
+90
+
+> <s_pdb_PDB_CRYST1_Space_Group>
+P 2 21 21
+
+> <i_pdb_PDB_CRYST1_z>
+4
+
+> <s_pdb_PDB_CLASSIFICATION>
+HYDROLASE
+
+> <s_pdb_PDB_DEPOSITION_DATE>
+04-NOV-22
+
+> <s_pdb_PDB_format_version>
+3.30
+
+> <r_pdb_PDB_R>
+0.167999997735024
+
+> <r_pdb_PDB_Rfree>
+0.207000002264977
+
+> <r_pdb_PDB_RESOLUTION>
+1.35
+
+> <s_pdb_PDB_EXPDTA>
+X-RAY DIFFRACTION
+
+> <r_pdb_PDB_EXPDTA_TEMPERATURE>
+100
+
+> <r_pdb_PDB_EXPDTA_PH>
+6.5
+
+> <s_pdb_PDB_REMARK_350_Biomolecule_1_Chains>
+A
+
+> <s_pdb_PDB_REMARK_350_Biomolecule_1_Transformation_1>
+1.000000 0.000000 0.000000   0.000000;0.000000 1.000000 0.000000   0.000000;0.000000 0.000000 1.000000   0.000000
+
+> <s_m_Source_Path>
+D:\Research\Benchmark_Tarpass\Targets\HDAC6
+
+> <s_m_Source_File>
+8bjk.pdb
+
+> <i_m_Source_File_Index>
+1
+
+> <s_ppw_entry_id_backup>
+3
+
+> <b_ppw_prepared>
+1
+
+> <s_ppw_prepared_with_version>
+2018-1
+
+> <b_ppw_assigned_bond_orders>
+1
+
+> <b_ppw_added_hydrogens>
+1
+
+> <b_ppw_treated_metals>
+1
+
+> <b_ppw_created_disulfur>
+1
+
+> <b_ppw_deleted_far_waters>
+1
+
+> <b_ppw_ran_protassign>
+1
+
+> <b_ppw_removed_non_hbond_waters>
+1
+
+$$$$

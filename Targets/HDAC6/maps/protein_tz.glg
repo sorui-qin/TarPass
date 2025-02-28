@@ -1,0 +1,309 @@
+
+       _______________________________________________________
+
+__________//____________________________/////_________________/________
+_________/__/____________/_____________/______________/_______/________
+________/____/___________/_____________/______________________/________
+________/____/__/_____/_/////___/////__/__////_/_///__/__////_/________
+_______/______/_/_____/__/_____/_____/_/_____/_//___/_/_/____//________
+_______////////_/_____/__/_____/_____/_/_____/_/______/_/_____/________
+_______/______/_/____//__/___/_/_____/_/_____/_/______/_/____//________
+_______/______/__////_/___///___/////___/////__/______/__////_/________
+
+       _______________________________________________________
+
+                                ______
+                               /      \
+                              /        \
+                             /          \
+                             \    /\    /
+                              \  /  \  /
+                               \/ /\ \/
+                                 /  \
+                                /____\
+
+
+                ______________________________________ 
+               |                                      |
+               |            AutoGrid 4.2.7.x          |
+               |                                      |
+               |        Garrett M. Morris, TSRI       |
+               |            Ruth Huey, TSRI           |
+               |        David S. Goodsell, TSRI       |
+               |         Arthur J. Olson, TSRI        |
+               |                                      |
+               |        (C) 1989-2020, TSRI           |
+               |   The Scripps Research Institute     |
+               |______________________________________|
+
+                ______________________________________ 
+               |                                      |
+               | Calculation of van der Waals, H-Bond,|
+               |   Electrostatic Potential Energy, &  |
+               |   Desolvation Free Energy Grid Maps  |
+               |             for AutoDock             |
+               | For help, email autodock@scripps.edu |
+               |______________________________________|
+
+
+
+
+                           $Revision: 1.160 $
+Compilation parameters:  NUM_RECEPTOR_TYPES=20 NEINT=1024
+  AG_MAX_ATOMS=100000  AG_MAX_NBONDS=4 MAX_MAPS=128 NDIEL=8192 MAX_ATOM_TYPES=126
+        e_vdW_Hb table allows    15876 entries of size 1024
+Maximum number of maps that can be computed = 128 (defined by MAX_MAPS in "autocomm.h").
+  Non-bond cutoff for internal energy calculation (SOFTNBC): 8.00
+  Optimize internal energy scoring (USE_8A_NBCUTOFF):  yes
+  Faster search for nearby atoms (USE_BHTREE):  no
+  Run calculations in parallel if possible (_OPENMP):  yes
+  Maximum number of parallel threads (MAXTHREADS): 32
+This file was created at:			1:39 24" p.m., 02/28/2025
+                   using:			"unknown_host"
+
+
+GPF> npts 20 20 20                        # num.grid points in xyz
+
+Number of grid points in x-direction:	21
+Number of grid points in y-direction:	21
+Number of grid points in z-direction:	21
+
+GPF> parameter_file AD4Zn.dat             # force field default parameter file
+Using read_parameter_library() to try to open and read "AD4Zn.dat".
+
+GPF> gridfld HDAC6_8bjk_rec_A_tz.maps.fld # grid_data_file
+
+Creating (AVS-readable) grid maps file : HDAC6_8bjk_rec_A_tz.maps.fld
+
+Creating (AVS-readable) grid-coordinates extrema file : HDAC6_8bjk_rec_A_tz.maps.xyz
+
+GPF> spacing 0.375                        # spacing(A)
+Grid Spacing :			0.375 Angstrom
+
+GPF> receptor_types A C TZ NA ZN OA N SA HD # receptor atom types
+GPF> ligand_types A C Cl NA OA N S HD     # ligand atom types
+0 'A' ->'A' vdW/Hb/cov
+1 'C' ->'C' vdW/Hb/cov
+2 'Cl' ->'Cl' vdW/Hb/cov
+3 'NA' ->'NA' vdW/Hb/cov
+4 'OA' ->'OA' vdW/Hb/cov
+5 'N' ->'N' vdW/Hb/cov
+6 'S' ->'S' vdW/Hb/cov
+7 'HD' ->'HD' vdW/Hb/cov
+Allocated space for 10 gridmap objects
+16 CPU threads will be used for calculation
+
+Atom type names for ligand atom types 1-8 used for ligand-atom affinity grid maps:
+
+			Atom type number 1 corresponds to atom type name "A".
+			Atom type number 2 corresponds to atom type name "C".
+			Atom type number 3 corresponds to atom type name "Cl".
+			Atom type number 4 corresponds to atom type name "NA".
+			Atom type number 5 corresponds to atom type name "OA".
+			Atom type number 6 corresponds to atom type name "N".
+			Atom type number 7 corresponds to atom type name "S".
+			Atom type number 8 corresponds to atom type name "HD".
+
+
+GPF> receptor HDAC6_8bjk_rec_A_tz.pdbqt   # macromolecule
+
+Receptor Input File :	HDAC6_8bjk_rec_A_tz.pdbqt
+
+Receptor Atom Type Assignments:
+
+
+Maximum partial atomic charge found = +0.400 e
+Minimum partial atomic charge found = -0.549 e
+
+Atom	Atom	Number of this Type
+Type	 ID 	 in Receptor
+____	____	___________________
+ 0	 A		   242
+ 1	 C		  1492
+ 2	 TZ		     1
+ 3	 NA		    18
+ 4	 ZN		     1
+ 5	 OA		   510
+ 6	 N		   477
+ 7	 SA		    18
+ 8	 HD		   608
+
+Total number of atoms :		3367 atoms 
+Total charge :			-6.00 e
+
+
+Receptor coordinates fit within the following volume:
+
+                   _______(29.8, 39.5, 57.1)
+                  /|     /|
+                 / |    / |
+                /______/  |
+                |  |___|__| Midpoint = (4.4, 17.2, 26.4)
+                |  /   |  /
+                | /    | /
+                |/_____|/
+(-21.1, -5.1, -4.3)      
+
+Maximum coordinates :		(29.832, 39.503, 57.061)
+Minimum coordinates :		(-21.087, -5.125, -4.279)
+
+
+GPF> gridcenter 4.6857 2.6914 28.8837     # xyz-coordinates or auto
+
+Grid maps will be centered on user-defined coordinates:
+
+		(4.686, 2.691, 28.884)
+
+Grid maps will cover the following volume:
+
+                   _______(8.4, 6.4, 32.6)
+                  /|     /|
+                 / |    / |
+                /______/  |
+                |  |___|__| Midpoint = (4.7, 2.7, 28.9)
+                |  /   |  /
+                | /    | /
+                |/_____|/
+(0.9, -1.1, 25.1)      
+
+Grid map x-dimension :		7.5 Angstroms
+Grid map y-dimension :		7.5 Angstroms
+Grid map z-dimension :		7.5 Angstroms
+
+Maximum coordinates :		(8.436, 6.441, 32.634)
+Minimum coordinates :		(0.936, -1.059, 25.134)
+
+GPF> smooth 0.5                           # store minimum energy w/in rad(A)
+
+Potentials will be smoothed by: 0.500 Angstrom
+
+GPF> map HDAC6_8bjk_rec_A_tz.A.map        # atom-specific affinity map
+
+Output Grid Map 1:   HDAC6_8bjk_rec_A_tz.A.map
+
+GPF> map HDAC6_8bjk_rec_A_tz.C.map        # atom-specific affinity map
+
+Output Grid Map 2:   HDAC6_8bjk_rec_A_tz.C.map
+
+GPF> map HDAC6_8bjk_rec_A_tz.Cl.map       # atom-specific affinity map
+
+Output Grid Map 3:   HDAC6_8bjk_rec_A_tz.Cl.map
+
+GPF> map HDAC6_8bjk_rec_A_tz.NA.map       # atom-specific affinity map
+
+Output Grid Map 4:   HDAC6_8bjk_rec_A_tz.NA.map
+
+GPF> map HDAC6_8bjk_rec_A_tz.OA.map       # atom-specific affinity map
+
+Output Grid Map 5:   HDAC6_8bjk_rec_A_tz.OA.map
+
+GPF> map HDAC6_8bjk_rec_A_tz.N.map        # atom-specific affinity map
+
+Output Grid Map 6:   HDAC6_8bjk_rec_A_tz.N.map
+
+GPF> map HDAC6_8bjk_rec_A_tz.S.map        # atom-specific affinity map
+
+Output Grid Map 7:   HDAC6_8bjk_rec_A_tz.S.map
+
+GPF> map HDAC6_8bjk_rec_A_tz.HD.map       # atom-specific affinity map
+
+Output Grid Map 8:   HDAC6_8bjk_rec_A_tz.HD.map
+
+GPF> elecmap HDAC6_8bjk_rec_A_tz.e.map    # electrostatic potential map
+
+Output Electrostatic Potential Energy Grid Map: HDAC6_8bjk_rec_A_tz.e.map
+
+GPF> dsolvmap HDAC6_8bjk_rec_A_tz.d.map              # desolvation potential map
+
+Output Desolvation Free Energy Grid Map: HDAC6_8bjk_rec_A_tz.d.map
+
+GPF> dielectric -0.1465                   # <0, AD4 distance-dep.diel;>0, constant
+
+Using *distance-dependent* dielectric function of Mehler and Solmajer, Prot.Eng.4, 903-910.
+
+GPF> nbp_r_eps 0.25 23.2135 12 6 NA TZ
+
+ nbp_r_eps or nbp_coeffs: map_index(NA)= 3  rec_index(TZ)= 2
+
+Overriding non-bonded interaction energies for docking calculation;
+GPF> nbp_r_eps 2.1   3.8453 12 6 OA Zn
+
+Overriding non-bonded interaction energies for docking calculation;
+GPF> nbp_r_eps 2.25  7.5914 12 6 SA Zn
+
+Overriding non-bonded interaction energies for docking calculation;
+GPF> nbp_r_eps 1.0   0.0    12 6 HD Zn
+
+Overriding non-bonded interaction energies for docking calculation;
+GPF> nbp_r_eps 2.0   0.0060 12 6 NA Zn
+
+Overriding non-bonded interaction energies for docking calculation;
+GPF> nbp_r_eps 2.0   0.2966 12 6  N Zn
+
+Overriding non-bonded interaction energies for docking calculation;
+
+>>> Closing the grid parameter file (GPF)... <<<
+
+________________________________________________________________________________
+
+
+
+No Floating Grid was requested.
+
+
+No Constriction Grid was requested.
+
+
+Calculating Pairwise Interaction Energies
+Beginning grid calculations.
+
+Calculating 10 grids over 9261 elements, around 3367 receptor atoms.
+
+                    Percent   Estimated Time  Time/this plane
+XY-plane  Z-coord   Done      Remaining       Real, User, System
+            /Ang              /sec            /sec
+________  ________  ________  ______________  __________________________
+
+    -10     25.134     4.8%            0.60s  Real= 0.03,  CPU= 0.22,  System= 0.00
+     -9     25.509     9.5%            0.76s  Real= 0.04,  CPU= 0.22,  System= 0.00
+     -8     25.884    14.3%            0.72s  Real= 0.04,  CPU= 0.22,  System= 0.00
+     -7     26.259    19.0%            0.68s  Real= 0.04,  CPU= 0.22,  System= 0.00
+     -6     26.634    23.8%            0.64s  Real= 0.04,  CPU= 0.23,  System= 0.00
+     -5     27.009    28.6%            0.60s  Real= 0.04,  CPU= 0.23,  System= 0.00
+     -4     27.384    33.3%            0.28s  Real= 0.02,  CPU= 0.14,  System= 0.00
+     -3     27.759    38.1%            0.26s  Real= 0.02,  CPU= 0.15,  System= 0.00
+     -2     28.134    42.9%            0.24s  Real= 0.02,  CPU= 0.15,  System= 0.00
+     -1     28.509    47.6%            0.33s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      0     28.884    52.4%            0.30s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      1     29.259    57.1%            0.27s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      2     29.634    61.9%            0.24s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      3     30.009    66.7%            0.14s  Real= 0.02,  CPU= 0.14,  System= 0.00
+      4     30.384    71.4%            0.18s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      5     30.759    76.2%            0.10s  Real= 0.02,  CPU= 0.14,  System= 0.00
+      6     31.134    81.0%            0.12s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      7     31.509    85.7%            0.09s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      8     31.884    90.5%            0.06s  Real= 0.03,  CPU= 0.14,  System= 0.00
+      9     32.259    95.2%            0.03s  Real= 0.03,  CPU= 0.14,  System= 0.00
+     10     32.634   100.0%            0.00s  Real= 0.03,  CPU= 0.14,  System= 0.00
+
+Grid	Atom	Minimum   	Maximum
+Map 	Type	Energy    	Energy 
+		(kcal/mol)	(kcal/mol)
+____	____	_____________	_____________
+ 1	 A	   -0.70	 2.00e+05
+ 2	 C	   -0.79	 2.00e+05
+ 3	 Cl	   -1.05	 2.01e+05
+ 4	 NA	   -1.17	 2.00e+05
+ 5	 OA	   -1.34	 2.00e+05
+ 6	 N	   -0.73	 2.00e+05
+ 7	 S	   -0.98	 2.01e+05
+ 8	 HD	   -0.66	 1.01e+05
+ 9	 e	   -9.23	 3.68e+00	Electrostatic Potential
+ 10	 d	    0.16	 1.25e+00	Desolvation Potential
+
+
+ * Note:  Every pairwise-atomic interaction was clamped at 100000.00
+
+
+autogrid4: Successful Completion.
+Real= 0.15s,  CPU= 0.69s,  System= 0.00s
