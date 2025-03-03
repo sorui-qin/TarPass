@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 14:58:38
-LastEditTime: 2025-03-01 20:13:32
+LastEditTime: 2025-03-03 19:31:48
 Description: 
 '''
 from vina import Vina
@@ -42,46 +42,51 @@ def rec_prep(rec_prefix):
     proc = subprocess.Popen(command_prep, shell=True, stdin=subprocess.PIPE, 
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout_data, stderr_data = proc.communicate()
-    print(stdout_data, stderr_data)
+    print(stdout_data.decode(), stderr_data.decode())
 
 
-def dock(center, pdbqt_string, rec_prefix):
+def dock(pdbqt_string, rec_prefix, center):
     box_size = [20, 20, 20]
-    v = Vina(cpu=0)
+    v = Vina(cpu=0, seed=42)
     v.set_receptor(f'{rec_prefix}.pdbqt')
     v.set_ligand_from_string(pdbqt_string)
     v.compute_vina_maps(center, box_size)
-    v.dock(exhaustiveness=8, n_poses=1)
+    v.dock(exhaustiveness=32, n_poses=1)
     vina_output_string = v.poses(n_poses=1)
     pdbqt_mol = PDBQTMolecule(vina_output_string, skip_typing=True)
     rdkitmol_list = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)
-    return rdkitmol_list[0]
+    return rdkitmol_list
+
+
+def dock_zinc(pdbqt_string, maps):
+    v = Vina(sf_name='ad4',seed=42)
+    v.set_ligand_from_string(pdbqt_string)
+    v.load_maps(maps)
+    v.dock(exhaustiveness=32, n_poses=1)
+    vina_output_string = v.poses(n_poses=1)
+    pdbqt_mol = PDBQTMolecule(vina_output_string, skip_typing=True)
+    rdkitmol_list = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)
+    return rdkitmol_list
+
 
 def cal_RMSD(ref_mol, check_mol):
     rmsd = Chem.rdMolAlign.CalcRMS(
         Chem.RemoveHs(check_mol), Chem.RemoveHs(ref_mol))
     return rmsd
 
-#v = Vina(sf_name='ad4')
-#v.set_receptor(prot_pdbqt)
-#v.set_ligand_from_file(lig_pdbqt)
-#v.load_maps(maps)
-#print(v.score()[0])
-#v.dock(exhaustiveness=8, n_poses=10)
-#v.write_poses('Targets/HDAC6/redock.pdbqt', overwrite=True)
 
 if __name__ == '__main__':
     target_dirs = sorted(glob.glob('./Targets/*/'))
     target_dirs.remove('./Targets/5HT2A_AF/')
     target_dirs.remove('./Targets/BRD4_holo/')
     target_dirs.remove('./Targets/HDAC6/')
-    target_dirs.remove('./Targets/HIV-RT/')
 
     rmsd_list = []
     for target in tqdm.tqdm(target_dirs):
         ref_sdf = glob.glob(f'{target}/*ligand*.sdf')[0]
         rec_pdb = glob.glob(f'{target}/*rec*.pdb')[0]
         rec_prefix = rec_pdb.replace('.pdb', '')
+        redock_sdf = f'{target}/redock_32.sdf'
 
         # Ligprep
         pdbqt_string = lig_prep(ref_sdf)
@@ -92,14 +97,28 @@ if __name__ == '__main__':
         
         # Docking
         assert Path(f'{rec_prefix}.pdbqt').exists()
-        center = sdf2centroid(ref_sdf)
-        docked_mol = dock(center, pdbqt_string, rec_prefix)
+        if not Path(redock_sdf).exists():
+            center = sdf2centroid(ref_sdf)
+            docked_mols  = dock(pdbqt_string, rec_prefix, center)
         
-        # Calculate RMSD
-        ref_mol = Chem.SDMolSupplier(ref_sdf)[0]
-        rmsd_list.append(cal_RMSD(ref_mol, docked_mol))
+            # Calculate RMSD
+            #ref_mol = Chem.SDMolSupplier(ref_sdf)[0]
+            #rmsd_list.append(cal_RMSD(ref_mol, docked_mol))
+            with Chem.SDWriter(redock_sdf) as w:
+                for mol in docked_mols:
+                    w.write(mol)
     
-    print(f'RMSD MAX: {np.max(rmsd_list)}')
-    print(f'RMSD MIN: {np.min(rmsd_list)}')
-    print(f'RMSD AVG: {np.mean(rmsd_list)}')
-    print(f'RMSD MED: {np.median(rmsd_list)}')
+    # Zinc dock
+    target = './Targets/HDAC6/'
+    ref_sdf = glob.glob(f'{target}/*ligand*.sdf')[0]
+    
+    pdbqt_string = lig_prep(ref_sdf)
+    rec_pdb = glob.glob(f'{target}/*rec*.pdb')[0]
+
+    rec_prefix = rec_pdb.replace('.pdb', '')
+    dock_mols = dock_zinc(pdbqt_string, maps=f'{target}/maps/HDAC6_8bjk_rec_A_tz')
+
+    redock_sdf = f'{target}/redock_32.sdf'
+    with Chem.SDWriter(redock_sdf) as w:
+        for mol in dock_mols:
+            w.write(mol)
