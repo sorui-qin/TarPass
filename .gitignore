@@ -5,3 +5,6 @@ __pycache__/
 !Targets/*.ipynb
 
 Targets/*/redock*.sdf
+
+.DS_Store
+
