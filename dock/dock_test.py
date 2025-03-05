@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 14:58:38
-LastEditTime: 2025-03-03 19:31:48
+LastEditTime: 2025-03-05 09:20:47
 Description: 
 '''
 from vina import Vina
@@ -51,8 +51,8 @@ def dock(pdbqt_string, rec_prefix, center):
     v.set_receptor(f'{rec_prefix}.pdbqt')
     v.set_ligand_from_string(pdbqt_string)
     v.compute_vina_maps(center, box_size)
-    v.dock(exhaustiveness=32, n_poses=1)
-    vina_output_string = v.poses(n_poses=1)
+    v.dock(exhaustiveness=32, n_poses=10)
+    vina_output_string = v.poses(n_poses=10)
     pdbqt_mol = PDBQTMolecule(vina_output_string, skip_typing=True)
     rdkitmol_list = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)
     return rdkitmol_list
@@ -62,8 +62,8 @@ def dock_zinc(pdbqt_string, maps):
     v = Vina(sf_name='ad4',seed=42)
     v.set_ligand_from_string(pdbqt_string)
     v.load_maps(maps)
-    v.dock(exhaustiveness=32, n_poses=1)
-    vina_output_string = v.poses(n_poses=1)
+    v.dock(exhaustiveness=32, n_poses=10)
+    vina_output_string = v.poses(n_poses=10)
     pdbqt_mol = PDBQTMolecule(vina_output_string, skip_typing=True)
     rdkitmol_list = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)
     return rdkitmol_list
@@ -84,9 +84,14 @@ if __name__ == '__main__':
     rmsd_list = []
     for target in tqdm.tqdm(target_dirs):
         ref_sdf = glob.glob(f'{target}/*ligand*.sdf')[0]
-        rec_pdb = glob.glob(f'{target}/*rec*.pdb')[0]
+        rec_pdbs = glob.glob(f'{target}/*rec*.pdb')
+        if len(rec_pdbs) == 1:
+            rec_pdb = rec_pdbs[0]
+        else:
+            rec_pdb = [rec for rec in rec_pdbs 
+                       if not rec.endswith('empty.pdb')][0]
         rec_prefix = rec_pdb.replace('.pdb', '')
-        redock_sdf = f'{target}/redock_32.sdf'
+        redock_sdf = f'{target}/redock_32-multi.sdf'
 
         # Ligprep
         pdbqt_string = lig_prep(ref_sdf)
@@ -118,7 +123,7 @@ if __name__ == '__main__':
     rec_prefix = rec_pdb.replace('.pdb', '')
     dock_mols = dock_zinc(pdbqt_string, maps=f'{target}/maps/HDAC6_8bjk_rec_A_tz')
 
-    redock_sdf = f'{target}/redock_32.sdf'
+    redock_sdf = f'{target}/redock_32-multi.sdf'
     with Chem.SDWriter(redock_sdf) as w:
         for mol in dock_mols:
             w.write(mol)

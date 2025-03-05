@@ -1,8 +1,8 @@
-# Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_qvina.py
+# Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 
 from openbabel import pybel
 from meeko import MoleculePreparation
-from meeko import obutils
+from meeko import PDBQTWriterLegacy
 from vina import Vina
 import subprocess
 import rdkit.Chem as Chem
@@ -19,6 +19,20 @@ def supress_stdout(func):
             with contextlib.redirect_stdout(devnull):
                 return func(*a, **ka)
     return wrapper
+
+
+class BaseDockingTask(object):
+
+    def __init__(self, pdb_block, ligand_rdmol):
+        super().__init__()
+        self.pdb_block = pdb_block
+        self.ligand_rdmol = ligand_rdmol
+
+    def run(self):
+        raise NotImplementedError()
+
+    def get_results(self):
+        raise NotImplementedError()
 
 
 class PrepLig(object):
@@ -42,38 +56,12 @@ class PrepLig(object):
         obutils.writeMolecule(self.ob_mol.OBMol, 'conf_h.sdf')
 
     @supress_stdout
-    def get_pdbqt(self, lig_pdbqt=None):
-        preparator = MoleculePreparation()
-        preparator.prepare(self.ob_mol.OBMol)
-        if lig_pdbqt is not None: 
-            preparator.write_pdbqt_file(lig_pdbqt)
-            return 
-        else: 
-            return preparator.write_pdbqt_string()
-        
-
-class PrepProt(object): 
-    def __init__(self, pdb_file): 
-        self.prot = pdb_file
-    
-    def del_water(self, dry_pdb_file): # optional
-        with open(self.prot) as f: 
-            lines = [l for l in f.readlines() if l.startswith('ATOM') or l.startswith('HETATM')] 
-            dry_lines = [l for l in lines if not 'HOH' in l]
-        
-        with open(dry_pdb_file, 'w') as f:
-            f.write(''.join(dry_lines))
-        self.prot = dry_pdb_file
-        
-    def addH(self, prot_pqr):  # call pdb2pqr
-        self.prot_pqr = prot_pqr
-        subprocess.Popen(['pdb2pqr30','--ff=AMBER',self.prot, self.prot_pqr],
-                         stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL).communicate()
-
-    def get_pdbqt(self, prot_pdbqt):
-        prepare_receptor = os.path.join(AutoDockTools.__path__[0], 'Utilities24/prepare_receptor4.py')
-        subprocess.Popen(['python3', prepare_receptor, '-r', self.prot_pqr, '-o', prot_pdbqt],
-                         stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL).communicate()
+    def get_pdbqt(self):
+        mk_prep = MoleculePreparation()
+        molsetup_list = mk_prep(self.mol)
+        molsetup = molsetup_list[0]
+        pdbqt_string = PDBQTWriterLegacy.write_string(molsetup)[0]
+        return pdbqt_string
 
 
 class VinaDock(object): 
