@@ -2,12 +2,12 @@ __pycache__/
 */__pycache__
 .vscode/
 
-./*.ipynb
+*.ipynb
+*/*test.*
 !Targets/*.ipynb
-
+*.tar.gz
+*.zip
 Targets/*/redock*.sdf
 dock/maps/*/
-*/more_test*
 
 .DS_Store
-

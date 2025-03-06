@@ -1,62 +1,56 @@
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 
 from openbabel import pybel
-from meeko import MoleculePreparation
-from meeko import PDBQTWriterLegacy
+from meeko import MoleculePreparation, PDBQTWriterLegacy, PDBQTMolecule, RDKitMolCreate
+from typing import Optional, Tuple, List
 from vina import Vina
-import subprocess
+import glob
+import json
 import rdkit.Chem as Chem
 from rdkit.Chem import AllChem
+from pathlib import Path
 import tempfile
-import AutoDockTools
 import os
 import contextlib
 
 
-def supress_stdout(func):
-    def wrapper(*a, **ka):
-        with open(os.devnull, 'w') as devnull:
-            with contextlib.redirect_stdout(devnull):
-                return func(*a, **ka)
-    return wrapper
+def sdf2centroid(sdf_file):
+    supp = Chem.SDMolSupplier(sdf_file, sanitize=False)
+    lig_xyz = supp[0].GetConformer().GetPositions()
+    centroid_x = lig_xyz[:,0].mean()
+    centroid_y = lig_xyz[:,1].mean()
+    centroid_z = lig_xyz[:,2].mean()
+    return [centroid_x, centroid_y, centroid_z]
 
 
-class BaseDockingTask(object):
-
-    def __init__(self, pdb_block, ligand_rdmol):
-        super().__init__()
-        self.pdb_block = pdb_block
-        self.ligand_rdmol = ligand_rdmol
-
-    def run(self):
-        raise NotImplementedError()
-
-    def get_results(self):
-        raise NotImplementedError()
-
-
-class PrepLig(object):
-    def __init__(self, input_mol, mol_format):
-        if mol_format == 'smi':
-            self.mol = Chem.MolFromSmiles(input_mol)
-        elif mol_format == 'sdf': 
-            self.mol = Chem.SDMolSupplier(input_mol, sanitize=False)[0]
+class LigPrep():
+    """Preparation of ligands to PDBQT file
+    
+    Args:
+        input_seq (str): Filename of a sdf file (Path) or a SMILES sequenece.
+        optimize (bool): Optimized the conformation.
+    """
+    def __init__(self, input_seq, optimize=None):
+        if input_seq.endswith('.sdf'):
+            self.mol = Chem.SDMolSupplier(input_seq, removeHs=False)[0]
+            self.optimize = optimize
         else:
-            raise ValueError(f'mol_format {mol_format} not supported')
-        
-    def addH(self, polaronly=False, correctforph=True, PH=7): 
-        self.ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
-        obutils.writeMolecule(self.ob_mol.OBMol, 'tmp_h.sdf')
+            mol = Chem.MolFromSmiles(input_seq)
+            if mol:
+                self.mol = mol
+                self.optimize = True
+            else:
+                raise ValueError(f'Invalid input, only SDF file or SMILES seq permitted.')
 
-    def gen_conf(self):
-        sdf_block = self.ob_mol.write('sdf')
-        rdkit_mol = Chem.MolFromMolBlock(sdf_block, removeHs=False)
-        AllChem.EmbedMolecule(rdkit_mol, Chem.rdDistGeom.ETKDGv3())
-        self.ob_mol = pybel.readstring('sdf', Chem.MolToMolBlock(rdkit_mol))
-        obutils.writeMolecule(self.ob_mol.OBMol, 'conf_h.sdf')
+    def ligprep(self):
+        self.mol = Chem.AddHs(self.mol, addCoords=True)
+        if self.optimize:
+            AllChem.EmbedMolecule(self.mol, AllChem.ETKDGv3())
+            AllChem.MMFFOptimizeMolecule(self.mol)
+        AllChem.ComputeGasteigerCharges(self.mol)
 
-    @supress_stdout
     def get_pdbqt(self):
+        self.ligprep()
         mk_prep = MoleculePreparation()
         molsetup_list = mk_prep(self.mol)
         molsetup = molsetup_list[0]
@@ -64,187 +58,110 @@ class PrepLig(object):
         return pdbqt_string
 
 
-class VinaDock(object): 
-    def __init__(self, lig_pdbqt, prot_pdbqt): 
-        self.lig_pdbqt = lig_pdbqt
-        self.prot_pdbqt = prot_pdbqt
-    
-    def _max_min_pdb(self, pdb, buffer):
-        with open(pdb, 'r') as f: 
-            lines = [l for l in f.readlines() if l.startswith('ATOM') or l.startswith('HEATATM')]
-            xs = [float(l[31:39]) for l in lines]
-            ys = [float(l[39:47]) for l in lines]
-            zs = [float(l[47:55]) for l in lines]
-            print(max(xs), min(xs))
-            print(max(ys), min(ys))
-            print(max(zs), min(zs))
-            pocket_center = [(max(xs) + min(xs))/2, (max(ys) + min(ys))/2, (max(zs) + min(zs))/2]
-            box_size = [(max(xs) - min(xs)) + buffer, (max(ys) - min(ys)) + buffer, (max(zs) - min(zs)) + buffer]
-            return pocket_center, box_size
-    
-    def get_box(self, ref=None, buffer=0):
-        '''
-        ref: reference pdb to define pocket. 
-        buffer: buffer size to add 
+class VinaDock():
+    """
+    Running docking task with AutoDock-Vina.  
+    Please note that the code is designed to perform docking with **specific targets in the benchmark** for high efficiency,  
+    using the small molecules and prepared affinity map files of targets as input.  
+    Therefore, the code does not possess the capability for general application in docking with other targets.
 
-        if ref is not None: 
-            get the max and min on x, y, z axis in ref pdb and add buffer to each dimension 
-        else: 
-            use the entire protein to define pocket 
-        '''
-        if ref is None: 
-            ref = self.prot_pdbqt
-        self.pocket_center, self.box_size = self._max_min_pdb(ref, buffer)
-        print(self.pocket_center, self.box_size)
+    Args:
+        ligand (str): Filename of a sdf file (Path) or a SMILES sequenece.
+        target (str): Target name of ligand generated for.
+        mode (str, optional): Docking mode ('dock' or 'score_only'). Defaults to 'dock'.
+    """
+    def __init__(self, ligand:str, target:str, mode='dock'):
+        self.ligand, self.target, self.mode = ligand, target, mode
+        self.maps = Path(f"dock/maps/{target}/{target}")
+        self.target_dir = Path(f"Targets/{target}")
 
-    def dock(self, score_func='vina', seed=0, mode='dock', exhaustiveness=8, save_pose=False, **kwargs):  # seed=0 mean random seed
-        v = Vina(sf_name=score_func, seed=seed, verbosity=0, **kwargs)
-        v.set_receptor(self.prot_pdbqt)
-        v.set_ligand_from_file(self.lig_pdbqt)
-        v.compute_vina_maps(center=self.pocket_center, box_size=self.box_size)
-        if mode == 'score_only': 
-            score = v.score()[0]
-        elif mode == 'minimize':
-            score = v.optimize()[0]
-        elif mode == 'dock':
-            v.dock(exhaustiveness=exhaustiveness, n_poses=1)
-            score = v.energies(n_poses=1)[0][0]
-        else:
-            raise ValueError
+        if not self.target_dir.exists():
+            raise FileNotFoundError(f"Target Fold unfound: {self.target_dir}")
+        if mode not in ('dock', 'score_only'):
+            raise ValueError("Invalid docking mode, choose 'dock' or 'score_only'")
         
-        if not save_pose: 
-            return score
-        else: 
-            if mode == 'score_only': 
-                pose = None 
-            elif mode == 'minimize': 
-                tmp = tempfile.NamedTemporaryFile()
-                with open(tmp.name, 'w') as f: 
-                    v.write_pose(tmp.name, overwrite=True)             
-                with open(tmp.name, 'r') as f: 
-                    pose = f.read()
-   
-            elif mode == 'dock': 
-                pose = v.poses(n_poses=1)
-            else:
-                raise ValueError
-            return score, pose
+
+    def _get_center(self) -> List[float]:
+        """Get center of docking grid.
+        """
+        try: # For apo structure
+            return sdf2centroid(next(self.target_dir.glob("*ligand*.sdf")))
+        except: # For holo and AlphaFold structure
+            return json.loads((self.target_dir/"center.json").read_text())["center"]
+        
+
+    def maps_prep(self, box_size:list=[20, 20, 20]):
+        """Preparation for affinity map files for given target except `HDAC6`.  
+           HDAC6 must be prepared with `Target/HDAC6/preprocess.ipynb`.
+
+        Args:
+            box_size (list, optional): The size of docking grid (Å). Defaults to [20, 20, 20].
+        """
+        if self.target == 'HDAC6':
+            raise RuntimeError('Preparation for HDAC6 should follow `Target/HDAC6/preprocess.ipynb`')
+
+        try:
+            rec_pdbqt = next(Path("dock/pdbqtfiles").glob(f"{self.target}_*.pdbqt"))
+        except StopIteration:
+            raise FileNotFoundError(f"No PDBQT files found for {self.target}") from None
+        
+        # Preparation of affinity maps
+        (self.maps.parent).mkdir(exist_ok=True)
+        v = Vina()
+        v.set_receptor(str(rec_pdbqt))
+        v.compute_vina_maps(self._get_center(), box_size)
+        v.write_maps(map_prefix_filename=self.maps, overwrite=True)
 
 
-class VinaDockingTask(BaseDockingTask):
+    def dock(self, pdbqt_string, sf_name:str, seed=0, exhaust=32, n_poses=1, verbose=0):
+        """Running docking process with ligand PDBQT string and receptor affinity map files.
 
-    @classmethod
-    def from_generated_data(cls, data, protein_root='./data/crossdocked', **kwargs):
-        # load original pdb
-        protein_fn = os.path.join(
-            os.path.dirname(data.ligand_filename),
-            os.path.basename(data.ligand_filename)[:10] + '.pdb'  # PDBId_Chain_rec.pdb
-        )
-        protein_path = os.path.join(protein_root, protein_fn)
-        ligand_rdmol = reconstruct_from_generated(data.clone())
-        return cls(protein_path, ligand_rdmol, **kwargs)
+        Args:
+            pdbqt_string (str): PDBQT string of ligand.
+            sf_name (str): Scoring function name to use (vina, or ad4). `ad4` is only used for zinc metalloprotein.
+            seed (int, optional): Random seed (default: 0; ramdomly choosed)
+            exhaust (int, optional): Exhaustiveness of docking. Defaults to 32.
+            n_poses (int, optional): Mumber of pose to generate. Defaults to 1.
+            verbose (int, optional): verbosity 0: not output, 1: normal, 2: verbose (default: 0)
 
-    @classmethod
-    def from_original_data(cls, data, ligand_root='./data/crossdocked_pocket10', protein_root='./data/crossdocked',
-                           **kwargs):
-        protein_fn = os.path.join(
-            os.path.dirname(data.ligand_filename),
-            os.path.basename(data.ligand_filename)[:10] + '.pdb'
-        )
-        protein_path = os.path.join(protein_root, protein_fn)
+        Returns:
+            score, poses: Docking score and poses list in RdMol object.
+        """
+        v = Vina(sf_name=sf_name, cpu=0, seed=seed, verbosity=verbose)
+        v.set_ligand_from_string(pdbqt_string)
+        v.load_maps(str(self.maps))
+        if self.mode == 'score_only':
+            return v.score()[0], []
+        elif self.mode == 'dock':
+            v.dock(exhaustiveness=exhaust, n_poses=n_poses)
+            score = v.energies(n_poses=n_poses)[0][0]
+            pdbqt_mol = PDBQTMolecule(v.poses(), skip_typing=True)
+            poses = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)
+            return score, poses
+        
 
-        ligand_path = os.path.join(ligand_root, data.ligand_filename)
-        ligand_rdmol = next(iter(Chem.SDMolSupplier(ligand_path)))
-        return cls(protein_path, ligand_rdmol, **kwargs)
+    def run(self, optimize=0, **kwargs) -> Tuple[float, Optional[List[Chem.Mol]]]:
+        """_summary_
 
-    @classmethod
-    def from_generated_mol(cls, ligand_rdmol, ligand_filename, protein_root='./data/crossdocked', **kwargs):
-        # load original pdb
-        protein_fn = os.path.join(
-            os.path.dirname(ligand_filename),
-            os.path.basename(ligand_filename)[:10] + '.pdb'  # PDBId_Chain_rec.pdb
-        )
-        protein_path = os.path.join(protein_root, protein_fn)
-        return cls(protein_path, ligand_rdmol, **kwargs)
+        Args:
+            optimize (False): Optimize the conformation
 
-    def __init__(self, protein_path, ligand_rdmol, tmp_dir='./tmp', center=None,
-                 size_factor=1., buffer=5.0):
-        super().__init__(protein_path, ligand_rdmol)
-        # self.conda_env = conda_env
-        self.tmp_dir = os.path.realpath(tmp_dir)
-        os.makedirs(tmp_dir, exist_ok=True)
+        Returns:
+            Tuple[float, Optional[List[Chem.Mol]]]: _description_
+        """
+        # Ligprep
+        pdbqt_string = LigPrep(self.ligand, optimize).get_pdbqt()
+        # Recprep
+        if not any(self.maps.parent.glob("*.map")):
+            self.maps_prep()
+            if not any(self.maps.parent.glob("*.map")):
+                raise RuntimeError("Failed to generate affinity maps")
+        # Docking
+        sf_name = 'ad4' if self.target == 'HDAC6' else 'vina'
+        return self.dock(pdbqt_string, sf_name=sf_name, **kwargs)
 
-        self.task_id = get_random_id()
-        self.receptor_id = self.task_id + '_receptor'
-        self.ligand_id = self.task_id + '_ligand'
-
-        self.receptor_path = protein_path
-        self.ligand_path = os.path.join(self.tmp_dir, self.ligand_id + '.sdf')
-
-        self.recon_ligand_mol = ligand_rdmol
-        ligand_rdmol = Chem.AddHs(ligand_rdmol, addCoords=True)
-
-        sdf_writer = Chem.SDWriter(self.ligand_path)
-        sdf_writer.write(ligand_rdmol)
-        sdf_writer.close()
-        self.ligand_rdmol = ligand_rdmol
-
-        pos = ligand_rdmol.GetConformer(0).GetPositions()
-        if center is None:
-            self.center = (pos.max(0) + pos.min(0)) / 2
-        else:
-            self.center = center
-
-        if size_factor is None:
-            self.size_x, self.size_y, self.size_z = 20, 20, 20
-        else:
-            self.size_x, self.size_y, self.size_z = (pos.max(0) - pos.min(0)) * size_factor + buffer
-
-        self.proc = None
-        self.results = None
-        self.output = None
-        self.error_output = None
-        self.docked_sdf_path = None
-
-    def run(self, mode='dock', exhaustiveness=8, **kwargs):
-        ligand_pdbqt = self.ligand_path[:-4] + '.pdbqt'
-        protein_pqr = self.receptor_path[:-4] + '.pqr'
-        protein_pdbqt = self.receptor_path[:-4] + '.pdbqt'
-
-        lig = PrepLig(self.ligand_path, 'sdf')
-        lig.get_pdbqt(ligand_pdbqt)
-
-        prot = PrepProt(self.receptor_path)
-        if not os.path.exists(protein_pqr):
-            prot.addH(protein_pqr)
-        if not os.path.exists(protein_pdbqt):
-            prot.get_pdbqt(protein_pdbqt)
-
-        dock = VinaDock(ligand_pdbqt, protein_pdbqt)
-        dock.pocket_center, dock.box_size = self.center, [self.size_x, self.size_y, self.size_z]
-        score, pose = dock.dock(score_func='vina', mode=mode, exhaustiveness=exhaustiveness, save_pose=True, **kwargs)
-        return [{'affinity': score, 'pose': pose}]
-
-
-# if __name__ == '__main__':
-#     lig_pdbqt = 'data/lig.pdbqt'
-#     mol_file = 'data/1a4k_ligand.sdf'
-#     a = PrepLig(mol_file, 'sdf')
-#     # mol_file = 'CC(=C)C(=O)OCCN(C)C'
-#     # a = PrepLig(mol_file, 'smi')
-#     a.addH()
-#     a.gen_conf()
-#     a.get_pdbqt(lig_pdbqt)
-#
-#     prot_file = 'data/1a4k_protein_chainAB.pdb'
-#     prot_dry = 'data/protein_dry.pdb'
-#     prot_pqr = 'data/protein.pqr'
-#     prot_pdbqt = 'data/protein.pdbqt'
-#     b = PrepProt(prot_file)
-#     b.del_water(prot_dry)
-#     b.addH(prot_pqr)
-#     b.get_pdbqt(prot_pdbqt)
-#
-#     dock = VinaDock(lig_pdbqt, prot_pdbqt)
-#     dock.get_box()
-#     dock.dock()
+if __name__ == '__main__':
+    v = VinaDock('Targets/BRD4/BRD4_8pxa_ligand_A.sdf', 'BRD4')
+    print(v.run()[0])
+    #p = LigPrep('./Targets/BRD4/BRD4_8pxa_ligand_A.sdf')
+    #print(p.get_pdbqt())
