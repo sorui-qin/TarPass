@@ -3,11 +3,12 @@ __pycache__/
 .vscode/
 
 *.ipynb
-*/*test.*
+*/*test*
 !Targets/*.ipynb
 *.tar.gz
 *.zip
 Targets/*/redock*.sdf
 dock/maps/*/
+testfile
 
 .DS_Store

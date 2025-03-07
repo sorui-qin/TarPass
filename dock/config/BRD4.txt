@@ -1,0 +1,8 @@
+
+center_x = 14.689547368421051
+center_y = 2.982643421052632
+center_z = 7.533313157894738
+size_x = 20
+size_y = 20
+size_z = 20
+num_modes = 1

@@ -1,61 +1,12 @@
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 
-from openbabel import pybel
-from meeko import MoleculePreparation, PDBQTWriterLegacy, PDBQTMolecule, RDKitMolCreate
+from meeko import PDBQTMolecule, RDKitMolCreate
 from typing import Optional, Tuple, List
 from vina import Vina
-import glob
 import json
 import rdkit.Chem as Chem
-from rdkit.Chem import AllChem
 from pathlib import Path
-import tempfile
-import os
-import contextlib
-
-
-def sdf2centroid(sdf_file):
-    supp = Chem.SDMolSupplier(sdf_file, sanitize=False)
-    lig_xyz = supp[0].GetConformer().GetPositions()
-    centroid_x = lig_xyz[:,0].mean()
-    centroid_y = lig_xyz[:,1].mean()
-    centroid_z = lig_xyz[:,2].mean()
-    return [centroid_x, centroid_y, centroid_z]
-
-
-class LigPrep():
-    """Preparation of ligands to PDBQT file
-    
-    Args:
-        input_seq (str): Filename of a sdf file (Path) or a SMILES sequenece.
-        optimize (bool): Optimized the conformation.
-    """
-    def __init__(self, input_seq, optimize=None):
-        if input_seq.endswith('.sdf'):
-            self.mol = Chem.SDMolSupplier(input_seq, removeHs=False)[0]
-            self.optimize = optimize
-        else:
-            mol = Chem.MolFromSmiles(input_seq)
-            if mol:
-                self.mol = mol
-                self.optimize = True
-            else:
-                raise ValueError(f'Invalid input, only SDF file or SMILES seq permitted.')
-
-    def ligprep(self):
-        self.mol = Chem.AddHs(self.mol, addCoords=True)
-        if self.optimize:
-            AllChem.EmbedMolecule(self.mol, AllChem.ETKDGv3())
-            AllChem.MMFFOptimizeMolecule(self.mol)
-        AllChem.ComputeGasteigerCharges(self.mol)
-
-    def get_pdbqt(self):
-        self.ligprep()
-        mk_prep = MoleculePreparation()
-        molsetup_list = mk_prep(self.mol)
-        molsetup = molsetup_list[0]
-        pdbqt_string = PDBQTWriterLegacy.write_string(molsetup)[0]
-        return pdbqt_string
+from utils import sdf2centroid, LigPrep
 
 
 class VinaDock():
@@ -141,13 +92,13 @@ class VinaDock():
         
 
     def run(self, optimize=0, **kwargs) -> Tuple[float, Optional[List[Chem.Mol]]]:
-        """_summary_
+        """Running AutoDock-Vina
 
         Args:
-            optimize (False): Optimize the conformation
+            optimize (int): Optimize the conformation (default: 0; Do not optimize)
 
         Returns:
-            Tuple[float, Optional[List[Chem.Mol]]]: _description_
+            Tuple[float, Optional[List[Chem.Mol]]]: Docking score and poses list in RdMol object.
         """
         # Ligprep
         pdbqt_string = LigPrep(self.ligand, optimize).get_pdbqt()
@@ -160,8 +111,11 @@ class VinaDock():
         sf_name = 'ad4' if self.target == 'HDAC6' else 'vina'
         return self.dock(pdbqt_string, sf_name=sf_name, **kwargs)
 
-if __name__ == '__main__':
-    v = VinaDock('Targets/BRD4/BRD4_8pxa_ligand_A.sdf', 'BRD4')
-    print(v.run()[0])
+#if __name__ == '__main__':
+    #v = VinaDock('Targets/BRD4/BRD4_8pxa_ligand_A.sdf', 'BRD4-holo')
+    #score, pose = v.run(verbose=1)
+    #with Chem.SDWriter('Targets/BRD4-holo/redock.sdf') as w:
+        #for mol in pose:
+            #w.write(mol)
     #p = LigPrep('./Targets/BRD4/BRD4_8pxa_ligand_A.sdf')
     #print(p.get_pdbqt())
