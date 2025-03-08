@@ -7,17 +7,6 @@ Description:
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from meeko import MoleculePreparation, PDBQTWriterLegacy
-from collections.abc import Iterable
-
-def write_sdf(sdf_file, mols):
-    with Chem.SDWriter(sdf_file) as w:
-        for mol in (mols if isinstance(mols, Iterable) else [mols]):
-            w.write(mol)
-
-
-def read_sdf(sdf_file, sanitize=0):
-    mols = list(Chem.SDMolSupplier(sdf_file, sanitize=sanitize))
-    return mols[0] if len(mols) == 1 else mols
 
 
 def sdf2centroid(sdf_file):

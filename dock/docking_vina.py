@@ -6,7 +6,7 @@ from vina import Vina
 import json
 import rdkit.Chem as Chem
 from pathlib import Path
-from utils import sdf2centroid, LigPrep
+from utils.dock import sdf2centroid, LigPrep
 
 
 class VinaDock():
@@ -111,11 +111,11 @@ class VinaDock():
         sf_name = 'ad4' if self.target == 'HDAC6' else 'vina'
         return self.dock(pdbqt_string, sf_name=sf_name, **kwargs)
 
-#if __name__ == '__main__':
-    #v = VinaDock('Targets/BRD4/BRD4_8pxa_ligand_A.sdf', 'BRD4-holo')
-    #score, pose = v.run(verbose=1)
-    #with Chem.SDWriter('Targets/BRD4-holo/redock.sdf') as w:
-        #for mol in pose:
-            #w.write(mol)
+if __name__ == '__main__':
+    v = VinaDock('Targets/BRD4/BRD4_8pxa_ligand_A.sdf', 'BRD4-holo')
+    score, pose = v.run(verbose=1)
+    with Chem.SDWriter('Targets/BRD4-holo/redock.sdf') as w:
+        for mol in pose:
+            w.write(mol)
     #p = LigPrep('./Targets/BRD4/BRD4_8pxa_ligand_A.sdf')
     #print(p.get_pdbqt())

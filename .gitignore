@@ -12,3 +12,4 @@ dock/maps/*/
 testfile
 
 .DS_Store
+*.egg-info
