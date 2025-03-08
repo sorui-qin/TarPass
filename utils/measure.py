@@ -1,17 +1,22 @@
+'''
+Author: Rui Qin
+Date: 2025-03-08 15:00:12
+LastEditTime: 2025-03-09 01:18:56
+Description: 
+'''
 #Adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
 import random
 import numpy as np
 from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
 from rdkit.Chem import DataStructs
-from scipy.spatial.distance import cosine as cos_distance
-from sklearn.metrics import pairwise_distances
 
-def sample(mols, n=10000, fixed_seed=0):
+
+def sample(anylist, n=10000, fixed_seed=0):
     if fixed_seed: random.seed(42)
-    if len(mols) > n:
-        return random.sample(mols, n)
+    if len(anylist) > n:
+        return random.sample(anylist, n)
     else:
-        return mols
+        return anylist
 
 def fingerprint(mol):
     mfpgen = GetMorganGenerator(radius=2, fpSize=2048)
@@ -26,15 +31,3 @@ def similarities_tanimoto(fp, fps):
 def similarity_matrix_tanimoto(fps1, fps2):
     similarities = [DataStructs.BulkTanimotoSimilarity(fp, fps2) for fp in fps1]
     return np.array(similarities)
-
-def latent_vectors(mols, dataset):
-    idxs = [int(mol.GetProp('Index')) for mol in mols]
-    vecs = [dataset.vecs[i] for i in idxs]
-    return vecs
-
-def similarity_matrix_latent(vecs1, vecs2):
-    vecs1 = np.array(vecs1)
-    vecs2 = np.array(vecs2)
-    dist = pairwise_distances(vecs1, vecs2, metric='euclidean')
-    sims = 1. / (1. + dist)
-    return sims

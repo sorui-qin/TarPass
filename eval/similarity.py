@@ -1,38 +1,59 @@
 '''
 Author: Rui Qin
 Date: 2024-01-04 17:22:05
-LastEditTime: 2025-03-08 20:47:35
+LastEditTime: 2025-03-09 01:19:44
 Description: 
 '''
-from rdkit.Chem import AllChem, DataStructs
 from rdkit.Chem.Scaffolds import MurckoScaffold
 import numpy as np
 from chemmeasure.measures import NCircles
 from utils.measure import *
 
+class Similarity():
+    def __init__(self, mols:list, ref_mols=None, compared_mode=False):
+        self.mols = mols
+        self.fps = fingerprints(self.mols)
+        self.compared = compared_mode
+        if compared_mode:
+            if not ref_mols:
+                raise ValueError('Under comparison mode, please provide reference molecules set')
+            self.ref = ref_mols
 
-def define_measures(fps):
-    vectorizer = fingerprints
-    sim_mat_func = similarity_matrix_tanimoto
-    measure = NCircles(vectorizer=vectorizer, sim_mat_func=sim_mat_func, threshold=0.75)
-    circ, _ = measure.measure(fps, is_vec=True, n_chunk=64)
-    return circ
+
+    def _not_compared(self):
+        if self.compared:
+            raise ValueError('This function is not suitable under comparison mode!')
 
 
-def similarity(test_mols, standard_mols):
-    """
-    Calculate the similarity between two molecular sets.
-    Input:
-        test_mols : Set to be tested, typically the generated set.
-        standard_mols : Set to be compared, such as a so-called 'test set' or ground truth set.
-    """
-    matrix = similarity_matrix_tanimoto(
-        fingerprints(test_mols), 
-        fingerprints(standard_mols))
-    return matrix.sum() / (len(test_mols) * len(standard_mols))
+    def circle(self, thershold=0.75) -> float:
+        """Calculate #Circle. 
 
-if __name__ == '__main__':
-    from utils.io import read_sdf
-    mols = read_sdf('testfile/5HT2A_gen.sdf')
-    fps = fingerprints(mols)
-    print(define_measures(fps))
+        Args:
+            thershold (float, optional): Thershold of #Circle. Defaults to 0.75.
+
+        Returns:
+            float: Vaule of #Circle.
+        """
+        self._not_compared()
+        vectorizer = fingerprints
+        sim_mat_func = similarity_matrix_tanimoto
+        measure = NCircles(vectorizer=vectorizer, sim_mat_func=sim_mat_func, threshold=thershold)
+        circ, _ = measure.measure(self.fps, is_vec=True, n_chunk=64)
+        return circ
+
+
+    def similarity(self, limit=10000, seed=0) -> float:
+        """Calculate Tanimoto similarity with ECFP4.
+
+        Args:
+            limit (int, optional): Maximum number of molecules for calculation. \n
+            If exceeded, molecules will be randomly selected up to the limit. Defaults to 10000.
+            seed (int, optional): Random seed. Defaults to 0 (not set).
+
+        Returns:
+            float: Value of Tanimoto similarity
+        """
+        fps1 = sample(self.fps, n=limit, fixed_seed=seed)
+        fps2 = fps1 if self.compared else fingerprints(sample(self.ref, n=limit, fixed_seed=seed))
+        matrix = similarity_matrix_tanimoto(fps1, fps2)
+        return matrix.sum() / (len(fps1) * len(fps2))
