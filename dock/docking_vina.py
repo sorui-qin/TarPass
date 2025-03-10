@@ -7,30 +7,19 @@ import json
 import rdkit.Chem as Chem
 from pathlib import Path
 from utils.dock import sdf2centroid, LigPrep
+from dock.docking_gnina import BaseDockTask
 
 
-class VinaDock():
+class VinaDock(BaseDockTask):
     """
     Running docking task with AutoDock-Vina.  
     Please note that the code is designed to perform docking with **specific targets in the benchmark** for high efficiency,  
     using the small molecules and prepared affinity map files of targets as input.  
     Therefore, the code does not possess the capability for general application in docking with other targets.
-
-    Args:
-        ligand (str): Filename of a sdf file (Path) or a SMILES sequenece.
-        target (str): Target name of ligand generated for.
-        mode (str, optional): Docking mode ('dock' or 'score_only'). Defaults to 'dock'.
     """
-    def __init__(self, ligand:str, target:str, mode='dock'):
-        self.ligand, self.target, self.mode = ligand, target, mode
+    def __init__(self, ligand, target, mode='dock'):
+        super().__init__(ligand, target, mode)
         self.maps = Path(f"dock/maps/{target}/{target}")
-        self.target_dir = Path(f"Targets/{target}")
-
-        if not self.target_dir.exists():
-            raise FileNotFoundError(f"Target Fold unfound: {self.target_dir}")
-        if mode not in ('dock', 'score_only'):
-            raise ValueError("Invalid docking mode, choose 'dock' or 'score_only'")
-        
 
     def _get_center(self) -> List[float]:
         """Get center of docking grid.
@@ -91,11 +80,11 @@ class VinaDock():
             return score, poses
         
 
-    def run(self, optimize=0, **kwargs) -> Tuple[float, Optional[List[Chem.Mol]]]:
+    def run(self, optimize=False, **kwargs) -> Tuple[float, Optional[List[Chem.Mol]]]:
         """Running AutoDock-Vina
 
         Args:
-            optimize (int): Optimize the conformation (default: 0; Do not optimize)
+            optimize (bool, optional): Optimize the conformation (default: False)
 
         Returns:
             Tuple[float, Optional[List[Chem.Mol]]]: Docking score and poses list in RdMol object.
