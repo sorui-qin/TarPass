@@ -1,13 +1,18 @@
 '''
 Author: Rui Qin
 Date: 2024-01-04 17:22:05
-LastEditTime: 2025-03-09 01:19:44
+LastEditTime: 2025-03-10 16:16:08
 Description: 
 '''
 from rdkit.Chem.Scaffolds import MurckoScaffold
 import numpy as np
-from chemmeasure.measures import NCircles
+from eval.chemmeasure.measures import NCircles
 from utils.measure import *
+from utils.io import standard_mol
+
+def scaffolds(mols):
+    return [MurckoScaffold.GetScaffoldForMol(mol) for mol in mols]
+
 
 class Similarity():
     def __init__(self, mols:list, ref_mols=None, compared_mode=False):
@@ -26,7 +31,8 @@ class Similarity():
 
 
     def circle(self, thershold=0.75) -> float:
-        """Calculate #Circle. 
+        """Calculate #Circle. Please see Xie et al., *How Much Space Has Been Explored? 
+        Measuring the Chemical Space Covered by Databases and Machine-Generated Molecules.* ICLR 2023.
 
         Args:
             thershold (float, optional): Thershold of #Circle. Defaults to 0.75.
@@ -42,8 +48,27 @@ class Similarity():
         return circ
 
 
-    def similarity(self, limit=10000, seed=0) -> float:
+    def similarity(self, limit=10000, seed=0, parallel=True) -> float:
         """Calculate Tanimoto similarity with ECFP4.
+
+        Args:
+            limit (int, optional): Maximum number of molecules for calculation. \n
+            If exceeded, molecules will be randomly selected up to the limit. Defaults to 10000.
+            seed (int, optional): Random seed. Defaults to 0 (not set).
+            parallel (bool, optional): Run in parallel. Defaults to Ture.
+
+        Returns:
+            float: Value of Tanimoto similarity
+        """
+        fps1 = sample(self.fps, n=limit, fixed_seed=seed)
+        fps2 = fps1 if not self.compared else fingerprints(sample(self.ref, n=limit, fixed_seed=seed))
+        func = similarity_matrix_parallel if parallel else similarity_matrix_tanimoto
+        matrix = func(fps1, fps2)
+        return matrix.sum() / (len(fps1) * len(fps2))
+
+
+    def scaffold_similarity(self, limit=10000, seed=0) -> float:
+        """Calculate Tanimoto similarity of scaffold with ECFP4.
 
         Args:
             limit (int, optional): Maximum number of molecules for calculation. \n
@@ -53,7 +78,8 @@ class Similarity():
         Returns:
             float: Value of Tanimoto similarity
         """
-        fps1 = sample(self.fps, n=limit, fixed_seed=seed)
-        fps2 = fps1 if self.compared else fingerprints(sample(self.ref, n=limit, fixed_seed=seed))
+        scaff1 = scaffolds(sample(self.mols, n=limit, fixed_seed=seed))
+        scaff2 = scaff1 if not self.compared else sample(self.ref, n=limit, fixed_seed=seed)
+        fps1, fps2 = fingerprints(scaff1), fingerprints(scaff2)
         matrix = similarity_matrix_tanimoto(fps1, fps2)
         return matrix.sum() / (len(fps1) * len(fps2))
