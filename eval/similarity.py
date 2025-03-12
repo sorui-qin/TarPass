@@ -1,14 +1,13 @@
 '''
 Author: Rui Qin
 Date: 2024-01-04 17:22:05
-LastEditTime: 2025-03-10 16:16:08
+LastEditTime: 2025-03-12 20:17:02
 Description: 
 '''
 from rdkit.Chem.Scaffolds import MurckoScaffold
 import numpy as np
 from eval.chemmeasure.measures import NCircles
 from utils.measure import *
-from utils.io import standard_mol
 
 def scaffolds(mols):
     return [MurckoScaffold.GetScaffoldForMol(mol) for mol in mols]
@@ -17,7 +16,7 @@ def scaffolds(mols):
 class Similarity():
     def __init__(self, mols:list, ref_mols=None, compared_mode=False):
         self.mols = mols
-        self.fps = fingerprints(self.mols)
+        self.fps = fingerprints(self.mols, fp_type='fp') # Use bit vector for Tanimoto similarity
         self.compared = compared_mode
         if compared_mode:
             if not ref_mols:

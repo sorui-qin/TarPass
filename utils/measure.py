@@ -1,10 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:00:12
-LastEditTime: 2025-03-10 14:19:27
+LastEditTime: 2025-03-12 20:18:05
 Description: 
 '''
-# Adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
+# Partly adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
 import random
 import numpy as np
 from rdkit.Chem import DataStructs
@@ -18,13 +18,28 @@ def sample(anylist, n=10000, fixed_seed=0):
         return random.sample(anylist, n)
     else:
         return anylist
+    
+mfpgen = GetMorganGenerator(radius=2, fpSize=2048) # ECFP
 
-def fingerprint(mol):
-    mfpgen = GetMorganGenerator(radius=2, fpSize=2048)
-    return mfpgen.GetSparseCountFingerprint(mol)
+fp_types = {
+    'fp': mfpgen.GetFingerprint,
+    'sfp': mfpgen.GetSparseFingerprint,
+    'cfp': mfpgen.GetCountFingerprint,
+    'scfp': mfpgen.GetSparseCountFingerprint
+}
 
-def fingerprints(mols):
-    return [fingerprint(mol) for mol in mols]
+def fingerprint(mol, fp_type):
+    return fp_types[fp_type](mol)
+
+def fingerprints(mols, fp_type):
+    return [fingerprint(mol, fp_type) for mol in mols]
+
+def morgan_frags(mol):
+    fp = fingerprint(mol, fp_type='scfp')
+    return list(fp.GetNonzeroElements().keys())
+
+def similarity(fp1, fp2):
+    return DataStructs.TanimotoSimilarity(fp1, fp2)
 
 def similarities_tanimoto(fp, fps):
     return DataStructs.BulkTanimotoSimilarity(fp, fps)
