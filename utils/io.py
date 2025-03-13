@@ -1,13 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-03-12 17:31:31
+LastEditTime: 2025-03-13 16:50:49
 Description: 
 '''
 import pickle
 from rdkit import Chem
 from collections.abc import Iterable
-from tqdm.contrib.concurrent import process_map
 from utils.logger import project_logger
 
 def write_pkl(pkl_file, data):
@@ -25,14 +24,15 @@ def read_pkl(pkl_file):
                 break
     return data
 
-def write_sdf(sdf_file, mols):
-    with Chem.SDWriter(sdf_file) as w:
-        for mol in (mols if isinstance(mols, Iterable) else [mols]):
-            w.write(mol)
-
 def read_sdf(sdf_file, sanitize=False, removeHs=False):
     mols = list(Chem.SDMolSupplier(sdf_file, sanitize=sanitize, removeHs=removeHs))
     return mols[0] if len(mols) == 1 else mols
+
+def write_sdf(sdf_file, mols):
+    w = Chem.SDWriter(sdf_file)
+    for mol in (mols if isinstance(mols, Iterable) else [mols]):
+            w.write(mol)
+    w.close()
 
 def read_smi(smi_file, delimiter='\n', sanitize=False):
     mols = Chem.SmilesMolSupplier(smi_file, delimiter=delimiter, sanitize=sanitize)
@@ -43,6 +43,9 @@ def to_mols(smiles):
 
 def to_smiles(mols):
     return [Chem.MolToSmiles(mol) for mol in mols]
+
+def standard_mol(mol):
+    return Chem.MolFromSmiles(Chem.MolToSmiles(mol))
 
 
 class Preprocess():
