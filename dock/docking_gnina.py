@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-03-14 17:14:36
+LastEditTime: 2025-03-14 20:31:23
 Description: 
 '''
 from typing import Optional, Tuple, List
@@ -62,7 +62,7 @@ class GninaDock(BaseDockTask):
             Verbosity (int, optional): Verbosity. 0: not output, 1: verbose. Defaults to 1.
 
         Returns:
-            Tuple[Optional[List[Chem.Mol]], float]: _description_
+            Tuple[Optional[List[Chem.Mol]], float]: Docking score and poses list in RdMol object.
         """
         output_dir = './tmp'
         Path(output_dir).mkdir(exist_ok=True)
