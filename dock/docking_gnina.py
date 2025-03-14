@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-03-14 15:30:14
+LastEditTime: 2025-03-14 17:14:36
 Description: 
 '''
 from typing import Optional, Tuple, List
@@ -47,24 +47,48 @@ class GninaDock(BaseDockTask):
             self.config = next(Path("dock/config").glob(f'{self.target}.txt'))
         except StopIteration:
             raise FileNotFoundError(f"No config files {self.target}.txt found in `dock/config`")
-    
+
+
     def _get_result(self, output_sdf:str):
         mol = read_sdf(output_sdf)
         return mol, float(mol.GetProp('minimizedAffinity'))
-    
-    def run(self) -> Tuple[Optional[List[Chem.Mol]], float]:
+
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Optional[List[Chem.Mol]], float]:
+        """Running Gnina docking task.
+        Args:
+            seed (int, optional): Random seed (default: 0; ramdomly choosed)
+            exhaust (int, optional): Exhaustiveness of docking. Defaults to 32.
+            n_poses (int, optional): Mumber of pose to generate. Defaults to 1.
+            Verbosity (int, optional): Verbosity. 0: not output, 1: verbose. Defaults to 1.
+
+        Returns:
+            Tuple[Optional[List[Chem.Mol]], float]: _description_
+        """
         output_dir = './tmp'
         Path(output_dir).mkdir(exist_ok=True)
         rec_pdb = next(self.target_dir.glob("*rec*.pdb"))
+        # Run docking
         with temp_manager('.sdf', output_dir) as tmp_file:
             command = [
                 'gnina',
                 '-r', rec_pdb,
                 '-l', self.ligand,
                 '--config', self.config,
-                '-o', tmp_file
+                '-o', tmp_file,
+                '--num_modes', str(n_poses),
+                '--seed', str(seed),
+                '--exhaustiveness', str(exhaust),
             ]
             if self.mode == 'score_only':
                 command.append('--score')
+            if not verbose:
+                command.append('--quiet')
             subprocess.run(command, check=True)
             return self._get_result(tmp_file)
+
+if __name__ == '__main__':
+    ligand = 'testfile/5ht2a_test.sdf'
+    target = '5HT2A'
+    dock = GninaDock(ligand, target)
+    mol, score = dock.run()
+    print(score)

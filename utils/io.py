@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-03-14 14:27:00
+LastEditTime: 2025-03-14 17:17:30
 Description: 
 '''
 import os
@@ -73,10 +73,9 @@ class Preprocess():
     def __init__(self, mols):
         self.mols = mols
         self.mols_num = len(mols)
-        self.smiles = to_smiles(mols)
         
     def valid(self):
-        valids = list(filter(None, to_mols(self.smiles)))
+        valids = [mol for mol in self.mols if standard_mol(mol)]
         project_logger.info(f'Valid SMILES: {len(valids)} out of {self.mols_num}')
         return valids
     

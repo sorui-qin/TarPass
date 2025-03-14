@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-03-14 15:30:09
+LastEditTime: 2025-03-14 16:18:41
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
@@ -23,6 +23,10 @@ class VinaDock(BaseDockTask):
     def __init__(self, ligand, target, mode='dock'):
         super().__init__(ligand, target, mode)
         self.maps = Path(f"dock/maps/{target}/{target}")
+        if not ligand.startswith('REMARK') and ligand.endswith('.sdf'):
+            self.ligand = LigPrep(ligand).to_pdbqt()
+        elif not ligand.startswith('REMARK') and not ligand.endswith('.sdf'):
+            raise ValueError("Invalid ligand input, please provide a sdf file or PDBQT string.")
 
     def _get_center(self) -> List[float]:
         """Get center of docking grid.
@@ -31,7 +35,7 @@ class VinaDock(BaseDockTask):
             return sdf2centroid(next(self.target_dir.glob("*ligand*.sdf")))
         except: # For holo and AlphaFold structure
             return json.loads((self.target_dir/"center.json").read_text())["center"]
-        
+
 
     def maps_prep(self, box_size:list=[20, 20, 20]):
         """Preparation for affinity map files for given target except `HDAC6`.  
@@ -57,13 +61,13 @@ class VinaDock(BaseDockTask):
 
 
     def run(self, seed=0, exhaust=32, n_poses=1, verbose=0) -> Tuple[Optional[List[Chem.Mol]], float]:
-        """Running AutoDock-Vina
+        """Running AutoDock-Vina.
 
         Args:
             seed (int, optional): Random seed (default: 0; ramdomly choosed)
             exhaust (int, optional): Exhaustiveness of docking. Defaults to 32.
             n_poses (int, optional): Mumber of pose to generate. Defaults to 1.
-            verbose (int, optional): verbosity 0: not output, 1: normal, 2: verbose (default: 0)
+            verbose (int, optional): Verbosity. 0: not output, 1: normal, 2: verbose (default: 0)
 
         Returns:
             Tuple[float, Optional[List[Chem.Mol]]]: Docking score and poses list in RdMol object.
