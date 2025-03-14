@@ -1,13 +1,17 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-03-13 16:50:49
+LastEditTime: 2025-03-14 14:27:00
 Description: 
 '''
+import os
 import pickle
+import tempfile
 from rdkit import Chem
 from collections.abc import Iterable
 from utils.logger import project_logger
+from contextlib import contextmanager
+
 
 def write_pkl(pkl_file, data):
     with open(pkl_file, 'wb') as fi:
@@ -46,6 +50,23 @@ def to_smiles(mols):
 
 def standard_mol(mol):
     return Chem.MolFromSmiles(Chem.MolToSmiles(mol))
+
+
+@contextmanager
+def temp_manager(suffix: str, output_dir: str):
+    with tempfile.NamedTemporaryFile(
+        suffix=suffix,
+        dir=output_dir,
+        delete=False
+    ) as tmp:
+        tmp_file = tmp.name
+    try:
+        yield tmp_file
+    finally:
+        try:
+            os.unlink(tmp_file)
+        except FileNotFoundError:
+            pass
 
 
 class Preprocess():

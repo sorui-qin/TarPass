@@ -1,13 +1,14 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-03-13 21:01:52
+LastEditTime: 2025-03-14 15:30:14
 Description: 
 '''
-from utils.io import read_sdf
+from typing import Optional, Tuple, List
+from utils.io import read_sdf, temp_manager
 from pathlib import Path
+import rdkit.Chem as Chem
 import subprocess
-import tempfile
 
 
 class BaseDockTask():
@@ -18,7 +19,7 @@ class BaseDockTask():
     Therefore, the code does not possess the capability for general application in docking with other targets.
 
     Args:
-        ligand (str): Filename of prepared sdf file or pdbqt string.
+        ligand (str): preparedFilename of prepared sdf file or pdbqt string.
         target (str): Target name of ligand generated for.
         mode (str, optional): Docking mode ('dock' or 'score_only'). Defaults to 'dock'.
     """
@@ -36,11 +37,12 @@ class BaseDockTask():
 
 class GninaDock(BaseDockTask):
     """
-    Running docking task with Gnina.  
-
+    Running docking task with Gnina. Ligand should be prepared in sdf format.
     """
     def __init__(self, ligand, target, mode='dock'):
         super().__init__(ligand, target, mode)
+        if not ligand.endswith('.sdf'):
+            raise ValueError("Invalid ligand input, please provide a sdf file.")
         try:
             self.config = next(Path("dock/config").glob(f'{self.target}.txt'))
         except StopIteration:
@@ -48,15 +50,21 @@ class GninaDock(BaseDockTask):
     
     def _get_result(self, output_sdf:str):
         mol = read_sdf(output_sdf)
-        return mol, float(mol.Getprop('minimizedAffinity'))
+        return mol, float(mol.GetProp('minimizedAffinity'))
     
-    def run(self, output_sdf:str):
+    def run(self) -> Tuple[Optional[List[Chem.Mol]], float]:
+        output_dir = './tmp'
+        Path(output_dir).mkdir(exist_ok=True)
         rec_pdb = next(self.target_dir.glob("*rec*.pdb"))
-        with tempfile.TemporaryDirectory() as tmp:
-            command = f"""gnina -r {rec_pdb} \
-                        -l {self.ligand} \
-                        --config {self.config} \
-                        -o {tmp}/{output_sdf}"""
-            subprocess.run(command, shell=True)
-            return self._get_result(f"{tmp}/{output_sdf}")
-        TODO
+        with temp_manager('.sdf', output_dir) as tmp_file:
+            command = [
+                'gnina',
+                '-r', rec_pdb,
+                '-l', self.ligand,
+                '--config', self.config,
+                '-o', tmp_file
+            ]
+            if self.mode == 'score_only':
+                command.append('--score')
+            subprocess.run(command, check=True)
+            return self._get_result(tmp_file)

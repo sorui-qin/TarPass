@@ -1,3 +1,9 @@
+'''
+Author: Rui Qin
+Date: 2025-03-01 15:57:14
+LastEditTime: 2025-03-14 15:30:09
+Description: 
+'''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 
 from meeko import PDBQTMolecule, RDKitMolCreate
@@ -13,9 +19,6 @@ from dock.docking_gnina import BaseDockTask
 class VinaDock(BaseDockTask):
     """
     Running docking task with AutoDock-Vina.  
-    Please note that the code is designed to perform docking with **specific targets in the benchmark** for high efficiency,  
-    using the small molecules and prepared affinity map files of targets as input.  
-    Therefore, the code does not possess the capability for general application in docking with other targets.
     """
     def __init__(self, ligand, target, mode='dock'):
         super().__init__(ligand, target, mode)
@@ -53,7 +56,7 @@ class VinaDock(BaseDockTask):
         v.write_maps(map_prefix_filename=self.maps, overwrite=True)
 
 
-    def run(self, seed=0, exhaust=32, n_poses=1, verbose=0) -> Tuple[float, Optional[List[Chem.Mol]]]:
+    def run(self, seed=0, exhaust=32, n_poses=1, verbose=0) -> Tuple[Optional[List[Chem.Mol]], float]:
         """Running AutoDock-Vina
 
         Args:
