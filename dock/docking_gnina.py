@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-03-14 20:31:23
+LastEditTime: 2025-03-15 13:51:47
 Description: 
 '''
 from typing import Optional, Tuple, List
@@ -85,10 +85,3 @@ class GninaDock(BaseDockTask):
                 command.append('--quiet')
             subprocess.run(command, check=True)
             return self._get_result(tmp_file)
-
-if __name__ == '__main__':
-    ligand = 'testfile/5ht2a_test.sdf'
-    target = '5HT2A'
-    dock = GninaDock(ligand, target)
-    mol, score = dock.run()
-    print(score)
