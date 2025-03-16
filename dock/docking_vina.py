@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-03-14 16:18:41
+LastEditTime: 2025-03-16 17:27:57
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
@@ -9,11 +9,11 @@ Description:
 from meeko import PDBQTMolecule, RDKitMolCreate
 from typing import Optional, Tuple, List
 from vina import Vina
+from pathlib import Path
+from utils.docking import sdf2centroid, LigPrep
+from dock.docking_gnina import BaseDockTask
 import json
 import rdkit.Chem as Chem
-from pathlib import Path
-from utils.dock import sdf2centroid, LigPrep
-from dock.docking_gnina import BaseDockTask
 
 
 class VinaDock(BaseDockTask):
@@ -60,12 +60,12 @@ class VinaDock(BaseDockTask):
         v.write_maps(map_prefix_filename=self.maps, overwrite=True)
 
 
-    def run(self, seed=0, exhaust=32, n_poses=1, verbose=0) -> Tuple[Optional[List[Chem.Mol]], float]:
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Optional[List[Chem.Mol]], float]:
         """Running AutoDock-Vina.
 
         Args:
             seed (int, optional): Random seed (default: 0; ramdomly choosed)
-            exhaust (int, optional): Exhaustiveness of docking. Defaults to 32.
+            exhaust (int, optional): Exhaustiveness of docking. Defaults to 8.
             n_poses (int, optional): Mumber of pose to generate. Defaults to 1.
             verbose (int, optional): Verbosity. 0: not output, 1: normal, 2: verbose (default: 0)
 
