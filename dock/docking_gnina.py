@@ -1,10 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-03-15 13:51:47
+LastEditTime: 2025-03-17 16:55:24
 Description: 
 '''
-from typing import Optional, Tuple, List
+from typing import Tuple
 from utils.io import read_sdf, temp_manager
 from pathlib import Path
 import rdkit.Chem as Chem
@@ -51,9 +51,10 @@ class GninaDock(BaseDockTask):
 
     def _get_result(self, output_sdf:str):
         mol = read_sdf(output_sdf)
+        mol = mol[0] if isinstance(mol, list) else mol
         return mol, float(mol.GetProp('minimizedAffinity'))
 
-    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Optional[List[Chem.Mol]], float]:
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Chem.Mol, float]:
         """Running Gnina docking task.
         Args:
             seed (int, optional): Random seed (default: 0; ramdomly choosed)
@@ -62,7 +63,7 @@ class GninaDock(BaseDockTask):
             Verbosity (int, optional): Verbosity. 0: not output, 1: verbose. Defaults to 1.
 
         Returns:
-            Tuple[Optional[List[Chem.Mol]], float]: Docking score and poses list in RdMol object.
+            Tuple[Chem.Mol, float], float]: Best docking pose in RdMol object and its score.
         """
         output_dir = './tmp'
         Path(output_dir).mkdir(exist_ok=True)

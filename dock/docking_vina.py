@@ -1,13 +1,13 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-03-16 17:27:57
+LastEditTime: 2025-03-17 16:56:14
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 
 from meeko import PDBQTMolecule, RDKitMolCreate
-from typing import Optional, Tuple, List
+from typing import Tuple, List
 from vina import Vina
 from pathlib import Path
 from utils.docking import sdf2centroid, LigPrep
@@ -60,7 +60,7 @@ class VinaDock(BaseDockTask):
         v.write_maps(map_prefix_filename=self.maps, overwrite=True)
 
 
-    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Optional[List[Chem.Mol]], float]:
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Chem.Mol, float]:
         """Running AutoDock-Vina.
 
         Args:
@@ -70,7 +70,7 @@ class VinaDock(BaseDockTask):
             verbose (int, optional): Verbosity. 0: not output, 1: normal, 2: verbose (default: 0)
 
         Returns:
-            Tuple[float, Optional[List[Chem.Mol]]]: Docking score and poses list in RdMol object.
+            Tuple[Chem.Mol, float], float]: Best docking pose in RdMol object and its score.
         """
         # Recprep
         if not any(self.maps.parent.glob("*.map")):
@@ -88,5 +88,5 @@ class VinaDock(BaseDockTask):
             v.dock(exhaustiveness=exhaust, n_poses=n_poses)
             score = v.energies(n_poses=n_poses)[0][0]
             pdbqt_mol = PDBQTMolecule(v.poses(), skip_typing=True)
-            poses = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)
-            return poses, score
+            pose  = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
+            return pose, score

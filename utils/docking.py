@@ -1,14 +1,15 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-03-13 20:17:58
+LastEditTime: 2025-03-17 17:30:33
 Description: 
 '''
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from openbabel import pybel
 from meeko import MoleculePreparation, PDBQTWriterLegacy
-from utils.io import standard_mol, write_sdf
+from utils.io import write_sdf
+from utils.preprocess import standard_mol
 
 
 def sdf2centroid(sdf_file):

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-03-16 17:51:21
+LastEditTime: 2025-03-17 16:44:14
 Description: 
 '''
 import os
@@ -14,10 +14,10 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
 def write_pkl(pkl_file, data):
-    with open(pkl_file, 'wb') as fi:
-        pickle.dump(data, fi)
+    with open(pkl_file, 'wb') as f:
+        pickle.dump(data, f)
 
-def append_file(pkl_file, data):
+def append_pkl(pkl_file, data):
     with open(pkl_file, 'ab') as f:
         pickle.dump(data, f)
 
@@ -48,7 +48,8 @@ def read_smi(smi_file, delimiter='', sanitize=False):
     return mols[0] if len(mols) == 1 else mols
 
 @contextmanager
-def temp_manager(suffix: str, output_dir: str):
+def temp_manager(suffix: str, output_dir='./tmp', auto_remove=True):
+    os.makedirs(output_dir, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         suffix=suffix,
         dir=output_dir,
@@ -58,7 +59,8 @@ def temp_manager(suffix: str, output_dir: str):
     try:
         yield tmp_file
     finally:
-        try:
-            os.unlink(tmp_file)
-        except FileNotFoundError:
-            pass
+        if auto_remove:
+            try:
+                os.unlink(tmp_file)
+            except FileNotFoundError:
+                pass

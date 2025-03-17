@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 16:12:18
-LastEditTime: 2025-03-16 14:02:31
+LastEditTime: 2025-03-17 17:59:40
 Description: 
 '''
 TARGETS = [
@@ -26,3 +26,5 @@ TARGETS = [
     'RXR-alpha',
     'TYK2'
     ]
+
+DASHLINE = '-'*50
