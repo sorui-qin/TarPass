@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-03-17 17:58:43
+LastEditTime: 2025-03-17 19:54:32
 Description: 
 '''
 import argparse
@@ -14,16 +14,6 @@ from utils.preprocess import read_in
 from dock.docking_vina import VinaDock
 from dock.docking_gnina import GninaDock
 from pathlib import Path
-
-def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
-    if result_pkl.exists():
-        project_logger.info(f"Detected previous docking results.")
-        latest_idx = read_pkl(result_pkl)[-1]['index']
-        if latest_idx > total_lens:
-            raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
-        project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
-        return latest_idx
-    return 0
 
 class Dock():
     def __init__(self, mol, target, args):
@@ -69,6 +59,16 @@ def setup_arguments(parser: argparse.ArgumentParser):
     parser.add_argument("--optimize", action="store_true", help="Optimized the original 3D conformation if available.")
     parser.add_argument("--reset", action="store_true", help="Reset the original 3D conformation if available.")
     return parser
+
+def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
+    if result_pkl.exists():
+        project_logger.info(f"Detected previous docking results.")
+        latest_idx = read_pkl(result_pkl)[-1]['index']
+        if latest_idx > total_lens:
+            raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
+        project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
+        return latest_idx
+    return 0
 
 def execute(args):
     work_dir = Path(args.path)
