@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:00:12
-LastEditTime: 2025-03-12 20:18:05
+LastEditTime: 2025-03-20 10:47:35
 Description: 
 '''
 # Partly adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
@@ -19,7 +19,7 @@ def sample(anylist, n=10000, fixed_seed=0):
     else:
         return anylist
     
-mfpgen = GetMorganGenerator(radius=2, fpSize=2048) # ECFP
+mfpgen = GetMorganGenerator(radius=2, fpSize=2048) # ECFP4
 
 fp_types = {
     'fp': mfpgen.GetFingerprint,
