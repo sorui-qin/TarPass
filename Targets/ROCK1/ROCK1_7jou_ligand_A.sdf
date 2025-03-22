@@ -1,207 +1,100 @@
 VFS
-                    3D
- Schrodinger Suite 2021-2.
- 44 46  0  0  1  0            999 V2000
-  -17.1190   61.5470  -18.8400 C   0  0  0  0  0  0
-  -18.4510   61.7560  -18.4260 C   0  0  0  0  0  0
-  -19.3580   62.7210  -19.0980 C   0  0  0  0  0  0
-  -19.0470   63.7610  -19.9920 C   0  0  0  0  0  0
-  -20.7310   62.7750  -18.9630 C   0  0  0  0  0  0
-  -18.9300   61.0020  -17.3540 C   0  0  0  0  0  0
-  -16.8190   59.8620  -17.1500 C   0  0  0  0  0  0
-  -13.7430   57.7720  -16.4100 C   0  0  2  0  0  0
-  -12.3370   58.1760  -16.8700 C   0  0  0  0  0  0
-  -14.0410   56.3260  -16.7680 C   0  0  0  0  0  0
-  -14.0650   55.3400  -15.7880 C   0  0  0  0  0  0
-  -14.3430   54.0220  -16.1150 C   0  0  0  0  0  0
-  -14.6000   53.6720  -17.4290 C   0  0  0  0  0  0
-  -16.3830   58.1520  -15.5590 O   0  0  0  0  0  0
-  -15.9590   58.8320  -16.4910 C   0  0  0  0  0  0
-  -14.7180   58.6990  -16.9820 N   0  0  0  0  0  0
-  -14.3000   55.9610  -18.0850 C   0  0  0  0  0  0
-  -14.5780   54.6440  -18.4130 C   0  0  0  0  0  0
-  -12.1420   59.5960  -16.9170 O   0  0  0  0  0  0
-  -16.3160   60.6110  -18.2090 C   0  0  0  0  0  0
-  -16.6830   62.3170  -19.8850 O   0  0  0  0  0  0
-  -15.3240   62.1690  -20.3030 C   0  0  0  0  0  0
-  -18.1270   60.0700  -16.7260 C   0  0  0  0  0  0
-  -21.1680   63.7800  -19.7270 N   0  0  0  0  0  0
-  -20.1510   64.4000  -20.3690 N   0  0  0  0  0  0
-  -18.0205   63.9404  -20.2756 H   0  0  0  0  0  0
-  -21.2386   62.0703  -18.3211 H   0  0  0  0  0  0
-  -19.9420   61.1430  -17.0041 H   0  0  0  0  0  0
-  -13.7835   57.8665  -15.3249 H   0  0  0  0  0  0
-  -12.1424   57.7512  -17.8548 H   0  0  0  0  0  0
-  -11.5968   57.7309  -16.2051 H   0  0  0  0  0  0
-  -13.8656   55.5972  -14.7582 H   0  0  0  0  0  0
-  -14.3593   53.2662  -15.3437 H   0  0  0  0  0  0
-  -14.8163   52.6445  -17.6817 H   0  0  0  0  0  0
-  -14.4273   59.2511  -17.7762 H   0  0  0  0  0  0
-  -14.2857   56.7078  -18.8651 H   0  0  0  0  0  0
-  -14.7779   54.3771  -19.4402 H   0  0  0  0  0  0
-  -11.6203   59.8224  -17.6904 H   0  0  0  0  0  0
-  -15.2985   60.4622  -18.5391 H   0  0  0  0  0  0
-  -15.1247   62.8413  -21.1375 H   0  0  0  0  0  0
-  -14.6597   62.4130  -19.4740 H   0  0  0  0  0  0
-  -15.1498   61.1397  -20.6167 H   0  0  0  0  0  0
-  -18.5135   59.4949  -15.8976 H   0  0  0  0  0  0
-  -22.1549   63.9907  -19.7684 H   0  0  0  0  0  0
-  1  2  2  0  0  0
-  1 20  1  0  0  0
-  1 21  1  0  0  0
-  2  3  1  0  0  0
-  2  6  1  0  0  0
-  3  4  1  0  0  0
-  3  5  2  0  0  0
-  4 25  2  0  0  0
-  4 26  1  0  0  0
-  5 24  1  0  0  0
-  5 27  1  0  0  0
-  6 23  2  0  0  0
-  6 28  1  0  0  0
-  7 15  1  0  0  0
-  7 20  2  0  0  0
-  7 23  1  0  0  0
-  8  9  1  0  0  0
-  8 10  1  0  0  0
-  8 16  1  0  0  0
-  8 29  1  0  0  0
-  9 19  1  0  0  0
-  9 30  1  0  0  0
-  9 31  1  0  0  0
- 10 11  2  0  0  0
- 10 17  1  0  0  0
- 11 12  1  0  0  0
- 11 32  1  0  0  0
- 12 13  2  0  0  0
- 12 33  1  0  0  0
- 13 18  1  0  0  0
- 13 34  1  0  0  0
- 14 15  2  0  0  0
- 15 16  1  0  0  0
- 16 35  1  0  0  0
- 17 18  2  0  0  0
- 17 36  1  0  0  0
- 18 37  1  0  0  0
- 19 38  1  0  0  0
- 20 39  1  0  0  0
- 21 22  1  0  0  0
- 22 40  1  0  0  0
- 22 41  1  0  0  0
- 22 42  1  0  0  0
- 23 43  1  0  0  0
- 24 25  1  0  0  0
- 24 44  1  0  0  0
+  ModelServer 0.9.12
+
+ 25 27  0  0  1  0  0  0  0  0  0
+  -17.1190   61.5470  -18.8400 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -18.4510   61.7560  -18.4260 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -19.3580   62.7210  -19.0980 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -19.0470   63.7610  -19.9920 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -20.7310   62.7750  -18.9630 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -18.9300   61.0020  -17.3540 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -16.8190   59.8620  -17.1500 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -13.7430   57.7720  -16.4100 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -12.3370   58.1760  -16.8700 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -14.0410   56.3260  -16.7680 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -14.0650   55.3400  -15.7880 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -14.3430   54.0220  -16.1150 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -14.6000   53.6720  -17.4290 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -16.3830   58.1520  -15.5590 O   0  0  0  0  0  0  0  0  0  0  0  0
+  -15.9590   58.8320  -16.4910 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -14.7180   58.6990  -16.9820 N   0  0  0  0  0  0  0  0  0  0  0  0
+  -14.3000   55.9610  -18.0850 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -14.5780   54.6440  -18.4130 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -12.1420   59.5960  -16.9170 O   0  0  0  0  0  0  0  0  0  0  0  0
+  -16.3160   60.6110  -18.2090 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -16.6830   62.3170  -19.8850 O   0  0  0  0  0  0  0  0  0  0  0  0
+  -15.3240   62.1690  -20.3030 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -18.1270   60.0700  -16.7260 C   0  0  0  0  0  0  0  0  0  0  0  0
+  -21.1680   63.7800  -19.7270 N   0  0  0  0  0  0  0  0  0  0  0  0
+  -20.1510   64.4000  -20.3690 N   0  0  0  0  0  0  0  0  0  0  0  0
+  1 21  1  0  0  0  0
+  1  2  2  0  0  0  0
+  1 20  1  0  0  0  0
+  2  3  1  0  0  0  0
+  2  6  1  0  0  0  0
+  3  4  1  0  0  0  0
+  3  5  2  0  0  0  0
+  4 25  2  0  0  0  0
+  5 24  1  0  0  0  0
+  6 23  2  0  0  0  0
+  7 20  2  0  0  0  0
+  7 23  1  0  0  0  0
+  7 15  1  0  0  0  0
+  8 16  1  0  0  0  0
+  8  9  1  0  0  0  0
+  8 10  1  0  0  0  0
+  9 19  1  0  0  0  0
+ 10 17  1  0  0  0  0
+ 10 11  2  0  0  0  0
+ 11 12  1  0  0  0  0
+ 12 13  2  0  0  0  0
+ 13 18  1  0  0  0  0
+ 14 15  2  0  0  0  0
+ 15 16  1  0  0  0  0
+ 17 18  2  0  0  0  0
+ 21 22  1  0  0  0  0
+ 24 25  1  0  0  0  0
 M  END
-> <i_m_stars>
+> <model_server_result.job_id>
+wR16gmHh4NPP5m27o2ioAw
+
+> <model_server_result.datetime_utc>
+2025-03-22 07:46:37
+
+> <model_server_result.server_version>
+0.9.12
+
+> <model_server_result.query_name>
+ligand
+
+> <model_server_result.source_id>
+pdb-bcif
+
+> <model_server_result.entry_id>
+7jou
+
+> <model_server_params.name>
+atom_site
+
+> <model_server_params.value>
+{"label_asym_id":"B","auth_seq_id":4000}
+
+> <model_server_stats.io_time_ms>
+9
+
+> <model_server_stats.parse_time_ms>
+11
+
+> <model_server_stats.create_model_time_ms>
+6
+
+> <model_server_stats.query_time_ms>
+304
+
+> <model_server_stats.encode_time_ms>
 0
 
-> <s_m_entry_id>
-12
-
-> <s_m_entry_name>
-Structure12
-
-> <s_pdb_PDB_TITLE>
-CRYSTAL STRUCTURE OF RHO-ASSOCIATED PROTEIN KINASE 1 (ROCK1) IN COMPLEX WITH A PHENYLPYRAZOLE AMIDE INHIBITOR
-
-> <s_pdb_PDB_ID>
-7JOU
-
-> <r_pdb_PDB_CRYST1_a>
-166.845
-
-> <r_pdb_PDB_CRYST1_b>
-166.845
-
-> <r_pdb_PDB_CRYST1_c>
-64.992
-
-> <r_pdb_PDB_CRYST1_alpha>
-90
-
-> <r_pdb_PDB_CRYST1_beta>
-90
-
-> <r_pdb_PDB_CRYST1_gamma>
-90
-
-> <s_pdb_PDB_CRYST1_Space_Group>
-P 43 21 2
-
-> <i_pdb_PDB_CRYST1_z>
-8
-
-> <s_pdb_PDB_CLASSIFICATION>
-TRANSFERASE/TRANSFERASE INHIBITOR
-
-> <s_pdb_PDB_DEPOSITION_DATE>
-07-AUG-20
-
-> <s_pdb_PDB_format_version>
-3.30
-
-> <r_pdb_PDB_R>
-0.217
-
-> <r_pdb_PDB_Rfree>
-0.248
-
-> <r_pdb_PDB_RESOLUTION>
-3.32
-
-> <s_pdb_PDB_EXPDTA>
-X-RAY DIFFRACTION
-
-> <r_pdb_PDB_EXPDTA_TEMPERATURE>
-100
-
-> <s_pdb_PDB_REMARK_350_Biomolecule_1_Transform_1_Chains>
-A
-
-> <s_pdb_PDB_REMARK_350_Biomolecule_1_Transform_1_Matrix_1>
-1.000000 0.000000 0.000000   0.000000;0.000000 1.000000 0.000000   0.000000;0.000000 0.000000 1.000000   0.000000
-
-> <s_m_Source_Path>
-/home/sorui/Research/Tarpass/Targets/ROCK1
-
-> <s_m_Source_File>
-7jou.pdb
-
-> <i_m_Source_File_Index>
-1
-
-> <s_ppw_entry_id_backup>
-10
-
-> <b_ppw_prepared>
-1
-
-> <s_ppw_prepared_with_version>
-2021-2
-
-> <b_ppw_assigned_bond_orders>
-1
-
-> <b_ppw_added_hydrogens>
-1
-
-> <b_ppw_treated_metals>
-1
-
-> <b_ppw_created_disulfur>
-1
-
-> <s_ppw_het_states>
-eJztU7FugzAU/BWLOU2xAb/nZOvUtepYZUBpplLoQIcqyr+X9xxzhqFD1DFMp9OZe37nOxe22Jm36XPB1xtTHjZGYAPoAQmQAcMMqQS0gA6wAoQbwY3gRnAjuBHcGG4MN4Ybw43hxnBjuDHcWN0EX5cS9+Gu11VCfm0XRA2i0SN+TQQQXglaEwwX0p9mBCuRHQlK+Fkhy4+rsjkhky4UjMEkpJjPkqjWBEYXcVxyIipV1HBRQsJJCl2QhJwI3Qdlo+v1JcSkoHSXpODVHFymIw4Jx3AtEo0rtBJmua1tOVHnQsjp0UfiMom2DYdp6OJ1bMeT+Tr1bTf+RIH5OLbd4+fQ7c3zw9PQv5vj8N2PO+P25mWSFPpM7uX57/KEP9o0l8ctCDx8nyW/Ko/D2u/lubE8lJfH3lIem8pzuPwCA1Jl6A==
-
-> <b_ppw_ran_protassign>
-1
-
-> <b_ppw_deleted_far_waters>
-1
-
-> <s_pdb_PDB_REMARK_350_Biomolecule_1_Transform_1_Matrix_2>
-0.000000 -1.000000 0.000000   0.000000;-1.000000 0.000000 0.000000   0.000000;0.000000 0.000000 -1.000000   -32.496000
+> <model_server_stats.element_count>
+25
 
 $$$$
