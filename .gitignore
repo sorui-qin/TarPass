@@ -1,14 +1,19 @@
 __pycache__/
 */__pycache__
 .vscode/
+.DS_Store
+*.egg-info
 
-*.ipynb
+*test*
 */*test*
-!Targets/*.ipynb
 *.tar.gz
 *.zip
 Targets/*/redock*.sdf
 dock/maps/*/
 testfile
+<<<<<<< HEAD
 .DS_Store
 *.egg-info
+=======
+tmp
+>>>>>>> refs/remotes/origin/main

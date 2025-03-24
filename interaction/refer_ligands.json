@@ -1,0 +1,577 @@
+{
+  "5HT2A": {
+    "H-Bond": [
+      "A_ASP155",
+      "A_SER242"
+    ],
+    "H-Bond acceptor": [
+      "A_ASP155"
+    ],
+    "H-Bond donor": [
+      "A_SER242"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_TRP151",
+      "A_ASP155",
+      "A_VAL156",
+      "A_LEU229",
+      "A_VAL235",
+      "A_PHE339",
+      "A_PHE340"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_PHE340"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": [
+      "A_ASP155"
+    ]
+  },
+  "BCL2": {
+    "H-Bond": [
+      "A_ASP103",
+      "A_ASN143",
+      "A_TRP144",
+      "A_GLY145",
+      "A_TYR202",
+      "A_ARG207"
+    ],
+    "H-Bond acceptor": [],
+    "H-Bond donor": [
+      "A_ASP103",
+      "A_ASN143",
+      "A_TRP144",
+      "A_GLY145",
+      "A_TYR202",
+      "A_ARG207"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_PHE104",
+      "A_TYR108",
+      "A_ASP111",
+      "A_PHE112",
+      "A_ARG146",
+      "A_VAL148",
+      "A_PHE153",
+      "A_TYR202"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_TYR202"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "BRAF": {
+    "H-Bond": [
+      "A_GLU501",
+      "A_THR529",
+      "A_THR529",
+      "A_CYS532",
+      "A_CYS532",
+      "A_ASP594"
+    ],
+    "H-Bond acceptor": [
+      "A_GLU501",
+      "A_THR529",
+      "A_CYS532"
+    ],
+    "H-Bond donor": [
+      "A_THR529",
+      "A_CYS532",
+      "A_ASP594"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_VAL471",
+      "A_ALA481",
+      "A_LYS483",
+      "A_LEU505",
+      "A_LEU514",
+      "A_ILE527",
+      "A_THR529",
+      "A_ASP594",
+      "A_LEU597"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_PHE595"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "BRD4": {
+    "H-Bond": [
+      "A_ASN140",
+      "A_ILE146"
+    ],
+    "H-Bond acceptor": [],
+    "H-Bond donor": [
+      "A_ASN140",
+      "A_ILE146"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_TRP81",
+      "A_LEU92",
+      "A_LEU94",
+      "A_ILE146"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_TRP81"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": [
+      "A_ASP144"
+    ]
+  },
+  "BTK": {
+    "H-Bond": [
+      "A_GLU475",
+      "A_MET477",
+      "A_MET477",
+      "A_ASP539"
+    ],
+    "H-Bond acceptor": [
+      "A_GLU475",
+      "A_MET477"
+    ],
+    "H-Bond donor": [
+      "A_MET477",
+      "A_ASP539"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_VAL416",
+      "A_ALA428",
+      "A_LYS430",
+      "A_PHE442",
+      "A_THR474",
+      "A_LEU528"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_PHE540"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "Beta2AR": {
+    "H-Bond": [
+      "A_VAL114",
+      "A_PHE193",
+      "A_SER203",
+      "A_SER207",
+      "A_ASN360",
+      "A_ASN379",
+      "A_ASN379",
+      "A_TYR383"
+    ],
+    "H-Bond acceptor": [
+      "A_VAL114",
+      "A_SER203",
+      "A_ASN379"
+    ],
+    "H-Bond donor": [
+      "A_PHE193",
+      "A_SER207",
+      "A_ASN360",
+      "A_ASN379",
+      "A_TYR383"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_TRP109",
+      "A_THR110",
+      "A_VAL114",
+      "A_VAL117",
+      "A_PHE193",
+      "A_PHE356",
+      "A_TYR375",
+      "A_ILE376"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_PHE357"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "DRD2": {
+    "H-Bond": [
+      "A_ASP114",
+      "A_TYR416"
+    ],
+    "H-Bond acceptor": [],
+    "H-Bond donor": [
+      "A_ASP114",
+      "A_TYR416"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_VAL91",
+      "A_LEU94",
+      "A_VAL111",
+      "A_ILE184",
+      "A_TRP386"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_TRP386",
+      "A_PHE390"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": [
+      "A_ASP114"
+    ]
+  },
+  "HDAC6": {
+    "H-Bond": [
+      "A_HIS573",
+      "A_TYR745"
+    ],
+    "H-Bond acceptor": [
+      "A_HIS573"
+    ],
+    "H-Bond donor": [
+      "A_TYR745"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [],
+    "Metal complexes": [
+      "A_ASP612",
+      "A_HIS614",
+      "A_ASP705"
+    ],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_PHE583",
+      "A_HIS614"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "HIV-RT": {
+    "H-Bond": [
+      "A_LYS101",
+      "A_LYS101",
+      "A_LYS103"
+    ],
+    "H-Bond acceptor": [
+      "A_LYS101"
+    ],
+    "H-Bond donor": [
+      "A_LYS101",
+      "A_LYS103"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_LEU100",
+      "A_LYS103",
+      "A_VAL106",
+      "A_VAL108",
+      "A_TYR181",
+      "A_TYR188",
+      "A_LEU234",
+      "A_TYR318"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_TRP229"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "JAK2": {
+    "H-Bond": [
+      "A_GLU930",
+      "A_LEU932",
+      "A_LEU932"
+    ],
+    "H-Bond acceptor": [
+      "A_GLU930",
+      "A_LEU932"
+    ],
+    "H-Bond donor": [
+      "A_LEU932"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_PHE860",
+      "A_TYR931",
+      "A_LEU983"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_PHE860"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "MEK1": {
+    "H-Bond": [
+      "B_VAL211",
+      "B_SER212",
+      "B_ILE216"
+    ],
+    "H-Bond acceptor": [
+      "B_ILE216"
+    ],
+    "H-Bond donor": [
+      "B_VAL211",
+      "B_SER212"
+    ],
+    "Halogen bond": [
+      "B_VAL127"
+    ],
+    "Hydrophobic contact": [
+      "B_LYS97",
+      "B_PHE209",
+      "B_LEU215",
+      "B_ILE216"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "NAMPT": {
+    "H-Bond": [
+      "A_SER275"
+    ],
+    "H-Bond acceptor": [],
+    "H-Bond donor": [
+      "A_SER275"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_TYR188",
+      "A_ASP219",
+      "A_VAL242",
+      "A_ILE351",
+      "A_ALA379"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "B_TYR18",
+      "A_PHE193"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "PI3K-alpha": {
+    "H-Bond": [
+      "A_VAL851",
+      "A_VAL851",
+      "A_GLN859",
+      "A_GLN859"
+    ],
+    "H-Bond acceptor": [
+      "A_VAL851",
+      "A_GLN859"
+    ],
+    "H-Bond donor": [
+      "A_VAL851",
+      "A_GLN859"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_ILE800",
+      "A_TYR836",
+      "A_ILE848",
+      "A_VAL851",
+      "A_ILE932"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "PPAR-alpha": {
+    "H-Bond": [
+      "A_SER280",
+      "A_SER280",
+      "A_TYR314",
+      "A_TYR464"
+    ],
+    "H-Bond acceptor": [
+      "A_SER280"
+    ],
+    "H-Bond donor": [
+      "A_SER280",
+      "A_TYR314",
+      "A_TYR464"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_LEU247",
+      "A_PHE273",
+      "A_GLN277",
+      "A_THR279",
+      "A_THR283",
+      "A_ILE317",
+      "A_LEU321",
+      "A_VAL332",
+      "A_ILE339",
+      "A_ILE354",
+      "A_LEU456"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [],
+    "Salt Bridge lneg": [
+      "A_HIS440"
+    ],
+    "Salt Bridge pneg": []
+  },
+  "PRMT5": {
+    "H-Bond": [
+      "A_LEU312",
+      "A_LYS333",
+      "A_GLU435",
+      "A_GLU444",
+      "A_SER578",
+      "A_PHE580"
+    ],
+    "H-Bond acceptor": [
+      "A_GLU435",
+      "A_GLU444"
+    ],
+    "H-Bond donor": [
+      "A_LEU312",
+      "A_LYS333",
+      "A_SER578",
+      "A_PHE580"
+    ],
+    "Halogen bond": [
+      "A_THR323"
+    ],
+    "Hydrophobic contact": [
+      "A_PHE300",
+      "A_TYR304",
+      "A_LEU312",
+      "A_VAL326",
+      "A_PHE327",
+      "A_PHE580"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [
+      "A_PHE327",
+      "A_TRP579"
+    ],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "ROCK1": {
+    "H-Bond": [
+      "A_MET156"
+    ],
+    "H-Bond acceptor": [],
+    "H-Bond donor": [
+      "A_MET156"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_VAL90",
+      "A_LEU107",
+      "A_LEU205",
+      "A_ALA215"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [
+      "A_LYS105"
+    ],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  },
+  "RXR-alpha": {
+    "H-Bond": [
+      "A_ALA327"
+    ],
+    "H-Bond acceptor": [],
+    "H-Bond donor": [
+      "A_ALA327"
+    ],
+    "Halogen bond": [
+      "A_ASN306"
+    ],
+    "Hydrophobic contact": [
+      "A_ILE268",
+      "A_GLN275",
+      "A_PHE313",
+      "A_ILE345",
+      "A_PHE346"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [],
+    "Salt Bridge lneg": [
+      "A_ARG316"
+    ],
+    "Salt Bridge pneg": []
+  },
+  "TYK2": {
+    "H-Bond": [
+      "A_LYS642",
+      "A_GLU688",
+      "A_VAL690"
+    ],
+    "H-Bond acceptor": [
+      "A_GLU688"
+    ],
+    "H-Bond donor": [
+      "A_LYS642",
+      "A_VAL690"
+    ],
+    "Halogen bond": [],
+    "Hydrophobic contact": [
+      "A_VAL603",
+      "A_VAL640",
+      "A_ALA671",
+      "A_THR687",
+      "A_PRO694",
+      "A_LEU741"
+    ],
+    "Metal complexes": [],
+    "Pi-cation lAro": [],
+    "Pi-cation pAro": [],
+    "Pi-stacking": [],
+    "Salt Bridge lneg": [],
+    "Salt Bridge pneg": []
+  }
+}

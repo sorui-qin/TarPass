@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-01-02 17:48:16
+LastEditTime: 2025-03-12 12:45:59
 Description: 
 '''
 from rdkit import Chem
@@ -93,7 +93,7 @@ def get_dihedral(mol:Chem.rdchem.Mol) -> list:
     return dihedralList
 
 
-def get_angels_number(mol:Chem.rdchem.Mol, fct=get_dihedral):
+def get_angels_number(mol:Chem.rdchem.Mol, fct=get_torsions):
     return len(fct(mol))
 
 

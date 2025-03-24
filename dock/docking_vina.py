@@ -1,36 +1,32 @@
+'''
+Author: Rui Qin
+Date: 2025-03-01 15:57:14
+LastEditTime: 2025-03-17 16:56:14
+Description: 
+'''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 
 from meeko import PDBQTMolecule, RDKitMolCreate
-from typing import Optional, Tuple, List
+from typing import Tuple, List
 from vina import Vina
+from pathlib import Path
+from utils.docking import sdf2centroid, LigPrep
+from dock.docking_gnina import BaseDockTask
 import json
 import rdkit.Chem as Chem
-from pathlib import Path
-from utils.dock import sdf2centroid, LigPrep
 
 
-class VinaDock():
+class VinaDock(BaseDockTask):
     """
     Running docking task with AutoDock-Vina.  
-    Please note that the code is designed to perform docking with **specific targets in the benchmark** for high efficiency,  
-    using the small molecules and prepared affinity map files of targets as input.  
-    Therefore, the code does not possess the capability for general application in docking with other targets.
-
-    Args:
-        ligand (str): Filename of a sdf file (Path) or a SMILES sequenece.
-        target (str): Target name of ligand generated for.
-        mode (str, optional): Docking mode ('dock' or 'score_only'). Defaults to 'dock'.
     """
-    def __init__(self, ligand:str, target:str, mode='dock'):
-        self.ligand, self.target, self.mode = ligand, target, mode
+    def __init__(self, ligand, target, mode='dock'):
+        super().__init__(ligand, target, mode)
         self.maps = Path(f"dock/maps/{target}/{target}")
-        self.target_dir = Path(f"Targets/{target}")
-
-        if not self.target_dir.exists():
-            raise FileNotFoundError(f"Target Fold unfound: {self.target_dir}")
-        if mode not in ('dock', 'score_only'):
-            raise ValueError("Invalid docking mode, choose 'dock' or 'score_only'")
-        
+        if not ligand.startswith('REMARK') and ligand.endswith('.sdf'):
+            self.ligand = LigPrep(ligand).to_pdbqt()
+        elif not ligand.startswith('REMARK') and not ligand.endswith('.sdf'):
+            raise ValueError("Invalid ligand input, please provide a sdf file or PDBQT string.")
 
     def _get_center(self) -> List[float]:
         """Get center of docking grid.
@@ -39,7 +35,7 @@ class VinaDock():
             return sdf2centroid(next(self.target_dir.glob("*ligand*.sdf")))
         except: # For holo and AlphaFold structure
             return json.loads((self.target_dir/"center.json").read_text())["center"]
-        
+
 
     def maps_prep(self, box_size:list=[20, 20, 20]):
         """Preparation for affinity map files for given target except `HDAC6`.  
@@ -64,44 +60,18 @@ class VinaDock():
         v.write_maps(map_prefix_filename=self.maps, overwrite=True)
 
 
-    def dock(self, pdbqt_string, sf_name:str, seed=0, exhaust=32, n_poses=1, verbose=0):
-        """Running docking process with ligand PDBQT string and receptor affinity map files.
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Chem.Mol, float]:
+        """Running AutoDock-Vina.
 
         Args:
-            pdbqt_string (str): PDBQT string of ligand.
-            sf_name (str): Scoring function name to use (vina, or ad4). `ad4` is only used for zinc metalloprotein.
             seed (int, optional): Random seed (default: 0; ramdomly choosed)
-            exhaust (int, optional): Exhaustiveness of docking. Defaults to 32.
+            exhaust (int, optional): Exhaustiveness of docking. Defaults to 8.
             n_poses (int, optional): Mumber of pose to generate. Defaults to 1.
-            verbose (int, optional): verbosity 0: not output, 1: normal, 2: verbose (default: 0)
+            verbose (int, optional): Verbosity. 0: not output, 1: normal, 2: verbose (default: 0)
 
         Returns:
-            score, poses: Docking score and poses list in RdMol object.
+            Tuple[Chem.Mol, float], float]: Best docking pose in RdMol object and its score.
         """
-        v = Vina(sf_name=sf_name, cpu=0, seed=seed, verbosity=verbose)
-        v.set_ligand_from_string(pdbqt_string)
-        v.load_maps(str(self.maps))
-        if self.mode == 'score_only':
-            return v.score()[0], []
-        elif self.mode == 'dock':
-            v.dock(exhaustiveness=exhaust, n_poses=n_poses)
-            score = v.energies(n_poses=n_poses)[0][0]
-            pdbqt_mol = PDBQTMolecule(v.poses(), skip_typing=True)
-            poses = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)
-            return score, poses
-        
-
-    def run(self, optimize=0, **kwargs) -> Tuple[float, Optional[List[Chem.Mol]]]:
-        """Running AutoDock-Vina
-
-        Args:
-            optimize (int): Optimize the conformation (default: 0; Do not optimize)
-
-        Returns:
-            Tuple[float, Optional[List[Chem.Mol]]]: Docking score and poses list in RdMol object.
-        """
-        # Ligprep
-        pdbqt_string = LigPrep(self.ligand, optimize).get_pdbqt()
         # Recprep
         if not any(self.maps.parent.glob("*.map")):
             self.maps_prep()
@@ -109,13 +79,14 @@ class VinaDock():
                 raise RuntimeError("Failed to generate affinity maps")
         # Docking
         sf_name = 'ad4' if self.target == 'HDAC6' else 'vina'
-        return self.dock(pdbqt_string, sf_name=sf_name, **kwargs)
-
-if __name__ == '__main__':
-    v = VinaDock('Targets/BRD4/BRD4_8pxa_ligand_A.sdf', 'BRD4-holo')
-    score, pose = v.run(verbose=1)
-    with Chem.SDWriter('Targets/BRD4-holo/redock.sdf') as w:
-        for mol in pose:
-            w.write(mol)
-    #p = LigPrep('./Targets/BRD4/BRD4_8pxa_ligand_A.sdf')
-    #print(p.get_pdbqt())
+        v = Vina(sf_name=sf_name, cpu=0, seed=seed, verbosity=verbose)
+        v.set_ligand_from_string(self.ligand)
+        v.load_maps(str(self.maps))
+        if self.mode == 'score_only':
+            return [], v.score()[0]
+        elif self.mode == 'dock':
+            v.dock(exhaustiveness=exhaust, n_poses=n_poses)
+            score = v.energies(n_poses=n_poses)[0][0]
+            pdbqt_mol = PDBQTMolecule(v.poses(), skip_typing=True)
+            pose  = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
+            return pose, score
