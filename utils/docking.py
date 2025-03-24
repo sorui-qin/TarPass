@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-03-17 17:30:33
+LastEditTime: 2025-03-24 15:56:10
 Description: 
 '''
 from rdkit import Chem
@@ -39,6 +39,13 @@ class LigPrep():
         self.optimize = optimize
         if self.mol.GetNumConformers() == 0:
             self.optimize = True
+
+
+    def add_hydrogens(self):
+        """Add hydrogens to the ligand."""
+        self.ob_mol.OBMol.AddHydrogens()
+        self.mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
+        return self.mol
 
 
     def ligprep(self, polaronly=False, correctforph=True, PH=7):
