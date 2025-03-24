@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:00:12
-LastEditTime: 2025-03-20 10:47:35
+LastEditTime: 2025-03-24 19:03:02
 Description: 
 '''
 # Partly adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
@@ -31,7 +31,7 @@ fp_types = {
 def fingerprint(mol, fp_type):
     return fp_types[fp_type](mol)
 
-def fingerprints(mols, fp_type):
+def fingerprints(mols, fp_type='fp'):
     return [fingerprint(mol, fp_type) for mol in mols]
 
 def morgan_frags(mol):
