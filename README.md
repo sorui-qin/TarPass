@@ -1,3 +1,28 @@
+## Setup
+```
+conda create -n tarpass python=3.11
+pip install -e . 
+```
+### For basic functions
+```
+conda install -c conda-forge scipy rdkit numpy openbabel biopython
+pip install more_itertools
+
+# Running PILP
+pip install pilp
+```
+
+### Docking with AutoDock-Vina (Optional)
+```
+conda install -c conda-forge swig boost-cpp libboost sphinx sphinx_rtd_theme
+conda install -c conda-forge vina meeko gemmi prody
+conda install -c conda-forge autogrid # >=4.2.7
+```
+
+### Preparation with AutoDock-Vina (Not Recommend)
+```
+python -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3
+```
 
 ## Input folder structure 
 > **Warning**  
