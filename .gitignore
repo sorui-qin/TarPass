@@ -10,5 +10,5 @@ __pycache__/
 Targets/*/redock*.sdf
 dock/maps/*/
 testfile
-#.DS_Store
+.DS_Store
 *.egg-info
