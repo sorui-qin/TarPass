@@ -8,6 +8,9 @@ pip install -e .
 conda install -c conda-forge scipy rdkit numpy openbabel biopython
 pip install more_itertools
 
+# Anlysis
+conda install pandas matplotlib seaborn
+
 # Running PILP
 pip install pilp
 ```

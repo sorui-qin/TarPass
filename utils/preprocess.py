@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-03-17 15:42:51
+LastEditTime: 2025-03-25 18:06:53
 Description: 
 '''
 from typing import Tuple, List
@@ -14,13 +14,13 @@ from rdkit.Chem.rdMolAlign import CalcRMS
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 
-def to_mols(smiles):
+def to_mols(smiles:list) -> List[Chem.Mol]:
     return [Chem.MolFromSmiles(smile) for smile in smiles]
 
-def to_smiles(mols):
+def to_smiles(mols:list) -> List[str]:
     return [Chem.MolToSmiles(mol) for mol in mols]
 
-def standard_mol(mol):
+def standard_mol(mol:Chem.Mol) -> Chem.Mol:
     """Reset the molecule to *standard* form without conformation.  
     Not same as `Chem.MolStandardize.rdMolStandardize.Cleanup((Mol)`
     """

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-03-24 15:56:10
+LastEditTime: 2025-03-24 21:45:28
 Description: 
 '''
 from rdkit import Chem
@@ -48,13 +48,13 @@ class LigPrep():
         return self.mol
 
 
-    def ligprep(self, polaronly=False, correctforph=True, PH=7):
+    def ligprep(self, polaronly=False, correctforph=True, PH=7.4):
         """Protonate and generate a 3D conformation for the ligand.
 
         Args:
             polaronly (bool, optional): Add polar hydrogens only. Defaults to False.
             correctforph (bool, optional): Protonation based on pH value. Defaults to True.
-            PH (int, optional): pH value. Defaults to 7.
+            PH (int, optional): pH value. Defaults to 7.4.
         """
         self.ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
         self.mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
