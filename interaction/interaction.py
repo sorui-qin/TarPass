@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-17 20:15:43
-LastEditTime: 2025-03-19 16:32:35
+LastEditTime: 2025-04-07 18:47:45
 Description: 
 '''
 import re, json
@@ -24,7 +24,7 @@ def get_interactions(interactions: PLInteraction) -> defaultdict:
         interactions.hbonds_ldon,
         interactions.hbonds_pdon,
         interactions.halogen_bonds,
-        interactions.hysdrophobic_contact,
+        interactions.hydrophobic_contacts,
         interactions.metal_complexes,
         interactions.pication_laro,
         interactions.pication_paro,
