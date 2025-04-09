@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-03-24 21:18:32
+LastEditTime: 2025-04-09 16:48:02
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
@@ -57,7 +57,7 @@ class VinaDock(BaseDockTask):
         v = Vina()
         v.set_receptor(str(rec_pdbqt))
         v.compute_vina_maps(self._get_center(), box_size)
-        v.write_maps(map_prefix_filename=self.maps, overwrite=True)
+        v.write_maps(map_prefix_filename=str(self.maps), overwrite=True)
 
 
     def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Chem.Mol, float]:

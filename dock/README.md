@@ -10,9 +10,8 @@ The parameters can be describle as follows:
 | ------ | ------ |
 | Center of grid box | Center of referenced ligand |
 | Size of grid box | 20Å × 20Å × 20Å |
-| Number of output pose | 1 |
+| Number of output pose | 1 |  
 Also same to AutoDock-Vina.
-
 
 ### `maps`
 This directory contains the affinity maps for all test targets.  

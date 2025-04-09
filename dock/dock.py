@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-03-17 19:54:32
+LastEditTime: 2025-04-09 15:21:51
 Description: 
 '''
 import argparse
@@ -56,8 +56,8 @@ def setup_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('--exhaust', type=int, default=8, help='Exhaustiveness of docking.')
     parser.add_argument('--poses', type=int, default=1, help='Number of poses to generate.')
     parser.add_argument('--mode', type=str, default='dock', help='Docking mode (`dock` or `score_only`). Default is dock.')
-    parser.add_argument("--optimize", action="store_true", help="Optimized the original 3D conformation if available.")
-    parser.add_argument("--reset", action="store_true", help="Reset the original 3D conformation if available.")
+    parser.add_argument('--optimize', action="store_true", help="Optimized the original 3D conformation if available.")
+    parser.add_argument('--reset', action="store_true", help="Reset the original 3D conformation if available.")
     return parser
 
 def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
