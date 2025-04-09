@@ -5,7 +5,7 @@ pip install -e .
 ```
 ### For basic functions
 ```
-conda install -c conda-forge scipy rdkit numpy openbabel biopython
+conda install -c conda-forge scipy rdkit numpy openbabel biopython deepdiff
 pip install more_itertools
 
 # Anlysis
