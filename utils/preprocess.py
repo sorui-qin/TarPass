@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-03-25 18:06:53
+LastEditTime: 2025-04-10 20:46:18
 Description: 
 '''
 from typing import Tuple, List
@@ -12,7 +12,7 @@ from utils.io import read_sdf, read_smi
 from rdkit import Chem
 from rdkit.Chem.rdMolAlign import CalcRMS
 from rdkit import RDLogger
-RDLogger.DisableLog('rdApp.*')
+RDLogger.DisableLog('rdApp.*') # type: ignore
 
 def to_mols(smiles:list) -> List[Chem.Mol]:
     return [Chem.MolFromSmiles(smile) for smile in smiles]
@@ -77,7 +77,7 @@ class Preprocess():
         for smi, indices in unique_di.items():
             unique_smis.append(smi)
             if len(indices) > 1:
-                if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness
+                if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness # type: ignore
                     consider_3D = True
                     indices = _deduplicate_3D(mols, indices)
             unique_mols.extend([mols[idx] for idx in indices])
@@ -89,7 +89,7 @@ class Preprocess():
         return unique_smis, unique_mols
 
 
-def read_in(target_dir: Path, unique=True) -> Tuple[List[str], List[Chem.Mol]]:
+def read_in(target_dir, unique=True) -> Tuple[List[str], List[Chem.Mol]]:
     """Read in molecules from the target directory.
     Args:
         target_dir (Path): Path to the target directory.
@@ -98,7 +98,7 @@ def read_in(target_dir: Path, unique=True) -> Tuple[List[str], List[Chem.Mol]]:
     Returns:
         Tuple[List[str], List[Chem.Mol]]: Processed SMILES list `smis` and Mol list `mols`.
     """
-    read_dir = target_dir #/'generated' # Modify here when the read-in path is different
+    read_dir = Path(target_dir) #/'generated' # Modify here when the read-in path is different
 
     sdf_files = list(read_dir.glob('*.sdf'))
     if sdf_files: #SDF files will be prioritized for reading

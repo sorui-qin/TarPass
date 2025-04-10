@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-03-24 21:45:28
+LastEditTime: 2025-04-10 20:46:10
 Description: 
 '''
 from rdkit import Chem
@@ -40,29 +40,31 @@ class LigPrep():
         if self.mol.GetNumConformers() == 0:
             self.optimize = True
 
-
     def add_hydrogens(self):
         """Add hydrogens to the ligand."""
-        self.ob_mol.OBMol.AddHydrogens()
-        self.mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
-        return self.mol
+        self.ob_mol.OBMol.AddHydrogens(True)
+        mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
+        return mol
 
-
-    def ligprep(self, polaronly=False, correctforph=True, PH=7.4):
+    def ligprep(self, polaronly=True, correctforph=True, PH=7.4):
         """Protonate and generate a 3D conformation for the ligand.
 
         Args:
-            polaronly (bool, optional): Add polar hydrogens only. Defaults to False.
+            polaronly (bool, optional): Add polar hydrogens only. Defaults to True.
             correctforph (bool, optional): Protonation based on pH value. Defaults to True.
             PH (int, optional): pH value. Defaults to 7.4.
         """
         self.ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
-        self.mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
+        mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
+        if not mol: # If protonation fails, try to add hydrogens again
+            self.ob_mol = pybel.readstring("mol", Chem.MolToMolBlock(self.mol))
+            mol = self.add_hydrogens()
+            if not mol:
+                raise ValueError("Failed to protonate the ligand.")
         if self.optimize:
-            AllChem.EmbedMolecule(self.mol, AllChem.ETKDGv3())
-            AllChem.MMFFOptimizeMolecule(self.mol)
-        return self.mol
-
+            AllChem.EmbedMolecule(mol, AllChem.ETKDGv3()) # type: ignore
+            AllChem.MMFFOptimizeMolecule(mol) # type: ignore
+        return mol
 
     def get_pdbqt(self, **kwargs):
         """Get the pdbqt string of the ligand.
@@ -76,7 +78,6 @@ class LigPrep():
         molsetup = molsetup_list[0]
         pdbqt_string = PDBQTWriterLegacy.write_string(molsetup)[0]
         return pdbqt_string
-
 
     def save_sdf(self, output_path, **kwargs):
         """Save the prepared ligand to a sdf file.

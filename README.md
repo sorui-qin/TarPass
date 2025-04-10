@@ -6,7 +6,7 @@ pip install -e .
 ### For basic functions
 ```
 conda install -c conda-forge scipy rdkit numpy openbabel biopython deepdiff meeko
-pip install more_itertools, pyyaml
+pip install more_itertools pyyaml
 
 # Anlysis
 conda install -c conda-forge pandas matplotlib seaborn
