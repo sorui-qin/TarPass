@@ -1,20 +1,18 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-04-09 16:48:02
+LastEditTime: 2025-04-10 15:03:24
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
-
 from meeko import PDBQTMolecule, RDKitMolCreate
 from typing import Tuple, List
 from vina import Vina
 from pathlib import Path
-from utils.docking import sdf2centroid, LigPrep
+from rdkit import Chem
+from utils.docking import sdf2centroid
 from dock.docking_gnina import BaseDockTask
 import json
-import rdkit.Chem as Chem
-
 
 class VinaDock(BaseDockTask):
     """
@@ -23,10 +21,8 @@ class VinaDock(BaseDockTask):
     def __init__(self, ligand, target, mode='dock'):
         super().__init__(ligand, target, mode)
         self.maps = Path(f"dock/maps/{target}/{target}")
-        if not ligand.startswith('REMARK') and ligand.endswith('.sdf'):
-            self.ligand = LigPrep(ligand).to_pdbqt()
-        elif not ligand.startswith('REMARK') and not ligand.endswith('.sdf'):
-            raise ValueError("Invalid ligand input, please provide a sdf file or PDBQT string.")
+        if not ligand.startswith('REMARK'): # Check if input ligand is a PDBQT string
+            raise ValueError("Invalid ligand input, please provide an PDBQT string.")
 
     def _get_center(self) -> List[float]:
         """Get center of docking grid.
@@ -35,7 +31,6 @@ class VinaDock(BaseDockTask):
             return sdf2centroid(next(self.target_dir.glob("*ligand*.sdf")))
         except: # For holo and AlphaFold structure
             return json.loads((self.target_dir/"center.json").read_text())["center"]
-
 
     def maps_prep(self, box_size:list=[20, 20, 20]):
         """Preparation for affinity map files for given target except `HDAC6`.  
@@ -46,7 +41,6 @@ class VinaDock(BaseDockTask):
         """
         if self.target == 'HDAC6':
             raise RuntimeError('Preparation for HDAC6 should follow `Target/HDAC6/preprocess.ipynb`')
-
         try:
             rec_pdbqt = next(Path("dock/pdbqtfiles").glob(f"{self.target}_*.pdbqt"))
         except StopIteration:
@@ -58,7 +52,6 @@ class VinaDock(BaseDockTask):
         v.set_receptor(str(rec_pdbqt))
         v.compute_vina_maps(self._get_center(), box_size)
         v.write_maps(map_prefix_filename=str(self.maps), overwrite=True)
-
 
     def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Chem.Mol, float]:
         """Running AutoDock-Vina.
@@ -83,10 +76,14 @@ class VinaDock(BaseDockTask):
         v.set_ligand_from_string(self.ligand)
         v.load_maps(str(self.maps))
         if self.mode == 'score_only':
-            return [], v.score()[0]
+            pdbqt_mol = PDBQTMolecule(self.ligand, skip_typing=True)
+            pose = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
+            return pose, v.score()[0]
         elif self.mode == 'dock':
             v.dock(exhaustiveness=exhaust, n_poses=n_poses)
             score = v.energies(n_poses=n_poses)[0][0]
             pdbqt_mol = PDBQTMolecule(v.poses(), skip_typing=True)
             pose = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
             return pose, score
+        else:
+            raise ValueError("Invalid docking mode, choose 'dock' or 'score_only'")

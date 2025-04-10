@@ -1,13 +1,13 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-04-09 21:19:23
+LastEditTime: 2025-04-10 15:24:10
 Description: 
 '''
 import argparse
 import importlib
 from pathlib import Path
-from utils.io import read_yaml
+from utils.io import read_yaml, temp_dir
 
 def merge_config(args:argparse.Namespace) -> argparse.Namespace:
     """Merge command line arguments with configuration file."""
@@ -22,6 +22,7 @@ def merge_config(args:argparse.Namespace) -> argparse.Namespace:
     return args
 
 def main():
+    temp_dir() # Clean up temp dir
     parser = argparse.ArgumentParser(description="TarPass, a target-awared molecular generation benchmarking tool.")
     subparsers = parser.add_subparsers(dest="module", required=True, help="Available modules")
 

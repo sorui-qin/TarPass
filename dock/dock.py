@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-09 21:42:22
+LastEditTime: 2025-04-10 14:51:30
 Description: 
 '''
 import argparse
@@ -11,20 +11,24 @@ from utils.logger import project_logger
 from utils.docking import LigPrep
 from utils.constant import TARGETS, DASHLINE
 from utils.preprocess import read_in
-from dock.docking_vina import VinaDock
-from dock.docking_gnina import GninaDock
 from pathlib import Path
 
 class Dock():
     def __init__(self, mol, target, args):
         self.mol = mol
         self.target = target
-        self.method = VinaDock if args.method == 'vina' else GninaDock
+        self.method_name = args.method
+        if self.method_name == 'vina':
+            from dock.docking_vina import VinaDock
+            self.method = VinaDock
+        else:
+            from dock.docking_gnina import GninaDock
+            self.method = GninaDock
         self.args = args
     
     def ligprep(self):
         prep = LigPrep(self.mol, self.args.optimize, self.args.reset)
-        if self.method == VinaDock:
+        if self.method_name == 'vina':
             return prep.get_pdbqt()
         with temp_manager('.sdf', auto_remove=False) as sdf_file:
             prep.save_sdf(sdf_file)
@@ -45,20 +49,25 @@ class Dock():
             project_logger.error(e)
             return None, None
         finally:
-            if self.method == GninaDock:
+            if self.method_name != 'vina':
                 Path(ligand).unlink()
 
 def setup_arguments(parser: argparse.ArgumentParser):
-    parser.add_argument('-p', '--path', required=True, type=str, help='Path to the folder where generated molecules for testing will be stored.')
-    parser.add_argument('--method', type=str, help='Docking method to use (`gnina` or `vina`). Default is gnina.')
-    parser.add_argument('--verbose', type=int, help='Verbosity level of the docking process.')
-    parser.add_argument('--seed', type=int, help='Random seed for docking.')
-    parser.add_argument('--exhaust', type=int, help='Exhaustiveness of docking.')
-    parser.add_argument('--poses', type=int, help='Number of poses to generate.')
-    parser.add_argument('--mode', type=str, help='Docking mode (`dock` or `score_only`). Default is dock.')
-    parser.add_argument('--optimize', action="store_true", help="Optimized the original 3D conformation if available.")
-    parser.add_argument('--reset', action="store_true", help="Reset the original 3D conformation if available.")
-    parser.add_argument('--config', type=str, default='configs/dock/gnina_dock.yml', help='Path to the configuration file.')
+    group1 = parser.add_argument_group("Necessary arguments")
+    group1.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
+
+    group2 = parser.add_argument_group("Docking parameters\ndefaultly loaded from config file `configs/dock/gnina_dock.yml`")
+    group2.add_argument('--method', type=str, help='docking method to use (`gnina` or `vina`).')
+    group2.add_argument('--verbose', type=int, help='verbosity level of the docking process.')
+    group2.add_argument('--seed', type=int, help='random seed for docking.')
+    group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
+    group2.add_argument('--poses', type=int, help='number of poses to generate.')
+    group2.add_argument('--mode', type=str, help='docking mode (`dock` or `score_only`)')
+    group2.add_argument('--config', type=str, default='configs/dock/gnina_dock.yml', help='path to the configuration file')
+
+    group3 = parser.add_argument_group("Optional arguments")
+    group3.add_argument('--optimize', action="store_true", help="optimized the original 3D conformation if available")
+    group3.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")
     return parser
 
 def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
@@ -73,7 +82,7 @@ def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
 
 def execute(args):
     work_dir = Path(args.path)
-
+    # Print configuration
     project_logger.info(DASHLINE)
     project_logger.info("\n" + "="*20 + " CONFIGURATION " + "="*20)
     for key, value in args.__dict__.items():

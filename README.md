@@ -5,11 +5,11 @@ pip install -e .
 ```
 ### For basic functions
 ```
-conda install -c conda-forge scipy rdkit numpy openbabel biopython deepdiff
+conda install -c conda-forge scipy rdkit numpy openbabel biopython deepdiff meeko
 pip install more_itertools, pyyaml
 
 # Anlysis
-conda install pandas matplotlib seaborn
+conda install -c conda-forge pandas matplotlib seaborn
 
 # Running PILP
 pip install pilp
@@ -18,7 +18,7 @@ pip install pilp
 ### Docking with AutoDock-Vina (Optional)
 ```
 conda install -c conda-forge swig boost-cpp libboost sphinx sphinx_rtd_theme
-conda install -c conda-forge vina meeko gemmi prody
+conda install -c conda-forge vina gemmi prody
 conda install -c conda-forge autogrid # >=4.2.7
 ```
 

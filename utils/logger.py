@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 12:03:05
-LastEditTime: 2025-03-10 14:08:23
+LastEditTime: 2025-04-10 14:17:52
 Description: 
 '''
 import logging
@@ -14,7 +14,7 @@ class TqdmHandler(logging.StreamHandler):
         msg = self.format(record)
         tqdm.write(msg, end="\n")
 
-def get_logger(name: str, log_file: str = None) -> logging.Logger:
+def get_logger(name: str, log_file=None) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 

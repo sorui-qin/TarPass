@@ -1,11 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-04-09 19:07:22
+LastEditTime: 2025-04-10 15:11:39
 Description: 
 '''
 import os
 import yaml
+import shutil
 import pickle
 import tempfile
 from rdkit import Chem
@@ -52,6 +53,11 @@ def read_yaml(yaml_file):
     with open(yaml_file, 'r') as f:
         data = yaml.safe_load(f)
     return data
+
+def temp_dir(output_dir='./tmp'):
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
 
 @contextmanager
 def temp_manager(suffix: str, output_dir='./tmp', auto_remove=True):

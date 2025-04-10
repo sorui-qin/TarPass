@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-04-09 21:30:45
+LastEditTime: 2025-04-10 15:05:50
 Description: 
 '''
 from typing import Tuple
@@ -9,7 +9,6 @@ from utils.io import read_sdf, temp_manager
 from pathlib import Path
 import rdkit.Chem as Chem
 import subprocess
-
 
 class BaseDockTask():
     """
@@ -19,7 +18,7 @@ class BaseDockTask():
     Therefore, the code does not possess the capability for general application in docking with other targets.
 
     Args:
-        ligand (str): preparedFilename of prepared sdf file or pdbqt string.
+        ligand (str): Filename of prepared sdf file or a pdbqt string.
         target (str): Target name of ligand generated for.
         mode (str, optional): Docking mode ('dock' or 'score_only'). Defaults to 'dock'.
     """
@@ -47,7 +46,6 @@ class GninaDock(BaseDockTask):
             self.config = next(Path("dock/config").glob(f'{self.target}.txt'))
         except StopIteration:
             raise FileNotFoundError(f"No config files {self.target}.txt found in `dock/config`")
-
 
     def _get_result(self, output_sdf:str):
         mol = read_sdf(output_sdf)
