@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 16:12:18
-LastEditTime: 2025-03-19 15:08:04
+LastEditTime: 2025-04-09 21:32:51
 Description: 
 '''
 TARGETS = [
@@ -27,7 +27,7 @@ TARGETS = [
     'TYK2'
     ]
 
-DASHLINE = '-'*50
+DASHLINE = '='*50
 
 INTERACTION_TYPES = [
     'H-Bond acceptor',

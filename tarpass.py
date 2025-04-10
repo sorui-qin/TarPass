@@ -1,11 +1,25 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-03-17 17:37:10
+LastEditTime: 2025-04-09 21:19:23
 Description: 
 '''
 import argparse
 import importlib
+from pathlib import Path
+from utils.io import read_yaml
+
+def merge_config(args:argparse.Namespace) -> argparse.Namespace:
+    """Merge command line arguments with configuration file."""
+    if args.config:
+        if not Path(args.config).exists():
+            raise FileNotFoundError(f"Config file '{args.config}' not found.")
+        configs = read_yaml(args.config)
+        if configs:
+            for key, value in configs.items():
+                if hasattr(args, key) and getattr(args, key, None) is None:
+                    setattr(args, key, value)
+    return args
 
 def main():
     parser = argparse.ArgumentParser(description="TarPass, a target-awared molecular generation benchmarking tool.")
@@ -17,6 +31,7 @@ def main():
 
     args = parser.parse_args()
     module = importlib.import_module(args.module)
+    args = merge_config(args)
     module.execute(args)
 
 if __name__ == "__main__":

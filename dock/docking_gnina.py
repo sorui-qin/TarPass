@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-03-17 16:55:24
+LastEditTime: 2025-04-09 21:30:45
 Description: 
 '''
 from typing import Tuple
@@ -81,7 +81,7 @@ class GninaDock(BaseDockTask):
                 '--exhaustiveness', str(exhaust),
             ]
             if self.mode == 'score_only':
-                command.append('--score')
+                command.append('--score_only')
             if not verbose:
                 command.append('--quiet')
             subprocess.run(command, check=True)

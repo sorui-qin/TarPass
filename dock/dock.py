@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-09 15:21:51
+LastEditTime: 2025-04-09 21:42:22
 Description: 
 '''
 import argparse
@@ -50,14 +50,15 @@ class Dock():
 
 def setup_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('-p', '--path', required=True, type=str, help='Path to the folder where generated molecules for testing will be stored.')
-    parser.add_argument('--method', type=str, default='gnina', help='Docking method to use (`gnina` or `vina`). Default is gnina.')
-    parser.add_argument('--verbose', type=int, default=0, help='Verbosity level of the docking process.')
-    parser.add_argument('--seed', type=int, default=0, help='Random seed for docking.')
-    parser.add_argument('--exhaust', type=int, default=8, help='Exhaustiveness of docking.')
-    parser.add_argument('--poses', type=int, default=1, help='Number of poses to generate.')
-    parser.add_argument('--mode', type=str, default='dock', help='Docking mode (`dock` or `score_only`). Default is dock.')
+    parser.add_argument('--method', type=str, help='Docking method to use (`gnina` or `vina`). Default is gnina.')
+    parser.add_argument('--verbose', type=int, help='Verbosity level of the docking process.')
+    parser.add_argument('--seed', type=int, help='Random seed for docking.')
+    parser.add_argument('--exhaust', type=int, help='Exhaustiveness of docking.')
+    parser.add_argument('--poses', type=int, help='Number of poses to generate.')
+    parser.add_argument('--mode', type=str, help='Docking mode (`dock` or `score_only`). Default is dock.')
     parser.add_argument('--optimize', action="store_true", help="Optimized the original 3D conformation if available.")
     parser.add_argument('--reset', action="store_true", help="Reset the original 3D conformation if available.")
+    parser.add_argument('--config', type=str, default='configs/dock/gnina_dock.yml', help='Path to the configuration file.')
     return parser
 
 def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
@@ -72,7 +73,13 @@ def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
 
 def execute(args):
     work_dir = Path(args.path)
-    print(DASHLINE)
+
+    project_logger.info(DASHLINE)
+    project_logger.info("\n" + "="*20 + " CONFIGURATION " + "="*20)
+    for key, value in args.__dict__.items():
+        project_logger.info(f"{key:10} : {str(value):<}")
+    project_logger.info(DASHLINE)
+    
     for target in TARGETS:
         target_dir = work_dir / target
         if not target_dir.exists():
@@ -82,10 +89,10 @@ def execute(args):
 
         # Preprocess
         _, mols = read_in(target_dir)
-        print(DASHLINE)
+        project_logger.info(DASHLINE)
         # Breakpoint check
         Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
-        result_pkl = target_dir/f'results/{args.method}_docking_results.pkl'
+        result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
         latest_idx = breakpoint_check(result_pkl, len(mols))
         # Docking
         for mol in tqdm(mols[latest_idx:], desc=f'Docking with {target}', total=len(mols[latest_idx:])):

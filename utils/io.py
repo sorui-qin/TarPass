@@ -1,10 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-04-09 16:22:29
+LastEditTime: 2025-04-09 19:07:22
 Description: 
 '''
 import os
+import yaml
 import pickle
 import tempfile
 from rdkit import Chem
@@ -46,6 +47,11 @@ def read_smi(smi_file, delimiter='', sanitize=False):
     supp = Chem.SmilesMolSupplier(smi_file, delimiter=delimiter, sanitize=sanitize, titleLine=False)
     mols = [mol for mol in supp if mol]
     return mols[0] if len(mols) == 1 else mols
+
+def read_yaml(yaml_file):
+    with open(yaml_file, 'r') as f:
+        data = yaml.safe_load(f)
+    return data
 
 @contextmanager
 def temp_manager(suffix: str, output_dir='./tmp', auto_remove=True):
