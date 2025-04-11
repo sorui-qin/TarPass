@@ -1,13 +1,13 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-10 14:51:30
+LastEditTime: 2025-04-11 12:05:26
 Description: 
 '''
 import argparse
 from tqdm import tqdm
 from utils.io import read_pkl, append_pkl, temp_manager
-from utils.logger import project_logger
+from utils.logger import project_logger, log_config
 from utils.docking import LigPrep
 from utils.constant import TARGETS, DASHLINE
 from utils.preprocess import read_in
@@ -81,14 +81,8 @@ def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
     return 0
 
 def execute(args):
+    log_config(project_logger, args)
     work_dir = Path(args.path)
-    # Print configuration
-    project_logger.info(DASHLINE)
-    project_logger.info("\n" + "="*20 + " CONFIGURATION " + "="*20)
-    for key, value in args.__dict__.items():
-        project_logger.info(f"{key:10} : {str(value):<}")
-    project_logger.info(DASHLINE)
-    
     for target in TARGETS:
         target_dir = work_dir / target
         if not target_dir.exists():

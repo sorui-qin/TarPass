@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-10 20:46:18
+LastEditTime: 2025-04-11 10:50:36
 Description: 
 '''
 from typing import Tuple, List
@@ -12,7 +12,7 @@ from utils.io import read_sdf, read_smi
 from rdkit import Chem
 from rdkit.Chem.rdMolAlign import CalcRMS
 from rdkit import RDLogger
-RDLogger.DisableLog('rdApp.*') # type: ignore
+RDLogger.DisableLog('rdApp.*')
 
 def to_mols(smiles:list) -> List[Chem.Mol]:
     return [Chem.MolFromSmiles(smile) for smile in smiles]
@@ -77,7 +77,7 @@ class Preprocess():
         for smi, indices in unique_di.items():
             unique_smis.append(smi)
             if len(indices) > 1:
-                if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness # type: ignore
+                if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness
                     consider_3D = True
                     indices = _deduplicate_3D(mols, indices)
             unique_mols.extend([mols[idx] for idx in indices])

@@ -1,13 +1,14 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 12:03:05
-LastEditTime: 2025-04-10 14:17:52
+LastEditTime: 2025-04-11 12:04:51
 Description: 
 '''
 import logging
 import sys
 from pathlib import Path
 from tqdm import tqdm
+from utils.constant import DASHLINE
 
 class TqdmHandler(logging.StreamHandler):
     def emit(self, record):
@@ -42,3 +43,10 @@ def get_logger(name: str, log_file=None) -> logging.Logger:
     return logger
 
 project_logger = get_logger("project")
+
+def log_config(project_logger, args):
+    project_logger.info(DASHLINE)
+    project_logger.info("\n" + "="*20 + " CONFIGURATION " + "="*20)
+    for key, value in args.__dict__.items():
+        project_logger.info(f"{key:10} : {str(value):<}")
+    project_logger.info(DASHLINE)

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-04-10 20:46:10
+LastEditTime: 2025-04-11 10:50:50
 Description: 
 '''
 from rdkit import Chem
@@ -10,6 +10,7 @@ from openbabel import pybel
 from meeko import MoleculePreparation, PDBQTWriterLegacy
 from utils.io import write_sdf
 from utils.preprocess import standard_mol
+from utils.logger import project_logger
 
 
 def sdf2centroid(sdf_file):
@@ -57,13 +58,14 @@ class LigPrep():
         self.ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
         mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
         if not mol: # If protonation fails, try to add hydrogens again
+            project_logger.warning("Protonation failed, trying to add hydrogens instead.")
             self.ob_mol = pybel.readstring("mol", Chem.MolToMolBlock(self.mol))
             mol = self.add_hydrogens()
             if not mol:
                 raise ValueError("Failed to protonate the ligand.")
         if self.optimize:
-            AllChem.EmbedMolecule(mol, AllChem.ETKDGv3()) # type: ignore
-            AllChem.MMFFOptimizeMolecule(mol) # type: ignore
+            AllChem.EmbedMolecule(mol, AllChem.ETKDGv3())
+            AllChem.MMFFOptimizeMolecule(mol)
         return mol
 
     def get_pdbqt(self, **kwargs):
