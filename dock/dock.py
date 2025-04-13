@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-11 12:05:26
+LastEditTime: 2025-04-13 13:58:05
 Description: 
 '''
 import argparse
@@ -16,6 +16,8 @@ from pathlib import Path
 class Dock():
     def __init__(self, mol, target, args):
         self.mol = mol
+        if self.mol.GetNumConformers() == 0 and args.mode == 'score_only':
+            raise ValueError(f"Conformation is not detected, `score_only` mode is banned.")
         self.target = target
         self.method_name = args.method
         if self.method_name == 'vina':
@@ -87,6 +89,9 @@ def execute(args):
         target_dir = work_dir / target
         if not target_dir.exists():
             project_logger.warning(f"Target folder {target_dir} not found.")
+            continue
+        if not list(target_dir.glob('*')):
+            project_logger.warning(f"No files found in {target_dir}.")
             continue
         project_logger.info(f'Start performing docking in {target}...')
 

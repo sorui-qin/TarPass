@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-11 10:50:36
+LastEditTime: 2025-04-13 14:30:06
 Description: 
 '''
 from typing import Tuple, List
@@ -106,7 +106,7 @@ def read_in(target_dir, unique=True) -> Tuple[List[str], List[Chem.Mol]]:
         read_files, reader = sdf_files, read_sdf
     else: # If no SDF files found, read SMILES
         project_logger.info("No SDF files found. Reading SMILES instead...")
-        read_files, reader = list(Path('.').iterdir()), read_smi
+        read_files, reader = list(Path(read_dir).iterdir()), read_smi
 
     mols = []
     for f in read_files:
