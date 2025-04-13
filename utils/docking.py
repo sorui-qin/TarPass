@@ -1,11 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-04-11 10:50:50
+LastEditTime: 2025-04-14 01:24:54
 Description: 
 '''
 from rdkit import Chem
-from rdkit.Chem import AllChem
+from rdkit import RDLogger
+RDLogger.DisableLog('rdApp.*')
 from openbabel import pybel
 from meeko import MoleculePreparation, PDBQTWriterLegacy
 from utils.io import write_sdf
@@ -44,28 +45,24 @@ class LigPrep():
     def add_hydrogens(self):
         """Add hydrogens to the ligand."""
         self.ob_mol.OBMol.AddHydrogens(True)
-        mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
-        return mol
 
-    def ligprep(self, polaronly=True, correctforph=True, PH=7.4):
+    def ligprep(self, polaronly=False, correctforph=True, PH=7.4):
         """Protonate and generate a 3D conformation for the ligand.
 
         Args:
-            polaronly (bool, optional): Add polar hydrogens only. Defaults to True.
+            polaronly (bool, optional): Add polar hydrogens only. Defaults to False.
             correctforph (bool, optional): Protonation based on pH value. Defaults to True.
             PH (int, optional): pH value. Defaults to 7.4.
         """
         self.ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
-        mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
-        if not mol: # If protonation fails, try to add hydrogens again
+        if not Chem.MolFromMolBlock(self.ob_mol.write("mol")): # If protonation fails, try to add hydrogens again
             project_logger.warning("Protonation failed, trying to add hydrogens instead.")
             self.ob_mol = pybel.readstring("mol", Chem.MolToMolBlock(self.mol))
-            mol = self.add_hydrogens()
-            if not mol:
-                raise ValueError("Failed to protonate the ligand.")
+            self.add_hydrogens()
         if self.optimize:
-            AllChem.EmbedMolecule(mol, AllChem.ETKDGv3())
-            AllChem.MMFFOptimizeMolecule(mol)
+            self.ob_mol.make3D(forcefield="MMFF94", steps=50)
+            self.ob_mol.localopt(forcefield="MMFF94", steps=500)
+        mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
         return mol
 
     def get_pdbqt(self, **kwargs):

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-13 14:30:06
+LastEditTime: 2025-04-14 01:18:53
 Description: 
 '''
 from typing import Tuple, List
@@ -76,10 +76,12 @@ class Preprocess():
         unique_smis, unique_mols = [], []
         for smi, indices in unique_di.items():
             unique_smis.append(smi)
-            if len(indices) > 1:
-                if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness
-                    consider_3D = True
+            if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness
+                consider_3D = True
+                if len(indices) > 1:
                     indices = _deduplicate_3D(mols, indices)
+            else: # If no conformer, only keep the first one
+                indices = [indices[0]]
             unique_mols.extend([mols[idx] for idx in indices])
         
         project_logger.info(f'Unique SMILES: {len(unique_smis)} out of {self.mols_num}')
