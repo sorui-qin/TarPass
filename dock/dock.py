@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-13 13:58:05
+LastEditTime: 2025-04-14 14:32:26
 Description: 
 '''
 import argparse
@@ -33,11 +33,16 @@ class Dock():
         if self.method_name == 'vina':
             return prep.get_pdbqt()
         with temp_manager('.sdf', auto_remove=False) as sdf_file:
-            prep.save_sdf(sdf_file)
-            return sdf_file
+            if prep.save_sdf(sdf_file):
+                return sdf_file
+            else:
+                return None
 
     def run(self):
         ligand = self.ligprep()
+        if ligand is None:
+            project_logger.error(f"Failed to prepare ligand {self.mol.GetProp('_Name')}.")
+            return None, None
         try:
             dock = self.method(ligand, self.target, self.args.mode)
             return dock.run(

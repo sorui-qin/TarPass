@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-04-10 15:11:39
+LastEditTime: 2025-04-14 14:36:19
 Description: 
 '''
 import os
@@ -13,7 +13,7 @@ from rdkit import Chem
 from collections.abc import Iterable
 from contextlib import contextmanager
 from rdkit import RDLogger
-RDLogger.DisableLog('rdApp.*')
+RDLogger.DisableLog('rdApp.*') # type: ignore
 
 def write_pkl(pkl_file, data):
     with open(pkl_file, 'wb') as f:

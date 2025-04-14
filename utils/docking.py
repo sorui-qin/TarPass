@@ -1,12 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-04-14 01:24:54
+LastEditTime: 2025-04-14 14:36:00
 Description: 
 '''
 from rdkit import Chem
 from rdkit import RDLogger
-RDLogger.DisableLog('rdApp.*')
+RDLogger.DisableLog('rdApp.*') # type: ignore
 from openbabel import pybel
 from meeko import MoleculePreparation, PDBQTWriterLegacy
 from utils.io import write_sdf
@@ -72,11 +72,15 @@ class LigPrep():
             **kwargs: Args for `LigPrep.ligprep()`.
         """
         prep_mol = self.ligprep(**kwargs)
-        mk_prep = MoleculePreparation()
-        molsetup_list = mk_prep(prep_mol)
-        molsetup = molsetup_list[0]
-        pdbqt_string = PDBQTWriterLegacy.write_string(molsetup)[0]
-        return pdbqt_string
+        if prep_mol:
+            mk_prep = MoleculePreparation()
+            molsetup_list = mk_prep(prep_mol)
+            molsetup = molsetup_list[0]
+            pdbqt_string = PDBQTWriterLegacy.write_string(molsetup)[0]
+            return pdbqt_string
+        else:
+            project_logger.warning(f"Ligand preparation failed in {self.mol.GET}.")
+            return None
 
     def save_sdf(self, output_path, **kwargs):
         """Save the prepared ligand to a sdf file.
@@ -86,4 +90,8 @@ class LigPrep():
             **kwargs: Args for `LigPrep.ligprep()`.
         """
         prep_mol = self.ligprep(**kwargs)
-        write_sdf(output_path, prep_mol)
+        if prep_mol:
+            write_sdf(output_path, prep_mol)
+            return True
+        else:
+            return False

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-14 01:18:53
+LastEditTime: 2025-04-14 14:35:55
 Description: 
 '''
 from typing import Tuple, List
@@ -12,7 +12,7 @@ from utils.io import read_sdf, read_smi
 from rdkit import Chem
 from rdkit.Chem.rdMolAlign import CalcRMS
 from rdkit import RDLogger
-RDLogger.DisableLog('rdApp.*')
+RDLogger.DisableLog('rdApp.*') # type: ignore
 
 def to_mols(smiles:list) -> List[Chem.Mol]:
     return [Chem.MolFromSmiles(smile) for smile in smiles]
@@ -26,7 +26,8 @@ def standard_mol(mol:Chem.Mol) -> Chem.Mol:
     """
     return Chem.MolFromSmiles(Chem.MolToSmiles(mol))
 
-def _sanitize_valid(mol):
+def _sanitize_valid(mol:Chem.Mol, idx:int) -> bool:
+    mol.SetProp('_Name', f'Mol ID {idx}') # set the name of the molecule
     try:
         Chem.SanitizeMol(mol)
         return True
@@ -52,7 +53,7 @@ class Preprocess():
         self.mols_num = len(mols)
         
     def valid(self) -> Tuple[List[str], List[Chem.Mol]]:
-        valids = [mol for mol in self.mols if _sanitize_valid(mol)]
+        valids = [mol for idx, mol in enumerate(self.mols) if _sanitize_valid(mol, idx)]
         project_logger.info(f'Valid molecules: {len(valids)} out of {self.mols_num}')
         return to_smiles(valids), valids
     
@@ -76,7 +77,7 @@ class Preprocess():
         unique_smis, unique_mols = [], []
         for smi, indices in unique_di.items():
             unique_smis.append(smi)
-            if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness
+            if mols[indices[0]].GetNumConformers(): # Consider conformer uniqueness # type: ignore
                 consider_3D = True
                 if len(indices) > 1:
                     indices = _deduplicate_3D(mols, indices)
