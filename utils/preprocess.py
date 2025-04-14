@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-14 14:35:55
+LastEditTime: 2025-04-14 20:47:56
 Description: 
 '''
 from typing import Tuple, List
@@ -113,6 +113,8 @@ def read_in(target_dir, unique=True) -> Tuple[List[str], List[Chem.Mol]]:
 
     mols = []
     for f in read_files:
+        if f.is_dir():
+            continue
         try:
             readin = reader(f)
             mols += readin if isinstance(readin, list) else [readin]
