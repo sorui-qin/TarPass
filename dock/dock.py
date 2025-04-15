@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-14 14:32:26
+LastEditTime: 2025-04-15 10:30:43
 Description: 
 '''
 import argparse
@@ -108,7 +108,7 @@ def execute(args):
         result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
         latest_idx = breakpoint_check(result_pkl, len(mols))
         # Docking
-        for mol in tqdm(mols[latest_idx:], desc=f'Docking with {target}', total=len(mols[latest_idx:])):
+        for mol in tqdm(mols[latest_idx+1:], desc=f'Docking with {target}', total=len(mols[latest_idx:])):
             dock = Dock(mol, target, args)
             pose, score = dock.run()
             # Save results
