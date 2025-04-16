@@ -4,7 +4,7 @@
 The files in this directory are primarily used for the receptor preparation of the HDAC6 target and are generally not used.
 
 ### `config`
-This directory contains configuration files for docking with Gnina.  
+This directory contains configuration files of docking grid with Gnina.  
 The parameters can be describle as follows (Also same to AutoDock-Vina):  
 | Parameters | Description |
 | ------ | ------ |

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-04-13 14:31:11
+LastEditTime: 2025-04-15 22:43:50
 Description: 
 '''
 import argparse
@@ -22,7 +22,7 @@ def merge_config(args:argparse.Namespace) -> argparse.Namespace:
     return args
 
 def main():
-    #temp_dir() # Clean up temp dir
+    #temp_dir() # Clean up temp dir. If run in parrallel, this will cause error.
     parser = argparse.ArgumentParser(description="TarPass, a target-awared molecular generation benchmarking tool.")
     subparsers = parser.add_subparsers(dest="module", required=True, help="Available modules")
 

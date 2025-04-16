@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-14 20:47:56
+LastEditTime: 2025-04-15 22:50:04
 Description: 
 '''
 from typing import Tuple, List
@@ -93,7 +93,7 @@ class Preprocess():
 
 
 def read_in(target_dir, unique=True) -> Tuple[List[str], List[Chem.Mol]]:
-    """Read in molecules from the target directory.
+    """Read in molecules from the target directory. Return the processed SMILES list and Mol list.
     Args:
         target_dir (Path): Path to the target directory.
         unique (bool, optional): Running uniqueness process.
