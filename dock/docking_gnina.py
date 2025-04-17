@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-04-11 10:33:11
+LastEditTime: 2025-04-17 10:11:47
 Description: 
 '''
 from typing import Tuple
@@ -77,6 +77,7 @@ class GninaDock(BaseDockTask):
                 '--num_modes', str(n_poses),
                 '--seed', str(seed),
                 '--exhaustiveness', str(exhaust),
+                '--cnn', 'fast', # using fast cnn for no GPU decive
             ]
             if self.mode == 'score_only':
                 command.append('--score_only')

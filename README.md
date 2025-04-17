@@ -16,7 +16,7 @@ pip install pilp
 ```
 
 ### Docking with Gnina (suggested)
-We highly suggest performancing docking with Gnina. However, using Gnina requires the device to have gpu(s), so we recommend choosing the docking method according to your device's condition.  
+We highly suggest performancing docking with Gnina.
 You can download Gnina [here](https://github.com/gnina/gnina).
 
 ### Docking with AutoDock-Vina (Optional)
