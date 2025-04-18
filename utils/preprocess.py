@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-15 22:50:04
+LastEditTime: 2025-04-18 09:23:04
 Description: 
 '''
 from typing import Tuple, List
@@ -85,10 +85,10 @@ class Preprocess():
                 indices = [indices[0]]
             unique_mols.extend([mols[idx] for idx in indices])
         
-        project_logger.info(f'Unique SMILES: {len(unique_smis)} out of {self.mols_num}')
+        project_logger.info(f'Unique SMILES: {len(unique_smis)} out of {len(mols)}')
         if consider_3D:
             project_logger.info(f'3D Conformation checked...')
-            project_logger.info(f'Unique Conformation: {len(unique_mols)} out of {self.mols_num}')
+            project_logger.info(f'Unique Conformation: {len(unique_mols)} out of {len(mols)}')
         return unique_smis, unique_mols
 
 

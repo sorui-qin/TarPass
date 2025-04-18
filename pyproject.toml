@@ -9,6 +9,9 @@ dependencies = [
     # "requests>=2.25.1",
 ]
 
+[project.scripts]
+tarpass = "run_tarpass:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 

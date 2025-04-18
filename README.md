@@ -1,4 +1,7 @@
 ## Setup
+<details>
+<summary>Click to expand setup instructions</summary>
+
 ```
 conda create -n tarpass python=3.11
 pip install -e . 
@@ -30,9 +33,10 @@ conda install -c conda-forge autogrid # >=4.2.7
 ```
 python -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3
 ```
+</details>
 
 ## Input folder structure 
-> **Warning**  
+> **<font color="red">Warning</font>**  
 > We strongly recommend that you place the molecule files to be tested according to the following folder structure. Otherwise, you will need to make the corresponding modifications in the `read_in` function of `utils/preprocess.py`.  
 > We only accept SDF format files as input for 3D molecules, as reading molecules in MOL or MOL2 format may result in the loss of stereochemical information.  
 > For sequence format input, any file is acceptable.
