@@ -1,9 +1,18 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 16:12:18
-LastEditTime: 2025-04-09 21:32:51
+LastEditTime: 2025-04-20 19:59:30
 Description: 
 '''
+from pathlib import Path
+
+def resolve_path(path) -> str:
+    """
+    Resolve the path to an absolute path with corrent install path.
+    """
+    root = Path(__file__).parent.parent
+    return str(root / path)
+
 TARGETS = [
     '5HT2A',
     '5HT2A-AF',
