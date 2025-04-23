@@ -1,14 +1,13 @@
 ## Setup
-<details>
-<summary>Click to expand setup instructions</summary>
-
 ```
 conda create -n tarpass python=3.11
 pip install -e . 
 ```
 ### For basic functions
 ```
-conda install -c conda-forge scipy rdkit numpy openbabel biopython deepdiff meeko
+conda install -c conda-forge scipy numpy
+conda install -c rdkit openbabel
+conda install -c biopython meeko
 pip install more_itertools pyyaml
 
 # Anlysis
@@ -23,6 +22,8 @@ We highly suggest performancing docking with Gnina.
 You can download Gnina [here](https://github.com/gnina/gnina).
 
 ### Docking with AutoDock-Vina (Optional)
+<details>
+<summary>Click to expand setup instructions</summary>
 ```
 conda install -c conda-forge swig boost-cpp libboost sphinx sphinx_rtd_theme
 conda install -c conda-forge vina gemmi prody
@@ -36,7 +37,7 @@ python -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py
 </details>
 
 ## Input folder structure 
-> **<font color="red">Warning</font>**  
+> **Warning**  
 > We strongly recommend that you place the molecule files to be tested according to the following folder structure. Otherwise, you will need to make the corresponding modifications in the `read_in` function of `utils/preprocess.py`.  
 > We only accept SDF format files as input for 3D molecules, as reading molecules in MOL or MOL2 format may result in the loss of stereochemical information.  
 > For sequence format input, any file is acceptable.

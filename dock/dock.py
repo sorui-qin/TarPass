@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-15 10:30:43
+LastEditTime: 2025-04-23 18:00:48
 Description: 
 '''
 import argparse
@@ -9,7 +9,7 @@ from tqdm import tqdm
 from utils.io import read_pkl, append_pkl, temp_manager
 from utils.logger import project_logger, log_config
 from utils.docking import LigPrep
-from utils.constant import TARGETS, DASHLINE
+from utils.constant import ROOT, TARGETS, DASHLINE
 from utils.preprocess import read_in
 from pathlib import Path
 
@@ -70,7 +70,7 @@ def setup_arguments(parser: argparse.ArgumentParser):
     group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
     group2.add_argument('--poses', type=int, help='number of poses to generate.')
     group2.add_argument('--mode', type=str, help='docking mode (`dock` or `score_only`)')
-    group2.add_argument('--config', type=str, default='configs/dock/gnina_dock.yml', help='path to the configuration file')
+    group2.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file')
 
     group3 = parser.add_argument_group("Optional arguments")
     group3.add_argument('--optimize', action="store_true", help="optimized the original 3D conformation if available")

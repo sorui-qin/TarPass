@@ -1,15 +1,15 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-04-10 15:03:24
+LastEditTime: 2025-04-23 17:20:20
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 from meeko import PDBQTMolecule, RDKitMolCreate
 from typing import Tuple, List
 from vina import Vina
-from pathlib import Path
 from rdkit import Chem
+from utils.constant import ROOT
 from utils.docking import sdf2centroid
 from dock.docking_gnina import BaseDockTask
 import json
@@ -20,7 +20,7 @@ class VinaDock(BaseDockTask):
     """
     def __init__(self, ligand, target, mode='dock'):
         super().__init__(ligand, target, mode)
-        self.maps = Path(f"dock/maps/{target}/{target}")
+        self.maps = ROOT / f"dock/maps/{target}/{target}"
         if not ligand.startswith('REMARK'): # Check if input ligand is a PDBQT string
             raise ValueError("Invalid ligand input, please provide an PDBQT string.")
 
@@ -42,7 +42,7 @@ class VinaDock(BaseDockTask):
         if self.target == 'HDAC6':
             raise RuntimeError('Preparation for HDAC6 should follow `Target/HDAC6/preprocess.ipynb`')
         try:
-            rec_pdbqt = next(Path("dock/pdbqtfiles").glob(f"{self.target}_*.pdbqt"))
+            rec_pdbqt = next((ROOT / "dock/pdbqtfiles").glob(f"{self.target}_*.pdbqt"))
         except StopIteration:
             raise FileNotFoundError(f"No PDBQT files found for {self.target}") from None
         

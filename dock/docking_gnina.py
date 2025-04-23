@@ -1,12 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-04-20 20:06:10
+LastEditTime: 2025-04-23 17:17:52
 Description: 
 '''
 from typing import Tuple
+from utils.constant import ROOT
 from utils.io import read_sdf, temp_manager
-from pathlib import Path
 import rdkit.Chem as Chem
 import subprocess
 
@@ -26,7 +26,7 @@ class BaseDockTask():
         if not isinstance(ligand, str):
             raise ValueError("Invalid ligand input, please provide a filename or pdbqt string.")
         self.ligand, self.target, self.mode = ligand, target, mode
-        self.target_dir = Path(f"Targets/{target}")
+        self.target_dir = ROOT / f"Targets/{target}"
 
         if not self.target_dir.exists():
             raise FileNotFoundError(f"Target Fold unfound: {self.target_dir}")
@@ -43,9 +43,9 @@ class GninaDock(BaseDockTask):
         if not ligand.endswith('.sdf'):
             raise ValueError("Invalid ligand input, please provide a sdf file.")
         try:
-            self.config = next(Path("dock/config").glob(f'{self.target}.txt'))
+            self.config = next((ROOT / "dock/paras").glob(f'{self.target}.txt'))
         except StopIteration:
-            raise FileNotFoundError(f"No config files {self.target}.txt found in `dock/config`")
+            raise FileNotFoundError(f"No config files {self.target}.txt found in `<INSTALL_PATH>/dock/paras`")
 
     def _get_result(self, output_sdf:str):
         mol = read_sdf(output_sdf)
@@ -63,11 +63,9 @@ class GninaDock(BaseDockTask):
         Returns:
             Tuple[Chem.Mol, float], float]: Best docking pose in RdMol object and its score.
         """
-        output_dir = './tmp'
-        Path(output_dir).mkdir(exist_ok=True)
         rec_pdb = next(self.target_dir.glob("*rec*.pdb"))
         # Run docking
-        with temp_manager('.sdf', output_dir) as tmp_file:
+        with temp_manager('.sdf') as tmp_file:
             command = [
                 'gnina',
                 '-r', rec_pdb,
