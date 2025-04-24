@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-23 21:22:08
+LastEditTime: 2025-04-24 17:54:54
 Description: 
 '''
 import argparse
@@ -29,7 +29,7 @@ class Dock():
         self.args = args
     
     def ligprep(self):
-        prep = LigPrep(self.mol, self.args.optimize, self.args.reset)
+        prep = LigPrep(self.mol, self.args.reset)
         if self.method_name == 'vina':
             return prep.get_pdbqt()
         with temp_manager('.sdf', auto_remove=False) as sdf_file:
@@ -49,7 +49,7 @@ class Dock():
                 seed=self.args.seed,
                 exhaust=self.args.exhaust,
                 n_poses=self.args.poses,
-                verbose=self.args.verbose
+                verbose=self.args.verbose,
                 )
         except Exception as e:
             project_logger.error(f"Docking failed for {self.mol.GetProp('_Name')}.")
@@ -69,11 +69,10 @@ def setup_arguments(parser: argparse.ArgumentParser):
     group2.add_argument('--seed', type=int, help='random seed for docking.')
     group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
     group2.add_argument('--poses', type=int, help='number of poses to generate.')
-    group2.add_argument('--mode', type=str, help='docking mode (`dock` or `score_only`)')
+    group2.add_argument('--mode', type=str, help='docking mode (`dock` ,`score_only` or `minimize`).')
     group2.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file')
 
     group3 = parser.add_argument_group("Optional arguments")
-    group3.add_argument('--optimize', action="store_true", help="optimized the original 3D conformation if available")
     group3.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")
     return parser
 

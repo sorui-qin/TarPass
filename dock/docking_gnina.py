@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-04-23 17:17:52
+LastEditTime: 2025-04-24 17:51:29
 Description: 
 '''
 from typing import Tuple
@@ -79,6 +79,8 @@ class GninaDock(BaseDockTask):
             ]
             if self.mode == 'score_only':
                 command.append('--score_only')
+            if self.mode == 'minimize':
+                command.append('--minimize')
             devnull = None if verbose != 0 else subprocess.DEVNULL
             subprocess.run(command, check=True, stdout=devnull, stderr=devnull)
             return self._get_result(tmp_file)

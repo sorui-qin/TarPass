@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-24 11:55:26
+LastEditTime: 2025-04-24 13:49:52
 Description: 
 '''
 from pathlib import Path
@@ -150,5 +150,7 @@ def read_in(target_dir, num_thres=1000) -> Tuple[List[str], List[Chem.Mol]]:
     for smi, mols in processed_di.items():
         proc_smis.append(smi)
         proc_mols.extend(mols)
+    if len(proc_smis) < num_thres:
+        project_logger.warning(f"Not enough unique molecules found. Found {len(proc_smis)} unique molecules, but expected {num_thres}.")
     project_logger.info(f"Read-in procession is done, top {num_thres} unique molecules are selected.")
     return proc_smis, proc_mols

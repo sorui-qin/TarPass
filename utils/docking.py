@@ -1,10 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-04-14 14:36:00
+LastEditTime: 2025-04-24 18:25:08
 Description: 
 '''
 from rdkit import Chem
+from rdkit.Chem.rdDistGeom import EmbedMolecule
+from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMolecule
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*') # type: ignore
 from openbabel import pybel
@@ -22,48 +24,67 @@ def sdf2centroid(sdf_file):
     centroid_z = lig_xyz[:,2].mean()
     return [centroid_x, centroid_y, centroid_z]
 
+def rdkit2obmol(mol:Chem.Mol) -> pybel.Molecule:
+    return pybel.readstring("mol", Chem.MolToMolBlock(mol))
+
+def obmol2rdkit(ob_mol:pybel.Molecule) -> Chem.Mol:
+    return Chem.MolFromMolBlock(ob_mol.write("mol"), removeHs=False)
 
 class LigPrep():
-    # Partly adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
-    """Preparation of ligands.
+    """Preparation of ligand.\n
+    The molecule will undergo hydrogen adding and protonation. 
+    If the molecule has no conformation or chooses to reset the conformation, 
+    conformation generation will be performed using RDKit or Open Babel and optimized using the MMFF94 force field.
     
     Args:
         mol (Chem.Mol): Molecule object.
-        optimize (bool, optional): Generate and optimize the 3D conformation. If a conformation of the molecule is not detected, it will be forced to run. Defaults to False.
         reset_conf (bool, optional): Reset the original conformation. Defaults to False.
     """
-    def __init__(self, mol:Chem.Mol, optimize=False, reset_conf=False):
+    def __init__(self, mol:Chem.Mol, reset_conf=False):
         if reset_conf:
             self.mol = standard_mol(mol)
         else:
-            self.mol = Chem.RemoveHs(mol) # Remove Hs to avoid error in ligprep
-        self.ob_mol = pybel.readstring("mol", Chem.MolToMolBlock(self.mol))
-        self.optimize = optimize
-        if self.mol.GetNumConformers() == 0:
-            self.optimize = True
+            self.mol = Chem.RemoveHs(mol)
 
-    def add_hydrogens(self):
-        """Add hydrogens to the ligand."""
-        self.ob_mol.OBMol.AddHydrogens(True)
+    def obmol_conf(self, mol:Chem.Mol, minimize=False) -> pybel.Molecule:
+        """Convert RDKit mol to OpenBabel mol.
+        """
+        ob_mol = rdkit2obmol(mol)
+        ob_mol.make3D(forcefield="MMFF94", steps=50)
+        if minimize:
+            ob_mol.localopt(forcefield="MMFF94", steps=200)
+        return ob_mol
 
-    def ligprep(self, polaronly=False, correctforph=True, PH=7.4):
-        """Protonate and generate a 3D conformation for the ligand.
-
+    def ligprep(self, polaronly=False, correctforph=True, PH=7.4) -> Chem.Mol:
+        """Protonate or generate a 3D conformation for the ligand.
         Args:
             polaronly (bool, optional): Add polar hydrogens only. Defaults to False.
             correctforph (bool, optional): Protonation based on pH value. Defaults to True.
             PH (int, optional): pH value. Defaults to 7.4.
         """
-        self.ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
-        if not Chem.MolFromMolBlock(self.ob_mol.write("mol")): # If protonation fails, try to add hydrogens again
-            project_logger.warning("Protonation failed, trying to add hydrogens instead.")
-            self.ob_mol = pybel.readstring("mol", Chem.MolToMolBlock(self.mol))
-            self.add_hydrogens()
-        if self.optimize:
-            self.ob_mol.make3D(forcefield="MMFF94", steps=50)
-            self.ob_mol.localopt(forcefield="MMFF94", steps=500)
-        mol = Chem.MolFromMolBlock(self.ob_mol.write("mol"), removeHs=False)
-        return mol
+        # Check 3D conformation
+        p_mol = Chem.AddHs(self.mol)
+        if not self.mol.GetNumConformers():
+            try: # RDKit pipeline
+                EmbedMolecule(p_mol, useRandomCoords=True)
+                if MMFFOptimizeMolecule(p_mol, maxIters=200): # Fail to optimize
+                    ob_mol = self.obmol_conf(p_mol, minimize=True)
+                else:
+                    ob_mol = rdkit2obmol(p_mol)
+            except: # OpenBabel pipeline
+                ob_mol = self.obmol_conf(p_mol, minimize=True)
+        else:
+            ob_mol = self.obmol_conf(self.mol)
+        
+        backup = obmol2rdkit(ob_mol)
+        # Protonation
+        ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
+        prep_mol = obmol2rdkit(ob_mol)
+        if prep_mol is None and backup: # If protonation failed, use conformation with Hs
+            project_logger.warning(f"Protonation failed in {self.mol.GetProp('_Name')}, adding hydrogens instead.")
+            prep_mol = backup
+        return prep_mol
+
 
     def get_pdbqt(self, **kwargs):
         """Get the pdbqt string of the ligand.
@@ -79,7 +100,7 @@ class LigPrep():
             pdbqt_string = PDBQTWriterLegacy.write_string(molsetup)[0]
             return pdbqt_string
         else:
-            project_logger.warning(f"Ligand preparation failed in {self.mol.GET}.")
+            project_logger.warning(f"Ligand preparation failed in {self.mol.GetProp('_Name')}.")
             return None
 
     def save_sdf(self, output_path, **kwargs):
