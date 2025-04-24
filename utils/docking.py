@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-04-24 18:25:08
+LastEditTime: 2025-04-24 18:32:42
 Description: 
 '''
 from rdkit import Chem
@@ -47,7 +47,7 @@ class LigPrep():
             self.mol = Chem.RemoveHs(mol)
 
     def obmol_conf(self, mol:Chem.Mol, minimize=False) -> pybel.Molecule:
-        """Convert RDKit mol to OpenBabel mol.
+        """Create conformation with openbabel.
         """
         ob_mol = rdkit2obmol(mol)
         ob_mol.make3D(forcefield="MMFF94", steps=50)
@@ -64,10 +64,10 @@ class LigPrep():
         """
         # Check 3D conformation
         p_mol = Chem.AddHs(self.mol)
-        if not self.mol.GetNumConformers():
+        if not self.mol.GetNumConformers(): # Generate conformation if not exist
             try: # RDKit pipeline
                 EmbedMolecule(p_mol, useRandomCoords=True)
-                if MMFFOptimizeMolecule(p_mol, maxIters=200): # Fail to optimize
+                if MMFFOptimizeMolecule(p_mol, maxIters=200): # If fail to optimize, use Open Babel
                     ob_mol = self.obmol_conf(p_mol, minimize=True)
                 else:
                     ob_mol = rdkit2obmol(p_mol)
@@ -80,11 +80,10 @@ class LigPrep():
         # Protonation
         ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
         prep_mol = obmol2rdkit(ob_mol)
-        if prep_mol is None and backup: # If protonation failed, use conformation with Hs
+        if prep_mol is None and backup: # If protonation failed, use conformation with Hs instead
             project_logger.warning(f"Protonation failed in {self.mol.GetProp('_Name')}, adding hydrogens instead.")
             prep_mol = backup
         return prep_mol
-
 
     def get_pdbqt(self, **kwargs):
         """Get the pdbqt string of the ligand.
@@ -115,4 +114,5 @@ class LigPrep():
             write_sdf(output_path, prep_mol)
             return True
         else:
+            project_logger.warning(f"Ligand preparation failed in {self.mol.GetProp('_Name')}.")
             return False
