@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-23 18:00:48
+LastEditTime: 2025-04-23 21:22:08
 Description: 
 '''
 import argparse
@@ -101,7 +101,7 @@ def execute(args):
         project_logger.info(f'Start performing docking in {target}...')
 
         # Preprocess
-        _, mols = read_in(target_dir)
+        _, mols = read_in(target_dir, args.num)
         project_logger.info(DASHLINE)
         # Breakpoint check
         Path(target_dir/'results').mkdir(parents=True, exist_ok=True)

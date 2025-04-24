@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-04-23 16:51:39
+LastEditTime: 2025-04-24 12:00:21
 Description: 
 '''
 import os
@@ -10,6 +10,7 @@ import shutil
 import pickle
 import tempfile
 from utils.constant import ROOT
+from utils.logger import project_logger
 from rdkit import Chem
 from collections.abc import Iterable
 from contextlib import contextmanager
@@ -42,13 +43,21 @@ def read_sdf(sdf_file, sanitize=False, removeHs=False):
 def write_sdf(sdf_file, mols):
     w = Chem.SDWriter(sdf_file)
     for mol in (mols if isinstance(mols, Iterable) else [mols]):
-            w.write(mol)
+        w.write(mol)
     w.close()
 
 def read_smi(smi_file, delimiter='', sanitize=False):
     supp = Chem.SmilesMolSupplier(smi_file, delimiter=delimiter, sanitize=sanitize, titleLine=False)
     mols = [mol for mol in supp if mol]
     return mols[0] if len(mols) == 1 else mols
+
+def read_strings(string_file):
+    if str(string_file).split('.')[-1] not in ['smi', 'txt']:
+        project_logger.warning(f"File {string_file} is not a valid string file.")
+        return []
+    with open(string_file, 'r') as f:
+        lines = [line.strip() for line in f]
+    return lines
 
 def read_yaml(yaml_file):
     with open(yaml_file, 'r') as f:
@@ -61,7 +70,7 @@ def temp_dir(output_dir=ROOT/'tmp'):
     os.makedirs(output_dir, exist_ok=True)
 
 @contextmanager
-def temp_manager(suffix: str, output_dir=ROOT/'tmp', auto_remove=True):
+def temp_manager(suffix:str, output_dir=ROOT/'tmp', auto_remove=True):
     os.makedirs(output_dir, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         suffix=suffix,
