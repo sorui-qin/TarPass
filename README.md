@@ -5,13 +5,11 @@ pip install -e .
 ```
 ### For basic functions
 ```
-conda install -c conda-forge scipy numpy
-conda install -c rdkit openbabel
-conda install -c biopython meeko
-pip install more_itertools pyyaml
-
-# Anlysis
+conda install -c conda-forge scipy umap-learn
 conda install -c conda-forge pandas matplotlib seaborn
+conda install -c conda-forge rdkit openbabel
+conda install -c conda-forge biopython meeko
+pip install more_itertools pyyaml
 
 # Running PILP
 pip install pilp
@@ -27,7 +25,7 @@ You can download Gnina [here](https://github.com/gnina/gnina).
 ```
 conda install -c conda-forge swig boost-cpp libboost sphinx sphinx_rtd_theme
 conda install -c conda-forge vina gemmi prody
-conda install -c conda-forge autogrid # >=4.2.7
+conda install -c conda-forge autogrid # >=4.2.7, autogrid will conflict with umap-learn.
 ```
 
 ### Preparation with AutoDock-Vina (Not Recommend)
