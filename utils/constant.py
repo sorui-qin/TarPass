@@ -1,12 +1,13 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 16:12:18
-LastEditTime: 2025-04-23 16:39:51
+LastEditTime: 2025-05-13 17:32:24
 Description: 
 '''
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
+TMP = ROOT / 'tmp'
 
 TARGETS = [
     '5HT2A',
@@ -38,7 +39,7 @@ INTERACTION_TYPES = [
     'H-Bond donor',
     'Halogen bond',
     'Hydrophobic contact',
-    'Metal complexes',
+    #'Metal complexes',
     'Pi-cation lAro',
     'Pi-cation pAro',
     'Pi-stacking',

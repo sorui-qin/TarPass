@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-04-24 13:49:52
+LastEditTime: 2025-05-10 17:05:15
 Description: 
 '''
 from pathlib import Path
@@ -16,10 +16,10 @@ from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*') # type: ignore
 
 def to_mols(smiles:list) -> List[Chem.Mol]:
-    return [Chem.MolFromSmiles(smile) for smile in smiles]
+    return [mol for smile in smiles if (mol:=Chem.MolFromSmiles(smile))]
 
 def to_smiles(mols:list) -> List[str]:
-    return [Chem.MolToSmiles(mol) for mol in mols]
+    return [smi for mol in mols if (smi:=Chem.MolToSmiles(mol))]
 
 def standard_mol(mol:Chem.Mol) -> Chem.Mol:
     """Reset the molecule to *standard* form without conformation.  

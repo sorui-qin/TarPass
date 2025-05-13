@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-04-24 12:00:21
+LastEditTime: 2025-05-13 17:46:17
 Description: 
 '''
 import os
@@ -9,7 +9,7 @@ import yaml
 import shutil
 import pickle
 import tempfile
-from utils.constant import ROOT
+from utils.constant import TMP
 from utils.logger import project_logger
 from rdkit import Chem
 from collections.abc import Iterable
@@ -64,13 +64,13 @@ def read_yaml(yaml_file):
         data = yaml.safe_load(f)
     return data
 
-def temp_dir(output_dir=ROOT/'tmp'):
+def temp_dir(output_dir=TMP):
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
 @contextmanager
-def temp_manager(suffix:str, output_dir=ROOT/'tmp', auto_remove=True):
+def temp_manager(suffix:str, output_dir=TMP, auto_remove=True):
     os.makedirs(output_dir, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         suffix=suffix,

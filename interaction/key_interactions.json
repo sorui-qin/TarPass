@@ -1,0 +1,417 @@
+{
+  "5HT2A": {
+    "Hydrophobic contact": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_TRP336",
+          "A_PHE339"
+        ]
+      }
+    ],
+    "Salt Bridge pneg": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ASP155"
+        ]
+      }
+    ]
+  },
+  "5HT2A-AF": {
+    "Hydrophobic contact": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_TRP336",
+          "A_PHE339"
+        ]
+      }
+    ],
+    "Salt Bridge pneg": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ASP155"
+        ]
+      }
+    ]
+  },
+  "BCL2": {
+    "Hydrophobic contact": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_PHE104"
+        ]
+      },
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_TYR108",
+          "A_ARG146"
+        ]
+      },
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_PHE153"
+        ]
+      },
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ASP111",
+          "A_PHE112"
+        ]
+      }
+    ]
+  },
+  "BRAF": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_CYS532"
+        ]
+      }
+    ]
+  },
+  "BRD4": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ASN140"
+        ]
+      }
+    ],
+    "Hydrophobic contact": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_TRP81",
+          "A_PRO82",
+          "A_PHE83"
+        ]
+      },
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_LEU92",
+          "A_LEU94",
+          "A_VAL87",
+          "A_TYR97"
+        ]
+      }
+    ]
+  },
+  "BRD4-holo": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ASN140"
+        ]
+      }
+    ],
+    "Hydrophobic contact": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_TRP81",
+          "A_PRO82",
+          "A_PHE83"
+        ]
+      },
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_LEU92",
+          "A_LEU94",
+          "A_VAL87",
+          "A_TYR97"
+        ]
+      }
+    ]
+  },
+  "BTK": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_MET477"
+        ]
+      }
+    ],
+    "H-Bond acceptor": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_MET477"
+        ]
+      }
+    ],
+    "H-Bond donor": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_MET477"
+        ]
+      }
+    ]
+  },
+  "Beta2AR": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_SER203",
+          "A_SER207"
+        ]
+      },
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ASN379",
+          "A_TYR383"
+        ]
+      }
+    ],
+    "Pi-stacking": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_PHE357"
+        ]
+      }
+    ]
+  },
+  "DRD2": {
+    "Hydrophobic contact": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_TRP386"
+        ]
+      }
+    ],
+    "Salt Bridge pneg": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ASP114"
+        ]
+      }
+    ]
+  },
+  "HDAC6": {
+    "Pi-stacking": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_PHE583",
+          "A_PHE643"
+        ]
+      }
+    ]
+  },
+  "HIV-RT": {
+    "Hydrophobic contact": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_TYR181",
+          "A_TYR188",
+          "A_PHE227",
+          "A_TRP229"
+        ]
+      },
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_LEU100",
+          "A_LYS101"
+        ]
+      },
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_LYS103",
+          "A_VAL106",
+          "A_LEU234",
+          "A_PRO236",
+          "A_TYR318"
+        ]
+      }
+    ]
+  },
+  "JAK2": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_GLU930",
+          "A_LEU932"
+        ]
+      }
+    ]
+  },
+  "MEK1": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "B_SER212"
+        ]
+      }
+    ],
+    "Halogen bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "B_VAL127"
+        ]
+      }
+    ]
+  },
+  "NAMPT": {
+    "H-Bond": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_SER275",
+          "A_ASP219"
+        ]
+      }
+    ],
+    "Hydrophobic contact": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_VAL242"
+        ]
+      }
+    ],
+    "Pi-stacking": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_PHE193",
+          "B_TYR18"
+        ]
+      }
+    ]
+  },
+  "PI3K-alpha": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_VAL851"
+        ]
+      }
+    ],
+    "Hydrophobic contact": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_TYR836",
+          "A_ILE932"
+        ]
+      }
+    ]
+  },
+  "PPAR-alpha": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_SER280",
+          "A_TYR314"
+        ]
+      }
+    ],
+    "Salt Bridge lneg": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_HIS440"
+        ]
+      }
+    ]
+  },
+  "PRMT5": {
+    "H-Bond": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_LYS333",
+          "A_GLU444",
+          "A_GLU435"
+        ]
+      },
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_GLU312",
+          "A_PHE580"
+        ]
+      }
+    ],
+    "Pi-stacking": [
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_PHE327",
+          "A_TRP579"
+        ]
+      }
+    ]
+  },
+  "ROCK1": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_MET156"
+        ]
+      }
+    ]
+  },
+  "RXR-alpha": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ALA327"
+        ]
+      }
+    ],
+    "Salt Bridge lneg": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_ARG316"
+        ]
+      }
+    ]
+  },
+  "TYK2": {
+    "H-Bond": [
+      {
+        "match_mode": "all",
+        "residues": [
+          "A_VAL690"
+        ]
+      },
+      {
+        "match_mode": "any",
+        "residues": [
+          "A_LYS642",
+          "A_GLU688"
+        ]
+      }
+    ]
+  }
+}

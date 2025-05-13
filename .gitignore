@@ -4,7 +4,7 @@ __pycache__/
 .DS_Store
 *.egg-info
 
-*.ipynb
+test*.ipynb
 *test*
 */*test*
 *.tar.gz
