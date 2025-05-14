@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-05-13 23:35:54
-LastEditTime: 2025-05-14 22:38:36
+LastEditTime: 2025-05-15 01:07:11
 Description: 
 '''
 import argparse
@@ -26,12 +26,10 @@ def find_docked_pkl(results_dir:Path) -> Path|None:
 
 def setup_arguments(parser: argparse.ArgumentParser):
     #parser.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
-    parser.add_argument('--source', required=True, type=str, choices=['dock', 'origin'], 
-                        help='Anlysis interactions with docking pose or original generated pose.')
+    parser.add_argument('--mode', required=True, type=str, choices=['dock', 'origin'], help='Anlysis interactions with docking pose or original generated pose.')
     return parser
 
 def execute(args):
-    args = setup_arguments(argparse.ArgumentParser()).parse_args()
     log_config(project_logger, args)
     # Preparation for reading poses
     work_dir = Path(args.path)

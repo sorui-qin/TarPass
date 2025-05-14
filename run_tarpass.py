@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-05-14 22:45:59
+LastEditTime: 2025-05-15 00:57:05
 Description: 
 '''
 import argparse
@@ -41,7 +41,6 @@ def main():
     module = importlib.import_module(args.module)
     if args.module == 'dock':
         args = merge_config(args)
-    print(args)
     module.execute(args)
 
 if __name__ == "__main__":
