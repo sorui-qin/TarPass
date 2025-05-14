@@ -1,51 +1,68 @@
 '''
 Author: Rui Qin
-Date: 2025-04-10 20:57:37
-LastEditTime: 2025-05-13 17:32:41
+Date: 2025-05-13 23:35:54
+LastEditTime: 2025-05-14 16:46:30
 Description: 
 '''
-import re, json
-from rdkit import Chem
-from collections import defaultdict
-from plip.structure.preparation import PDBComplex, PLInteraction
-from utils.io import *
-from utils.preprocess import read_in
-from utils.logger import project_logger
-from utils.constant import TARGETS, DASHLINE, INTERACTION_TYPES, TMP
-from collections import defaultdict
+import argparse
+import json
+from interaction_tools import *
+from multiprocessing import Pool
+from tqdm import tqdm
+from functools import partial
+from utils.io import temp_manager, read_sdf
+from utils.constant import ROOT, TARGETS
 
-def combined_pdb_complex(pdb:str, ligand:Chem.Mol, output_pdb):
-    protein = Chem.MolFromPDBFile(pdb, sanitize=True)
-    combined = Chem.CombineMols(protein, ligand)
-    Chem.MolToPDBFile(combined, output_pdb)
+def analyze_tmppdb(mol:Chem.Mol, empty_pdb:Path) -> defaultdict:
+    """
+    Analyze the interactions of a ligand with a target protein using PLIP.
+    Args:
+        mol (Chem.Mol): The ligand molecule.
+        empty_pdb (path): Path to the empty PDB file of corresponding target.
+    Returns:
+        defaultdict: Interactions categorized by type.
+    """
+    with temp_manager('pdb') as tmpdir:
+        combined_pdb_complex(empty_pdb, mol, tmpdir)
+        interactions = analyze_plip(tmpdir)
+        return interactions
 
-def get_interactions(interactions: PLInteraction) -> defaultdict:
-    check_list = [
-        interactions.hbonds_ldon,
-        interactions.hbonds_pdon,
-        interactions.halogen_bonds,
-        interactions.hydrophobic_contacts,
-        #interactions.metal_complexes, # not used
-        interactions.pication_laro,
-        interactions.pication_paro,
-        interactions.pistacking,
-        interactions.saltbridge_lneg,
-        interactions.saltbridge_pneg,
-        #interactions.water_bridges, # not used
-    ]
+def setup_arguments(parser: argparse.ArgumentParser):
+    parser.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
+    parser.add_argument('-m', '--mode', required=True, type=str, choices=['dock', 'generate'], help='Anlysis interactions with docking pose or generated pose.')
+    return parser
 
-    interaction_types = INTERACTION_TYPES
-    inters = defaultdict(list)
-    for name, inter in zip(interaction_types, check_list):
-        for i in inter:
-            inters[name].append(f'{i.reschain}_{i.restype}{i.resnr}')
-    inters['H-Bond'] = inters['H-Bond acceptor'] + inters['H-Bond donor']
-    return inters
+def execute(args):
+    plip_tmp()
+    for target in TARGETS:
+        empty_pdb = next((ROOT / f'Targets/{target}').glob(f'{target}*.pdb'))
+        analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb)
+        with Pool() as pool:
+            interactions = list(
+                tqdm(pool.imap(analyze_func, mols),
+                    desc=f"Analyzing interactions with {target}", total=len(mols)))
+        
 
-def analysis_pdb(pdb:str) -> defaultdict:
-    analyzer = PDBComplex()
-    analyzer.output_path = '../tmp'
-    analyzer.load_pdb(pdb)
-    analyzer.analyze()
-    interactions = analyzer.interaction_sets['UNL:Z:1']
-    return get_interactions(interactions)
+if __name__ == '__main__':
+    args = setup_arguments(argparse.ArgumentParser()).parse_args()
+
+    # Preparation for reading poses
+    mode = args.mode
+    pattern = ['result/gnina-dock_docking_results.pkl',
+               'result/vina-dock_docking_results.pkl']
+
+    # Analyze
+    plip_tmp()
+    allkey_inters = json.load(open(ROOT/'interaction/key_interactions.json'))
+
+    for target in TARGETS:
+        key_inters = allkey_inters[target]
+        empty_pdb = next((ROOT / f'Targets/{target}').glob(f'{target}*.pdb'))
+
+        mols = []
+        # Running interaction analysis in parallel
+        analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb)
+        with Pool() as pool:
+            results = list(tqdm(pool.imap(analyze_func, mols),
+                                desc="Analyzing interactions", total=len(mols)))
+        

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-05-10 17:05:15
+LastEditTime: 2025-05-14 17:01:54
 Description: 
 '''
 from pathlib import Path
@@ -30,11 +30,14 @@ def standard_mol(mol:Chem.Mol) -> Chem.Mol:
 def sanitize_valid(mol:Chem.Mol, idx:int) -> bool:
     """Check if a mol object is valid.
     """
-    mol.SetProp('_Name', f'MolID {idx}') # set the name of the molecule
-    try:
-        Chem.SanitizeMol(mol)
-        return True
-    except:
+    if mol:
+        mol.SetProp('_Name', f'MolID {idx}') # set the name of the molecule
+        try:
+            Chem.SanitizeMol(mol)
+            return True
+        except:
+            return False
+    else:
         return False
     
 def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:

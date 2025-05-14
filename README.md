@@ -11,8 +11,8 @@ conda install -c conda-forge rdkit openbabel
 conda install -c conda-forge biopython meeko
 pip install more_itertools pyyaml
 
-# Running PILP
-pip install pilp
+# Running PLIP
+pip install plip
 ```
 
 ### Docking with Gnina (suggested)
@@ -22,10 +22,12 @@ You can download Gnina [here](https://github.com/gnina/gnina).
 ### Docking with AutoDock-Vina (Optional)
 <details>
 <summary>Click to expand setup instructions</summary>
+
 ```
 conda install -c conda-forge swig boost-cpp libboost sphinx sphinx_rtd_theme
 conda install -c conda-forge vina gemmi prody
-conda install -c conda-forge autogrid # >=4.2.7, autogrid will conflict with umap-learn.
+conda install -c conda-forge autogrid # >=4.2.7 
+# autogrid will conflict with umap-learn
 ```
 
 ### Preparation with AutoDock-Vina (Not Recommend)

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-04-24 17:54:54
+LastEditTime: 2025-05-14 16:35:56
 Description: 
 '''
 import argparse
@@ -69,7 +69,7 @@ def setup_arguments(parser: argparse.ArgumentParser):
     group2.add_argument('--seed', type=int, help='random seed for docking.')
     group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
     group2.add_argument('--poses', type=int, help='number of poses to generate.')
-    group2.add_argument('--mode', type=str, help='docking mode (`dock` ,`score_only` or `minimize`).')
+    group2.add_argument('--mode', type=str, choices=['dock', 'score_only', 'minimize'], help='docking mode.')
     group2.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file')
 
     group3 = parser.add_argument_group("Optional arguments")
@@ -111,6 +111,6 @@ def execute(args):
             dock = Dock(mol, target, args)
             pose, score = dock.run()
             # Save results
-            append_pkl(result_pkl, [{'index': mols.index(mol), 'pose': pose, 'score': score}])
+            append_pkl(result_pkl, [{'index': mol.GetProp(''), 'mol': mol, 'pose': pose, 'score': score}])
         project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
         print(DASHLINE)
