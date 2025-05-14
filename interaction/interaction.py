@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-05-13 23:35:54
-LastEditTime: 2025-05-15 01:07:11
+LastEditTime: 2025-05-15 01:12:54
 Description: 
 '''
 import argparse
@@ -13,7 +13,7 @@ from functools import partial
 from utils.io import read_pkl, append_pkl
 from utils.preprocess import read_in
 from utils.logger import project_logger, log_config
-from utils.constant import ROOT, TARGETS
+from utils.constant import ROOT, TARGETS, DASHLINE
 
 
 def find_docked_pkl(results_dir:Path) -> Path|None:
@@ -79,3 +79,5 @@ def execute(args):
         for pose, match in zip(poses, all_match):
             store_li.append({**{'idx': pose.GetProp('_Name')}, **match})
         append_pkl(results_dir / f'interactions.pkl', store_li)
+        project_logger.info(f"Interaction analysis result is save at {results_dir}.")
+        project_logger.info(DASHLINE)
