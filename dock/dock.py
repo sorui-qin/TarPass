@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-05-14 16:35:56
+LastEditTime: 2025-05-14 22:39:23
 Description: 
 '''
 import argparse
@@ -16,6 +16,7 @@ from pathlib import Path
 class Dock():
     def __init__(self, mol, target, args):
         self.mol = mol
+        self.idx = mol.GetProp('_Name')
         if self.mol.GetNumConformers() == 0 and args.mode == 'score_only':
             raise ValueError(f"Conformation is not detected, `score_only` mode is banned.")
         self.target = target
@@ -41,7 +42,7 @@ class Dock():
     def run(self):
         ligand = self.ligprep()
         if ligand is None:
-            project_logger.error(f"Failed to prepare ligand {self.mol.GetProp('_Name')}.")
+            project_logger.error(f"Failed to prepare ligand {self.idx}.")
             return None, None
         try:
             dock = self.method(ligand, self.target, self.args.mode)
@@ -52,7 +53,7 @@ class Dock():
                 verbose=self.args.verbose,
                 )
         except Exception as e:
-            project_logger.error(f"Docking failed for {self.mol.GetProp('_Name')}.")
+            project_logger.error(f"Docking failed for {self.idx}.")
             project_logger.error(e)
             return None, None
         finally:
@@ -60,11 +61,11 @@ class Dock():
                 Path(ligand).unlink()
 
 def setup_arguments(parser: argparse.ArgumentParser):
-    group1 = parser.add_argument_group("Necessary arguments")
-    group1.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
+    #group1 = parser.add_argument_group("Necessary arguments")
+    #group1.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
 
     group2 = parser.add_argument_group("Docking parameters\ndefaultly loaded from config file `configs/dock/gnina_dock.yml`")
-    group2.add_argument('--method', type=str, help='docking method to use (`gnina` or `vina`).')
+    group2.add_argument('-m', '--method', type=str, help='docking method to use (`gnina` or `vina`).')
     group2.add_argument('--verbose', type=int, help='verbosity level of the docking process.')
     group2.add_argument('--seed', type=int, help='random seed for docking.')
     group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
@@ -111,6 +112,8 @@ def execute(args):
             dock = Dock(mol, target, args)
             pose, score = dock.run()
             # Save results
-            append_pkl(result_pkl, [{'index': mol.GetProp(''), 'mol': mol, 'pose': pose, 'score': score}])
+            if pose:
+                pose.SetProp('_Name', (idx:=mol.GetProp('_Name')))
+            append_pkl(result_pkl, [{'index': int(idx.split(' ')[-1]), 'mol': mol, 'pose': pose, 'score': score}])
         project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
         print(DASHLINE)

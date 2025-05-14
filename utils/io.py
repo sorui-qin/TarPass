@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-05-14 13:46:46
+LastEditTime: 2025-05-14 19:35:48
 Description: 
 '''
 import os
@@ -37,7 +37,7 @@ def read_pkl(pkl_file):
     return data
 
 def read_sdf(sdf_file, sanitize=False, removeHs=False):
-    mols = list(Chem.SDMolSupplier(sdf_file, sanitize=sanitize, removeHs=removeHs))
+    mols = [mol for mol in Chem.SDMolSupplier(sdf_file, sanitize=sanitize, removeHs=removeHs) if mol]
     return mols[0] if len(mols) == 1 else mols
 
 def write_sdf(sdf_file, mols):

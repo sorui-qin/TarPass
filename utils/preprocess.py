@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-05-14 17:01:54
+LastEditTime: 2025-05-14 21:14:11
 Description: 
 '''
 from pathlib import Path
@@ -48,20 +48,6 @@ def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:
         return None
     mol.SetProp('_Name', f'MolID {idx}') # set the name of the molecule
     return mol
-
-def _deduplicate_3D(mols):
-    """Deprecated.
-    """
-    unique = []
-    for mol in mols:
-        is_duplicate = False
-        for unique_mol in unique:
-            if CalcRMS(mol, unique_mol) == 0:
-                is_duplicate = True
-                break
-        if not is_duplicate:
-            unique.append(mol)
-    return unique
 
 def check_duplicate3D(mols:List[Chem.Mol], new_mol:Chem.Mol) -> bool:
     """Check if the new molecule is a duplicate of any existing 3D conformations.
@@ -115,12 +101,12 @@ class Preprocess():
         return unique_di
 
 
-def read_in(target_dir, num_thres=1000) -> Tuple[List[str], List[Chem.Mol]]:
+def read_in(target_dir, num_thres=1000, isomers=False) -> Tuple[List[str], List[Chem.Mol]]:
     """Read in molecules from the target directory. Return the duplicate SMILES list and Mol list.
     Args:
         target_dir (Path): Path to the target directory.
         num_thres (int, optional): Threshold for the number of molecules. Defaults to 1000.
-
+        isomers (bool, optional): Whether to consider isomers. Defaults to False.
     Returns:
         Tuple[List[str], List[Chem.Mol]]: Processed SMILES list `smis` and Mol list `mols`.
     """
@@ -152,7 +138,10 @@ def read_in(target_dir, num_thres=1000) -> Tuple[List[str], List[Chem.Mol]]:
     proc_smis, proc_mols = [], []
     for smi, mols in processed_di.items():
         proc_smis.append(smi)
-        proc_mols.extend(mols)
+        if isomers:
+            proc_mols.extend(mols)
+        else:
+            proc_mols.append(mols[0])
     if len(proc_smis) < num_thres:
         project_logger.warning(f"Not enough unique molecules found. Found {len(proc_smis)} unique molecules, but expected {num_thres}.")
     project_logger.info(f"Read-in procession is done, top {num_thres} unique molecules are selected.")

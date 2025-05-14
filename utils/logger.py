@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 12:03:05
-LastEditTime: 2025-04-20 20:06:29
+LastEditTime: 2025-05-14 21:41:59
 Description: 
 '''
 import logging
@@ -15,8 +15,9 @@ class TqdmHandler(logging.StreamHandler):
         msg = self.format(record)
         tqdm.write(msg, end="\n")
 
-def get_logger(name: str, log_file=None) -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
+    logger.propagate = False # Disable propagation to avoid duplicate logs
     logger.setLevel(logging.DEBUG)
 
     # Console log
@@ -27,19 +28,6 @@ def get_logger(name: str, log_file=None) -> logging.Logger:
     )
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
-
-    # File log
-    #if log_file:
-        #log_path = Path(log_file).parent
-        #log_path.mkdir(parents=True, exist_ok=True)
-        
-        #file_handler = logging.FileHandler(log_file)
-        #file_handler.setLevel(logging.DEBUG)
-        #file_formatter = logging.Formatter(
-            #"%(levelname)s - %(message)s")
-        #file_handler.setFormatter(file_formatter)
-        #logger.addHandler(file_handler)
-
     return logger
 
 project_logger = get_logger("project")

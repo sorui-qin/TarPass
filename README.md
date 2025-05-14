@@ -9,7 +9,7 @@ conda install -c conda-forge scipy umap-learn
 conda install -c conda-forge pandas matplotlib seaborn
 conda install -c conda-forge rdkit openbabel
 conda install -c conda-forge biopython meeko
-pip install more_itertools pyyaml
+pip install more_itertools pyyaml tqdm
 
 # Running PLIP
 pip install plip

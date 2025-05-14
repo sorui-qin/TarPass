@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-05-14 14:55:23
+LastEditTime: 2025-05-14 21:01:55
 Description: 
 '''
 from pathlib import Path
@@ -9,6 +9,7 @@ from rdkit import Chem
 from collections import defaultdict
 from plip.structure.preparation import PDBComplex, PLInteraction
 from utils.constant import TMP, INTERACTION_TYPES
+from utils.io import temp_manager
 from collections import defaultdict
 
 def plip_tmp():
@@ -44,6 +45,19 @@ def analyze_plip(pdb:str|Path) -> defaultdict:
     interactions = analyzer.interaction_sets['UNL:Z:1'] # UNL:Z:1 is default if combined with RDKit
     return get_interactions(interactions)
 
+def analyze_tmppdb(mol:Chem.Mol, empty_pdb:Path) -> defaultdict:
+    """
+    Analyze the interactions of a ligand with a target protein using PLIP.
+    Args:
+        mol (Chem.Mol): The ligand molecule.
+        empty_pdb (path): Path to the empty PDB file of corresponding target.
+    Returns:
+        defaultdict: Interactions categorized by type.
+    """
+    with temp_manager('.pdb') as tmpdir:
+        combined_pdb_complex(empty_pdb, mol, tmpdir)
+        interactions = analyze_plip(tmpdir)
+        return interactions
 
 def get_interactions(interactions: PLInteraction) -> defaultdict:
     """

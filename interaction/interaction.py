@@ -1,68 +1,83 @@
 '''
 Author: Rui Qin
 Date: 2025-05-13 23:35:54
-LastEditTime: 2025-05-14 16:46:30
+LastEditTime: 2025-05-14 22:38:36
 Description: 
 '''
 import argparse
 import json
-from interaction_tools import *
-from multiprocessing import Pool
 from tqdm import tqdm
+from interaction.interaction_tools import *
+from multiprocessing import Pool
 from functools import partial
-from utils.io import temp_manager, read_sdf
+from utils.io import read_pkl, append_pkl
+from utils.preprocess import read_in
+from utils.logger import project_logger, log_config
 from utils.constant import ROOT, TARGETS
 
-def analyze_tmppdb(mol:Chem.Mol, empty_pdb:Path) -> defaultdict:
-    """
-    Analyze the interactions of a ligand with a target protein using PLIP.
-    Args:
-        mol (Chem.Mol): The ligand molecule.
-        empty_pdb (path): Path to the empty PDB file of corresponding target.
-    Returns:
-        defaultdict: Interactions categorized by type.
-    """
-    with temp_manager('pdb') as tmpdir:
-        combined_pdb_complex(empty_pdb, mol, tmpdir)
-        interactions = analyze_plip(tmpdir)
-        return interactions
+
+def find_docked_pkl(results_dir:Path) -> Path|None:
+    patterns = ['gnina', 'vina']
+    for p in patterns:
+        docked_pkl_path = results_dir / f'{p}-dock_docking_results.pkl'
+        if docked_pkl_path.exists():
+            return docked_pkl_path
+    return None
 
 def setup_arguments(parser: argparse.ArgumentParser):
-    parser.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
-    parser.add_argument('-m', '--mode', required=True, type=str, choices=['dock', 'generate'], help='Anlysis interactions with docking pose or generated pose.')
+    #parser.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
+    parser.add_argument('--source', required=True, type=str, choices=['dock', 'origin'], 
+                        help='Anlysis interactions with docking pose or original generated pose.')
     return parser
 
 def execute(args):
-    plip_tmp()
-    for target in TARGETS:
-        empty_pdb = next((ROOT / f'Targets/{target}').glob(f'{target}*.pdb'))
-        analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb)
-        with Pool() as pool:
-            interactions = list(
-                tqdm(pool.imap(analyze_func, mols),
-                    desc=f"Analyzing interactions with {target}", total=len(mols)))
-        
-
-if __name__ == '__main__':
     args = setup_arguments(argparse.ArgumentParser()).parse_args()
-
+    log_config(project_logger, args)
     # Preparation for reading poses
+    work_dir = Path(args.path)
     mode = args.mode
-    pattern = ['result/gnina-dock_docking_results.pkl',
-               'result/vina-dock_docking_results.pkl']
-
     # Analyze
-    plip_tmp()
     allkey_inters = json.load(open(ROOT/'interaction/key_interactions.json'))
 
     for target in TARGETS:
+        plip_tmp() # Clean up temp dir
+        project_logger.info(f"Analyzing interactions with {target}...")
         key_inters = allkey_inters[target]
         empty_pdb = next((ROOT / f'Targets/{target}').glob(f'{target}*.pdb'))
+        
+        # Read in the generated molecules
+        target_dir = work_dir / target
+        results_dir = target_dir / 'results'
+        docked_pkl = find_docked_pkl(results_dir)
+        if docked_pkl is None:
+            if mode == 'dock':
+                raise ValueError(f"Docking results not found in {target_dir}, please running `tarpass dock`.")
+            elif mode == 'origin':
+                project_logger.warning(f"Docking results not found in {target_dir}, searching for original poses.")
+                _, poses = read_in(target_dir)
+        else:
+            docked_list = read_pkl(docked_pkl)
+            sele = 'pose' if mode == 'dock' else 'mol'
+            poses = [pose[sele] for pose in docked_list]
 
-        mols = []
+        # Check if all molecules are 3D conformations
+        if not all([pose.GetNumConformers() for pose in poses]):
+            raise RuntimeError(f"Some molecules have not 3D conformations. Please check the input molecules.")
+        total_num = len(poses)
+        project_logger.info(f"Total {total_num} molecules to analyze.")
+
         # Running interaction analysis in parallel
         analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb)
         with Pool() as pool:
-            results = list(tqdm(pool.imap(analyze_func, mols),
-                                desc="Analyzing interactions", total=len(mols)))
+            all_inters = list(tqdm(pool.imap(analyze_func, poses),
+                                desc="Analyzing interactions", total=total_num))
         
+        match_func = partial(match_interactions, key_inters=key_inters)
+        with Pool() as pool:
+            all_match = list(tqdm(pool.imap(match_func, all_inters),
+                                desc="Matching interactions", total=total_num))
+        
+        store_li = []
+        for pose, match in zip(poses, all_match):
+            store_li.append({**{'idx': pose.GetProp('_Name')}, **match})
+        append_pkl(results_dir / f'interactions.pkl', store_li)
