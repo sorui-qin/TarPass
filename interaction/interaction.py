@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-05-13 23:35:54
-LastEditTime: 2025-05-15 01:12:54
+LastEditTime: 2025-05-15 11:30:52
 Description: 
 '''
 import argparse
@@ -46,6 +46,7 @@ def execute(args):
         # Read in the generated molecules
         target_dir = work_dir / target
         results_dir = target_dir / 'results'
+        results_dir.mkdir(parents=True, exist_ok=True)
         docked_pkl = find_docked_pkl(results_dir)
         if docked_pkl is None:
             if mode == 'dock':
@@ -65,16 +66,11 @@ def execute(args):
         project_logger.info(f"Total {total_num} molecules to analyze.")
 
         # Running interaction analysis in parallel
-        analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb)
+        analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb, key_inters=key_inters)
         with Pool() as pool:
-            all_inters = list(tqdm(pool.imap(analyze_func, poses),
+            all_match = list(tqdm(pool.imap(analyze_func, poses),
                                 desc="Analyzing interactions", total=total_num))
-        
-        match_func = partial(match_interactions, key_inters=key_inters)
-        with Pool() as pool:
-            all_match = list(tqdm(pool.imap(match_func, all_inters),
-                                desc="Matching interactions", total=total_num))
-        
+        # Save results
         store_li = []
         for pose, match in zip(poses, all_match):
             store_li.append({**{'idx': pose.GetProp('_Name')}, **match})
