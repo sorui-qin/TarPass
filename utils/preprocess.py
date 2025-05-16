@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-05-14 21:14:11
+LastEditTime: 2025-05-15 11:52:23
 Description: 
 '''
 from pathlib import Path
@@ -10,6 +10,7 @@ from collections import defaultdict
 from itertools import islice
 from utils.logger import project_logger
 from utils.io import read_sdf, read_smi, read_strings
+from utils.constant import DASHLINE
 from rdkit import Chem
 from rdkit.Chem.rdMolAlign import CalcRMS
 from rdkit import RDLogger
@@ -143,6 +144,8 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> Tuple[List[str], List[
         else:
             proc_mols.append(mols[0])
     if len(proc_smis) < num_thres:
-        project_logger.warning(f"Not enough unique molecules found. Found {len(proc_smis)} unique molecules, but expected {num_thres}.")
-    project_logger.info(f"Read-in procession is done, top {num_thres} unique molecules are selected.")
+        project_logger.warning(f"Not enough unique molecules found. Read with {len(proc_smis)} unique molecules, but expected {num_thres}.")
+    else:
+        project_logger.info(f"Read in procession is done, top {num_thres} unique molecules are selected.")
+    project_logger.info(DASHLINE)
     return proc_smis, proc_mols

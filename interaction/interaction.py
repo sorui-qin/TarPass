@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-05-13 23:35:54
-LastEditTime: 2025-05-15 11:30:52
+LastEditTime: 2025-05-16 11:20:31
 Description: 
 '''
 import argparse
@@ -45,8 +45,12 @@ def execute(args):
         
         # Read in the generated molecules
         target_dir = work_dir / target
+        if not target_dir.exists():
+            project_logger.error(f"Target directory {target_dir} does not exist.")
+            continue
         results_dir = target_dir / 'results'
         results_dir.mkdir(parents=True, exist_ok=True)
+
         docked_pkl = find_docked_pkl(results_dir)
         if docked_pkl is None:
             if mode == 'dock':
@@ -58,6 +62,17 @@ def execute(args):
             docked_list = read_pkl(docked_pkl)
             sele = 'pose' if mode == 'dock' else 'mol'
             poses = [pose[sele] for pose in docked_list]
+
+        # Check if have already analyzed
+        store_pkl = results_dir / f'{mode}_interactions.pkl'
+        if store_pkl.exists():
+            processed = read_pkl(store_pkl)
+            if len(processed) == len(poses):
+                project_logger.info(f"Interaction analysis already completed for {len(poses)} molecules.")
+                continue
+            else:
+                project_logger.info(f"Detected previous interaction analysis results, resuming from {len(processed)} of {len(poses)} molecules.")
+                poses = poses[len(processed):]
 
         # Check if all molecules are 3D conformations
         if not all([pose.GetNumConformers() for pose in poses]):
@@ -74,6 +89,6 @@ def execute(args):
         store_li = []
         for pose, match in zip(poses, all_match):
             store_li.append({**{'idx': pose.GetProp('_Name')}, **match})
-        append_pkl(results_dir / f'interactions.pkl', store_li)
+        append_pkl(store_pkl, store_li)
         project_logger.info(f"Interaction analysis result is save at {results_dir}.")
         project_logger.info(DASHLINE)
