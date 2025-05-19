@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-05-13 23:35:54
-LastEditTime: 2025-05-16 11:20:31
+LastEditTime: 2025-05-19 20:23:55
 Description: 
 '''
 import argparse
@@ -50,18 +50,19 @@ def execute(args):
             continue
         results_dir = target_dir / 'results'
         results_dir.mkdir(parents=True, exist_ok=True)
-
-        docked_pkl = find_docked_pkl(results_dir)
-        if docked_pkl is None:
-            if mode == 'dock':
+        _, mols = read_in(target_dir)
+        
+        if mode == 'dock':
+            docked_pkl = find_docked_pkl(results_dir)
+            if not docked_pkl:
                 raise ValueError(f"Docking results not found in {target_dir}, please running `tarpass dock`.")
-            elif mode == 'origin':
-                project_logger.warning(f"Docking results not found in {target_dir}, searching for original poses.")
-                _, poses = read_in(target_dir)
-        else:
-            docked_list = read_pkl(docked_pkl)
-            sele = 'pose' if mode == 'dock' else 'mol'
-            poses = [pose[sele] for pose in docked_list]
+            docked_results = read_pkl(docked_pkl)
+            if len(docked_results) < len(mols):
+                raise ValueError(f"Docking results are incomplete, please rerun `tarpass dock`.")
+            # Get the docking poses
+            poses = [docked['pose'] for docked in docked_results]
+        elif mode == 'origin':
+            poses = mols
 
         # Check if have already analyzed
         store_pkl = results_dir / f'{mode}_interactions.pkl'
@@ -87,8 +88,8 @@ def execute(args):
                                 desc="Analyzing interactions", total=total_num))
         # Save results
         store_li = []
-        for pose, match in zip(poses, all_match):
-            store_li.append({**{'idx': pose.GetProp('_Name')}, **match})
+        for mol, match in zip(mols, all_match):
+            store_li.append({**{'idx': mol.GetProp('_Name')}, **match})
         append_pkl(store_pkl, store_li)
         project_logger.info(f"Interaction analysis result is save at {results_dir}.")
         project_logger.info(DASHLINE)

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-05-14 19:35:48
+LastEditTime: 2025-05-19 16:48:42
 Description: 
 '''
 import os
@@ -30,11 +30,11 @@ def read_pkl(pkl_file):
     with open(pkl_file, 'rb') as f:
         while True:
             try:
-                aa = pickle.load(f)
-                data.extend(aa)
+                obj = pickle.load(f)
+                data.append(obj)
             except EOFError:
                 break
-    return data
+    return data if len(data) > 1 else data[0]
 
 def read_sdf(sdf_file, sanitize=False, removeHs=False):
     mols = [mol for mol in Chem.SDMolSupplier(sdf_file, sanitize=sanitize, removeHs=removeHs) if mol]

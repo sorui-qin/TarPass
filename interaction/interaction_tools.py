@@ -1,11 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-05-15 10:08:16
+LastEditTime: 2025-05-19 20:07:32
 Description: 
 '''
 from pathlib import Path
 from rdkit import Chem
+from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger
 from collections import defaultdict
 from plip.structure.preparation import PDBComplex, PLInteraction
 from utils.constant import TMP, INTERACTION_TYPES
@@ -26,6 +27,10 @@ def plip_tmp():
 def combined_pdb_complex(pdb:str|Path, ligand:Chem.Mol, output_pdb:str):
     """Combine protein and ligand into a single PDB file.
     """
+    # Uncharge the ligand
+    # Charged molecules may interfere with PLIP's judgment of hydrogen bonds
+    uncharger = Uncharger()
+    ligand = uncharger.uncharge(Chem.RemoveHs(ligand))
     protein = Chem.MolFromPDBFile(str(pdb), sanitize=True)
     combined = Chem.CombineMols(protein, ligand)
     Chem.MolToPDBFile(combined, output_pdb)

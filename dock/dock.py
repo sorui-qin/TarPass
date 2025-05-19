@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-05-14 22:39:23
+LastEditTime: 2025-05-19 20:22:08
 Description: 
 '''
 import argparse
@@ -85,7 +85,7 @@ def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
             raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
         project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
         return latest_idx
-    return 0
+    return -1
 
 def execute(args):
     log_config(project_logger, args)
@@ -112,8 +112,7 @@ def execute(args):
             dock = Dock(mol, target, args)
             pose, score = dock.run()
             # Save results
-            if pose:
-                pose.SetProp('_Name', (idx:=mol.GetProp('_Name')))
-            append_pkl(result_pkl, [{'index': int(idx.split(' ')[-1]), 'mol': mol, 'pose': pose, 'score': score}])
+            append_pkl(result_pkl, 
+                       [{'index': int(mol.GetProp('_Name').split(' ')[-1]), 'mol': mol, 'pose': pose, 'score': score}])
         project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
         print(DASHLINE)
