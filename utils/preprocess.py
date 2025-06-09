@@ -1,11 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-04 19:49:03
+LastEditTime: 2025-06-09 16:42:29
 Description: 
 '''
 from pathlib import Path
-from typing import Tuple, List, DefaultDict
+from typing import Tuple, List, DefaultDict, Iterable
 from collections import defaultdict
 from itertools import islice
 from utils.logger import project_logger
@@ -16,17 +16,26 @@ from rdkit.Chem.rdMolAlign import CalcRMS
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*') # type: ignore
 
-def to_mols(smiles:list) -> List[Chem.Mol]:
+def to_mols(smiles:Iterable) -> List[Chem.Mol]:
     return [mol for smile in smiles if (mol:=Chem.MolFromSmiles(smile))]
 
-def to_smiles(mols:list) -> List[str]:
-    return [smi for mol in mols if (smi:=Chem.MolToSmiles(mol))]
+def to_smiles(mols:Iterable) -> List[str]:
+    return [smi for mol in mols if (smi:=Chem.MolToSmiles(mol, kekuleSmiles= True))]
 
 def standard_mol(mol:Chem.Mol) -> Chem.Mol:
     """Reset the molecule to *standard* form without conformation.  
     Not same as `Chem.MolStandardize.rdMolStandardize.Cleanup((Mol)`
     """
     return Chem.MolFromSmiles(Chem.MolToSmiles(mol))
+
+def canonical_smiles(smiles:str) -> str:
+    """Reset the SMILES to canonical form.
+    """
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        return Chem.MolToSmiles(mol) if mol else smiles
+    except:
+        return smiles
 
 def sanitize_valid(mol:Chem.Mol, idx:int) -> bool:
     """Check if a mol object is valid.
