@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-12 15:30:31
+LastEditTime: 2025-06-12 20:17:39
 Description: 
 '''
 from pathlib import Path
@@ -59,14 +59,25 @@ def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:
     mol.SetProp('_Name', f'MolID {idx}') # set the name of the molecule
     return mol
 
-def check_duplicate3D(mols:List[Chem.Mol], new_mol:Chem.Mol) -> bool:
+def check_duplicate3D(mols:List[Chem.Mol]) -> List[Chem.Mol]:
     """Check if the new molecule is a duplicate of any existing 3D conformations.
     """
-    for mol in mols:
-        if CalcRMS(mol, new_mol) == 0:
-            return False
-    return True
+    confs = [1 if mol.GetNumConformers() else 0 for mol in mols]
+    if any(confs) + any(confs) == 0:
+        return mols  # If no 3D conformations, return the original list
+    elif any(confs) + any(confs) == 1:
+        raise RuntimeError('Some molecules have not 3D conformation. Please check the input molecules.')
 
+    deplicate = []
+    for mol in mols:
+        is_duplicate = False
+        for unique_mol in deplicate:
+            if CalcRMS(mol, unique_mol) == 0:
+                is_duplicate = True
+                break
+        if not is_duplicate:
+            deplicate.append(mol)
+    return deplicate
 
 class Preprocess():
     def __init__(self, readins:list, format:Literal['sdf', 'smi']):
@@ -82,44 +93,25 @@ class Preprocess():
         project_logger.info(f'Valid molecules: {len(valids)} out of {self.num}')
         return valids
 
-    def unique(self, isomers=False) -> DefaultDict[str, List[Chem.Mol]]:
+    def unique(self) -> DefaultDict[str, List[Chem.Mol]]:
         """Check the uniqueness of the molecule list.
-        Args:
-            isomers (bool, optional): Whether to consider isomers. Defaults to False.
+        Returns:
+            DefaultDict[str, List[Chem.Mol]]: A dictionary with unique SMILES as keys and a list of corresponding Mol objects as values.
         """
-        check_3D = []
         mols = self.valid()
         unique_di = defaultdict(list)
         for mol in mols:
             smi = Chem.MolToSmiles(mol)
-            conf = 1 if mol.GetNumConformers() else 0
-            if (query:=unique_di[smi]):
-                if not isomers:
-                    continue
-                conf = 1 if mol.GetNumConformers() else 0
-                if conf == 0 or (conf == 1 and not check_duplicate3D(query, mol)):
-                    continue
             unique_di[smi].append(mol)
-            check_3D.append(conf)
-
-        # Check if all molecules are 3D or 2D conformations
-        consider_3D = all(check_3D)
-        if not consider_3D and sum(check_3D):
-            raise RuntimeError('Some molecules are 3D conformations, but not all of them. Please check the input molecules.')
-        
         project_logger.info(f'Unique SMILES: {len(unique_di.items())} out of {len(mols)}')
-        if isomers:
-            project_logger.info(f'3D Conformation checked...')
-            project_logger.info(f'Unique Conformation: {sum(len(v) for v in unique_di.values())} out of {len(mols)}')
         return unique_di
-
 
 def read_in(target_dir, num_thres=1000, isomers=False) -> Tuple[List[str], List[Chem.Mol]]:
     """Read in molecules from the target directory. Return the duplicate SMILES list and Mol list.
     Args:
         target_dir (Path): Path to the target directory.
         num_thres (int, optional): Threshold for the number of molecules. Defaults to 1000. If none, all molecules will be read in.
-        isomers (bool, optional): Whether to consider isomers. Defaults to False.
+        isomers (bool, optional): Whether to consider isomers. If True, the Mol list will contain isomers, which will make the list slightly longer than num_thres. Defaults to False.  
     Returns:
         Tuple[List[str], List[Chem.Mol]]: Processed SMILES list `smis` and Mol list `mols`.
     """
@@ -150,12 +142,22 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> Tuple[List[str], List[
     if num_thres is None or num_thres <= 0:
         num_thres = len(process.readins)
     # Limit the number of molecules to num_thres
-    processed_di = dict(islice(process.unique(isomers=isomers).items(), num_thres))
-    
+    processed_li = list(islice(process.unique().items(), num_thres))
     proc_smis, proc_mols = [], []
-    for smi, mols in processed_di.items():
-        proc_smis.append(smi)
-        proc_mols.extend(mols)
+
+    # Reading SMILES or not considering isomers
+    if format == 'smi' or not isomers:
+        for smi, mols in processed_li:
+            proc_smis.append(smi)
+            proc_mols.append(mols[0])
+    # Considering isomers:
+    if isomers and format == 'sdf':
+        project_logger.info(f'Checking 3D Conformation...')
+        for smi, mols in processed_li:
+            proc_smis.append(smi)
+            proc_mols.extend(check_duplicate3D(mols))
+        project_logger.info(f'3D Conformation checked, {len(proc_mols)} unique 3D conformations found.')
+
     if len(proc_smis) < num_thres:
         project_logger.warning(f"Not enough unique molecules found. Read with {len(proc_smis)} unique molecules, but expected {num_thres}.")
     else:
