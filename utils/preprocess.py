@@ -1,11 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-09 16:42:29
+LastEditTime: 2025-06-12 15:30:31
 Description: 
 '''
 from pathlib import Path
-from typing import Tuple, List, DefaultDict, Iterable
+from typing import Tuple, List, DefaultDict, Iterable, Literal
 from collections import defaultdict
 from itertools import islice
 from utils.logger import project_logger
@@ -69,7 +69,7 @@ def check_duplicate3D(mols:List[Chem.Mol], new_mol:Chem.Mol) -> bool:
 
 
 class Preprocess():
-    def __init__(self, readins, format):
+    def __init__(self, readins:list, format:Literal['sdf', 'smi']):
         self.readins = readins
         self.num = len(readins)
         self.format = format
@@ -149,7 +149,9 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> Tuple[List[str], List[
     process = Preprocess(readins, format)
     if num_thres is None or num_thres <= 0:
         num_thres = len(process.readins)
-    processed_di = dict(islice(process.unique(isomers=isomers).items(), num_thres)) # Limit the number of molecules to num_thres
+    # Limit the number of molecules to num_thres
+    processed_di = dict(islice(process.unique(isomers=isomers).items(), num_thres))
+    
     proc_smis, proc_mols = [], []
     for smi, mols in processed_di.items():
         proc_smis.append(smi)
