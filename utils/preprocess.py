@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-13 16:04:18
+LastEditTime: 2025-06-13 19:52:43
 Description: 
 '''
 from pathlib import Path
@@ -59,15 +59,24 @@ def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:
     mol.SetProp('_Name', f'{idx}') # set the name of the molecule
     return mol
 
-def check_duplicate3D(mols:list[Chem.Mol]) -> list[Chem.Mol]:
-    """Check if the new molecule is a duplicate of any existing 3D conformations.
+def conformation_check(mols:list[Chem.Mol]) -> bool:
+    """Check if all molecules have 3D conformations.
+    Returns:
+        bool: True if all molecules have 3D conformations, False otherwise.
     """
     confs = [1 if mol.GetNumConformers() else 0 for mol in mols]
     if any(confs) + any(confs) == 0:
-        return mols  # If no 3D conformations, return the original list
+        return False  # If no 3D conformations, return False
     elif any(confs) + any(confs) == 1:
         raise RuntimeError('Some molecules have not 3D conformation. Please check the input molecules.')
+    # If all molecules have 3D conformations, return True
+    return True
 
+def check_duplicate3D(mols:list[Chem.Mol]) -> list[Chem.Mol]:
+    """Check if the new molecule is a duplicate of any existing 3D conformations.
+    """
+    if not conformation_check(mols):
+        return mols  # If no 3D conformations, return the original list
     deplicate = []
     for mol in mols:
         is_duplicate = False
@@ -78,6 +87,7 @@ def check_duplicate3D(mols:list[Chem.Mol]) -> list[Chem.Mol]:
         if not is_duplicate:
             deplicate.append(mol)
     return deplicate
+
 
 class Preprocess():
     def __init__(self, readins:list, format:Literal['sdf', 'smi']):

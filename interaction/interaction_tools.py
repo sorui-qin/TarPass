@@ -1,9 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-06-13 16:27:08
+LastEditTime: 2025-06-13 19:40:56
 Description: 
 '''
+import json
 from collections import defaultdict
 from functools import partial
 from multiprocessing import Pool
@@ -12,10 +13,11 @@ from plip.structure.preparation import PDBComplex, PLInteraction
 from rdkit import Chem
 from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger
 from tqdm import tqdm
-from utils.constant import INTERACTION_TYPES, TMP
+from utils.constant import INTERACTION_TYPES, ROOT, TMP
 from utils.io import temp_manager
 from utils.logger import project_logger
 
+allkey_inters = json.load(open(ROOT/'interaction/key_interactions.json'))
 
 def plip_tmp():
     """Create a temporary directory for PLIP analysis.
@@ -164,6 +166,7 @@ def interactions(poses:list[Chem.Mol], empty_pdb:Path, key_inters:dict) -> list[
         list[dict]: A list of dictionaries containing the interaction analysis results for each pose.
     """
     # Check if all molecules have 3D conformations
+    plip_tmp() # Clean up temp dir
     if not all([pose.GetNumConformers() for pose in poses]):
         raise RuntimeError(f"Some molecules have not 3D conformations. Please check the input molecules.")
     total_num = len(poses)

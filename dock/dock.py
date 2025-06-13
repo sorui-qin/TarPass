@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-13 16:36:09
+LastEditTime: 2025-06-13 20:02:27
 Description: 
 '''
 import argparse
@@ -115,10 +115,10 @@ def execute(args):
             # Save results
             if args.mode == 'dock':
                 append_pkl(result_pkl, 
-                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'pose': pose, 'score': score})
+                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'pose': pose, 'docking score': score})
             elif args.mode == 'score_only':
                 append_pkl(result_pkl, 
-                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'score': score})
+                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'vina score': score})
         
         project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
         print(DASHLINE)
