@@ -1,13 +1,14 @@
 '''
 Author: Rui Qin
 Date: 2024-01-04 17:22:05
-LastEditTime: 2025-06-13 11:02:55
+LastEditTime: 2025-06-13 16:16:05
 Description: 
 '''
-from rdkit.Chem.Scaffolds import MurckoScaffold # type: ignore[import-untyped]
 import numpy as np
+from rdkit.Chem.Scaffolds import MurckoScaffold  # type: ignore[import-untyped]
 from eval.chemmeasure.measures import NCircles
 from utils.measure import *
+
 
 def scaffolds(mols):
     return [MurckoScaffold.GetScaffoldForMol(mol) for mol in mols]

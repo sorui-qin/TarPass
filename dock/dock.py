@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-05-19 20:22:08
+LastEditTime: 2025-06-13 16:36:09
 Description: 
 '''
 import argparse
@@ -70,21 +70,23 @@ def setup_arguments(parser: argparse.ArgumentParser):
     group2.add_argument('--seed', type=int, help='random seed for docking.')
     group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
     group2.add_argument('--poses', type=int, help='number of poses to generate.')
-    group2.add_argument('--mode', type=str, choices=['dock', 'score_only', 'minimize'], help='docking mode.')
+    group2.add_argument('--mode', type=str, choices=['dock', 'score_only'], help='docking mode.')
     group2.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file')
 
     group3 = parser.add_argument_group("Optional arguments")
     group3.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")
     return parser
 
-def breakpoint_check(result_pkl: Path, total_lens: int) -> int:
+def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
     if result_pkl.exists():
         project_logger.info(f"Detected previous docking results.")
-        latest_idx = read_pkl(result_pkl)[-1]['index']
-        if latest_idx > total_lens:
-            raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
-        project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
-        return latest_idx
+        results = read_pkl(result_pkl)
+        if isinstance(results, list):
+            latest_idx = results[-1]['index']
+            if latest_idx > total_lens:
+                raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
+            project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
+            return latest_idx
     return -1
 
 def execute(args):
@@ -102,17 +104,21 @@ def execute(args):
 
         # Preprocess
         _, mols = read_in(target_dir, args.num)
-        project_logger.info(DASHLINE)
         # Breakpoint check
         Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
         result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
         latest_idx = breakpoint_check(result_pkl, len(mols))
         # Docking
-        for mol in tqdm(mols[latest_idx+1:], desc=f'Docking with {target}', total=len(mols[latest_idx:])):
+        for mol in tqdm(latest:=mols[latest_idx+1:], desc=f'Docking with {target}', total=len(latest)):
             dock = Dock(mol, target, args)
             pose, score = dock.run()
             # Save results
-            append_pkl(result_pkl, 
-                       [{'index': int(mol.GetProp('_Name').split(' ')[-1]), 'mol': mol, 'pose': pose, 'score': score}])
+            if args.mode == 'dock':
+                append_pkl(result_pkl, 
+                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'pose': pose, 'score': score})
+            elif args.mode == 'score_only':
+                append_pkl(result_pkl, 
+                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'score': score})
+        
         project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
         print(DASHLINE)

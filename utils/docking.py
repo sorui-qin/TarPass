@@ -1,19 +1,18 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-04-24 18:32:42
+LastEditTime: 2025-06-13 16:15:36
 Description: 
 '''
-from rdkit import Chem
+from rdkit import Chem, RDLogger
 from rdkit.Chem.rdDistGeom import EmbedMolecule
 from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMolecule
-from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*') # type: ignore
-from openbabel import pybel
 from meeko import MoleculePreparation, PDBQTWriterLegacy
+from openbabel import pybel
 from utils.io import write_sdf
-from utils.preprocess import standard_mol
 from utils.logger import project_logger
+from utils.preprocess import standard_mol
 
 
 def sdf2centroid(sdf_file):
@@ -29,6 +28,7 @@ def rdkit2obmol(mol:Chem.Mol) -> pybel.Molecule:
 
 def obmol2rdkit(ob_mol:pybel.Molecule) -> Chem.Mol:
     return Chem.MolFromMolBlock(ob_mol.write("mol"), removeHs=False)
+
 
 class LigPrep():
     """Preparation of ligand.\n
@@ -62,9 +62,9 @@ class LigPrep():
             correctforph (bool, optional): Protonation based on pH value. Defaults to True.
             PH (int, optional): pH value. Defaults to 7.4.
         """
-        # Check 3D conformation
+        # RDmol 2 OBmol for protonation
         p_mol = Chem.AddHs(self.mol)
-        if not self.mol.GetNumConformers(): # Generate conformation if not exist
+        if not self.mol.GetNumConformers(): # Check 3D conformation
             try: # RDKit pipeline
                 EmbedMolecule(p_mol, useRandomCoords=True)
                 if MMFFOptimizeMolecule(p_mol, maxIters=200): # If fail to optimize, use Open Babel
@@ -74,10 +74,10 @@ class LigPrep():
             except: # OpenBabel pipeline
                 ob_mol = self.obmol_conf(p_mol, minimize=True)
         else:
-            ob_mol = self.obmol_conf(self.mol)
-        
-        backup = obmol2rdkit(ob_mol)
+            ob_mol = rdkit2obmol(p_mol)
+
         # Protonation
+        backup = p_mol
         ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
         prep_mol = obmol2rdkit(ob_mol)
         if prep_mol is None and backup: # If protonation failed, use conformation with Hs instead

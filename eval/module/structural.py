@@ -1,14 +1,14 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-06-13 11:03:26
+LastEditTime: 2025-06-13 16:16:19
 Description: 
 '''
-from rdkit import Chem
-from rdkit.Chem.Lipinski import NumRotatableBonds # type: ignore[import-untyped]
 import copy
-import numpy as np
 import networkx as nx
+import numpy as np
+from rdkit import Chem
+from rdkit.Chem.Lipinski import NumRotatableBonds  # type: ignore[import-untyped]
 
 
 def get_torsions(mol:Chem.rdchem.Mol) -> list:

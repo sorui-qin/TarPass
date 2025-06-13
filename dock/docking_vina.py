@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-04-24 17:59:07
+LastEditTime: 2025-06-13 14:11:29
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
@@ -82,11 +82,6 @@ class VinaDock(BaseDockTask):
         elif self.mode == 'dock':
             v.dock(exhaustiveness=exhaust, n_poses=n_poses)
             score = v.energies(n_poses=n_poses)[0][0]
-            pdbqt_mol = PDBQTMolecule(v.poses(), skip_typing=True)
-            pose = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
-            return pose, score
-        elif self.mode == 'minimize':
-            score = v.optimize()[0]
             pdbqt_mol = PDBQTMolecule(v.poses(), skip_typing=True)
             pose = RDKitMolCreate.from_pdbqt_mol(pdbqt_mol)[0]
             return pose, score

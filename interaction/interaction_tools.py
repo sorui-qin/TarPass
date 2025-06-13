@@ -1,17 +1,21 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-05-19 20:07:32
+LastEditTime: 2025-06-13 16:27:08
 Description: 
 '''
+from collections import defaultdict
+from functools import partial
+from multiprocessing import Pool
 from pathlib import Path
+from plip.structure.preparation import PDBComplex, PLInteraction
 from rdkit import Chem
 from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger
-from collections import defaultdict
-from plip.structure.preparation import PDBComplex, PLInteraction
-from utils.constant import TMP, INTERACTION_TYPES
+from tqdm import tqdm
+from utils.constant import INTERACTION_TYPES, TMP
 from utils.io import temp_manager
-from collections import defaultdict
+from utils.logger import project_logger
+
 
 def plip_tmp():
     """Create a temporary directory for PLIP analysis.
@@ -147,3 +151,27 @@ def match_interactions(detect_inters: defaultdict, key_inters:dict) -> dict:
     result['matched_count'] = successful_matches
     result['fully_matched'] = (successful_matches == total_checks)
     return result
+
+def interactions(poses:list[Chem.Mol], empty_pdb:Path, key_inters:dict) -> list[dict]:
+    """Anlysis the interactions of the poses with the target protein.
+
+    Args:
+        poses (list[Chem.Mol]): Mol objects with 3D conformations relative to the pocket.
+        empty_pdb (Path): Path to the empty PDB file of the target protein.
+        key_inters (dict): Dictionary of key interactions to analyze.
+
+    Returns:
+        list[dict]: A list of dictionaries containing the interaction analysis results for each pose.
+    """
+    # Check if all molecules have 3D conformations
+    if not all([pose.GetNumConformers() for pose in poses]):
+        raise RuntimeError(f"Some molecules have not 3D conformations. Please check the input molecules.")
+    total_num = len(poses)
+    project_logger.info(f"Total {total_num} molecules to analyze.")
+
+    # Running interaction analysis in parallel
+    analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb, key_inters=key_inters)
+    with Pool() as pool:
+        all_match = list(tqdm(pool.imap(analyze_func, poses),
+                            desc="Analyzing interactions", total=total_num))
+    return all_match

@@ -1,25 +1,25 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-12 20:17:39
+LastEditTime: 2025-06-13 16:04:18
 Description: 
 '''
 from pathlib import Path
-from typing import Tuple, List, DefaultDict, Iterable, Literal
+from typing import DefaultDict, Iterable, Literal
 from collections import defaultdict
 from itertools import islice
 from utils.logger import project_logger
-from utils.io import read_sdf, read_smi, read_strings
+from utils.io import read_sdf, read_strings
 from utils.constant import DASHLINE
 from rdkit import Chem
 from rdkit.Chem.rdMolAlign import CalcRMS
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*') # type: ignore
 
-def to_mols(smiles:Iterable) -> List[Chem.Mol]:
+def to_mols(smiles:Iterable) -> list[Chem.Mol]:
     return [mol for smile in smiles if (mol:=Chem.MolFromSmiles(smile))]
 
-def to_smiles(mols:Iterable) -> List[str]:
+def to_smiles(mols:Iterable) -> list[str]:
     return [smi for mol in mols if (smi:=Chem.MolToSmiles(mol, kekuleSmiles= True))]
 
 def standard_mol(mol:Chem.Mol) -> Chem.Mol:
@@ -41,7 +41,7 @@ def sanitize_valid(mol:Chem.Mol, idx:int) -> bool:
     """Check if a mol object is valid.
     """
     if mol:
-        mol.SetProp('_Name', f'MolID {idx}') # set the name of the molecule
+        mol.SetProp('_Name', f'{idx}') # set the name of the molecule
         try:
             Chem.SanitizeMol(mol)
             return True
@@ -56,10 +56,10 @@ def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:
     mol = Chem.MolFromSmiles(smi)
     if mol is None:
         return None
-    mol.SetProp('_Name', f'MolID {idx}') # set the name of the molecule
+    mol.SetProp('_Name', f'{idx}') # set the name of the molecule
     return mol
 
-def check_duplicate3D(mols:List[Chem.Mol]) -> List[Chem.Mol]:
+def check_duplicate3D(mols:list[Chem.Mol]) -> list[Chem.Mol]:
     """Check if the new molecule is a duplicate of any existing 3D conformations.
     """
     confs = [1 if mol.GetNumConformers() else 0 for mol in mols]
@@ -85,7 +85,7 @@ class Preprocess():
         self.num = len(readins)
         self.format = format
         
-    def valid(self) -> List[Chem.Mol]:
+    def valid(self) -> list[Chem.Mol]:
         if self.format == 'sdf':
             valids = [mol for idx, mol in enumerate(self.readins) if sanitize_valid(mol, idx)]
         elif self.format == 'smi':
@@ -93,7 +93,7 @@ class Preprocess():
         project_logger.info(f'Valid molecules: {len(valids)} out of {self.num}')
         return valids
 
-    def unique(self) -> DefaultDict[str, List[Chem.Mol]]:
+    def unique(self) -> DefaultDict[str, list[Chem.Mol]]:
         """Check the uniqueness of the molecule list.
         Returns:
             DefaultDict[str, List[Chem.Mol]]: A dictionary with unique SMILES as keys and a list of corresponding Mol objects as values.
@@ -106,7 +106,7 @@ class Preprocess():
         project_logger.info(f'Unique SMILES: {len(unique_di.items())} out of {len(mols)}')
         return unique_di
 
-def read_in(target_dir, num_thres=1000, isomers=False) -> Tuple[List[str], List[Chem.Mol]]:
+def read_in(target_dir, num_thres=1000, isomers=False) -> tuple[list[str], list[Chem.Mol]]:
     """Read in molecules from the target directory. Return the duplicate SMILES list and Mol list.
     Args:
         target_dir (Path): Path to the target directory.
