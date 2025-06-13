@@ -1,11 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-03-12 12:45:59
+LastEditTime: 2025-06-13 11:03:26
 Description: 
 '''
 from rdkit import Chem
-from rdkit.Chem.Lipinski import NumRotatableBonds
+from rdkit.Chem.Lipinski import NumRotatableBonds # type: ignore[import-untyped]
 import copy
 import numpy as np
 import networkx as nx

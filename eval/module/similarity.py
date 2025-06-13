@@ -1,10 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2024-01-04 17:22:05
-LastEditTime: 2025-03-12 20:17:02
+LastEditTime: 2025-06-13 11:02:55
 Description: 
 '''
-from rdkit.Chem.Scaffolds import MurckoScaffold
+from rdkit.Chem.Scaffolds import MurckoScaffold # type: ignore[import-untyped]
 import numpy as np
 from eval.chemmeasure.measures import NCircles
 from utils.measure import *
