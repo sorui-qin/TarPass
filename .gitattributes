@@ -8,3 +8,4 @@
 *.log linguist-detectable=false
 *.out linguist-detectable=false
 *.csv linguist-detectable=false
+*.1 linguist-detectable=false
