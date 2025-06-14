@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-05-15 00:57:05
+LastEditTime: 2025-06-14 17:24:27
 Description: 
 '''
 import argparse
@@ -36,6 +36,12 @@ def main():
     interaction_parser = subparsers.add_parser("interaction", help="Analyze interactions")
     interaction_module = importlib.import_module("interaction")
     interaction_module.setup_arguments(interaction_parser)
+
+    ### Evaluation module ###
+    eval_module = importlib.import_module("eval")
+
+    dockeval_parser = subparsers.add_parser("dockeval", help="Evaluate docking results")
+    eval_module.setup_arguments(dockeval_parser)
 
     args = parser.parse_args()
     module = importlib.import_module(args.module)

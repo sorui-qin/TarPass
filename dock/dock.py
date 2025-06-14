@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-13 20:02:27
+LastEditTime: 2025-06-14 17:01:10
 Description: 
 '''
 import argparse
@@ -60,6 +60,20 @@ class Dock():
             if self.method_name != 'vina':
                 Path(ligand).unlink()
 
+def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
+    if result_pkl.exists():
+        project_logger.info(f"Detected previous docking results.")
+        results = read_pkl(result_pkl)
+        if isinstance(results, list):
+            latest_idx = results[-1]['index']
+            if latest_idx > total_lens:
+                raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
+            project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
+            return latest_idx
+    return -1
+
+############## Execution Functions ##############
+
 def setup_arguments(parser: argparse.ArgumentParser):
     #group1 = parser.add_argument_group("Necessary arguments")
     #group1.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
@@ -76,18 +90,6 @@ def setup_arguments(parser: argparse.ArgumentParser):
     group3 = parser.add_argument_group("Optional arguments")
     group3.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")
     return parser
-
-def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
-    if result_pkl.exists():
-        project_logger.info(f"Detected previous docking results.")
-        results = read_pkl(result_pkl)
-        if isinstance(results, list):
-            latest_idx = results[-1]['index']
-            if latest_idx > total_lens:
-                raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
-            project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
-            return latest_idx
-    return -1
 
 def execute(args):
     log_config(project_logger, args)

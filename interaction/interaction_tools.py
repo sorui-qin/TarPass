@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-06-13 19:40:56
+LastEditTime: 2025-06-14 15:52:07
 Description: 
 '''
 import json
@@ -16,6 +16,7 @@ from tqdm import tqdm
 from utils.constant import INTERACTION_TYPES, ROOT, TMP
 from utils.io import temp_manager
 from utils.logger import project_logger
+from utils.preprocess import conformation_check
 
 allkey_inters = json.load(open(ROOT/'interaction/key_interactions.json'))
 
@@ -165,16 +166,15 @@ def interactions(poses:list[Chem.Mol], empty_pdb:Path, key_inters:dict) -> list[
     Returns:
         list[dict]: A list of dictionaries containing the interaction analysis results for each pose.
     """
-    # Check if all molecules have 3D conformations
     plip_tmp() # Clean up temp dir
-    if not all([pose.GetNumConformers() for pose in poses]):
-        raise RuntimeError(f"Some molecules have not 3D conformations. Please check the input molecules.")
-    total_num = len(poses)
-    project_logger.info(f"Total {total_num} molecules to analyze.")
-
-    # Running interaction analysis in parallel
-    analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb, key_inters=key_inters)
-    with Pool() as pool:
-        all_match = list(tqdm(pool.imap(analyze_func, poses),
-                            desc="Analyzing interactions", total=total_num))
-    return all_match
+    if conformation_check(poses):
+        total_num = len(poses)
+        project_logger.info(f"Total {total_num} molecules to analyze.")
+        # Running interaction analysis in parallel
+        analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb, key_inters=key_inters)
+        with Pool() as pool:
+            all_match = list(tqdm(pool.imap(analyze_func, poses),
+                                desc="Analyzing interactions", total=total_num))
+        return all_match
+    else:
+        return []
