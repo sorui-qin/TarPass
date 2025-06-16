@@ -1,11 +1,1 @@
-*.py linguist-language=Python
-*.ipynb linguist-language=Jupyter Notebook
-*.pdb linguist-detectable=false
-*.pdbqt linguist-detectable=false
-*.sdf linguist-detectable=false
-*.dat linguist-detectable=false
-*.txt linguist-detectable=false
-*.log linguist-detectable=false
-*.out linguist-detectable=false
-*.csv linguist-detectable=false
 *.1 linguist-detectable=false

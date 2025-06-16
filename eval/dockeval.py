@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-14 17:20:27
+LastEditTime: 2025-06-16 11:53:49
 Description: 
 '''
 from functools import partial
@@ -20,7 +20,7 @@ from utils.preprocess import Chem, conformation_check, read_in, to_smiles
 
 TARGET_PATH = ROOT / 'Targets'
 
-class DockEval():
+class DockEval:
     """Evaluate docking results of generated molecules for a specific target.
     Args:
         poses (list[Chem.Mol]): Poses of the molecules to be evaluated.
@@ -28,45 +28,59 @@ class DockEval():
         target (str): Name of the target protein.
     """
     def __init__(self, poses:list[Chem.Mol], scores:list[float], target:str):
+        if len(poses) != len(scores):
+            raise ValueError(f"Length of poses ({len(poses)}) and scores ({len(scores)}) must be equal.")
         self.poses = poses
-        self.lens = len(self.poses)
         self.scores = scores
-        if self.lens != len(scores):
-            raise ValueError(f"Length of poses ({self.poses}) and scores ({len(scores)}) must be equal.")
         self.target = target
 
     def interactions(self):
         """Calculate interactions for all molecules in the target."""
         target = self.target
         key_inters = allkey_inters[target]
-        empty_pdb = next((TARGET_PATH / target).glob(f'{target}*.pdb'))
+        pdb_files = list((TARGET_PATH / self.target).glob(f'{self.target}*.pdb'))
+        if not pdb_files:
+            raise FileNotFoundError(f"No pdb file found for target {self.target}")
+        empty_pdb = pdb_files[0]
         return interactions(poses=self.poses, empty_pdb=empty_pdb, key_inters=key_inters)
     
     def ligand_efficiency(self):
         """Calculate ligand efficiency for all molecules in the target."""
-        le_results = process_map(calc_le, zip(self.poses, self.scores),
-                                 desc=f"Calculating ligand efficiency for {self.target}...", chunksize=10)
-        return le_results
+        return process_map(
+            calc_le, zip(self.poses, self.scores),chunksize=10,
+            desc=f"Calculating ligand efficiency for {self.target}...", 
+            )
     
     def sucos(self):
         """Calculate SUCOS for all molecules in the target."""
-        target = self.target
-        mol_true = read_sdf(next((TARGET_PATH / target).glob(f'{target}*.sdf')))
+        sdf_files = list((TARGET_PATH / self.target).glob(f'{self.target}*.sdf'))
+        if not sdf_files:
+            raise FileNotFoundError(f"No sdf file found for target {self.target}")
+        mol_true = read_sdf(sdf_files[0])
         sucos_fn = partial(check_sucos, mol_true=mol_true)
-        sucos_scores = process_map(sucos_fn, self.poses,
-                                   desc=f"Calculating SUCOS for {target}...", chunksize=10,)
-        return sucos_scores
+        return process_map(
+            sucos_fn, self.poses,chunksize=10,
+            desc=f"Calculating SUCOS for {self.target}...",
+            )
 
-    def eval(self):
+    def evaluate(self):
         """Evaluate docking results for the target."""
         # Calculate all metrics
-        inters = self.interactions()
+        inters_results = self.interactions()
         le_results = self.ligand_efficiency()
         sucos_scores = self.sucos()
         
-        eval_results = [{'pose': pose, 'score': score, **le, **sucos, **inter}
-                 for pose, score, inter, le, sucos in 
-                 zip(self.poses, self.scores, inters, le_results, sucos_scores)]
+        # Combine all results
+        eval_results = []
+        for i, (pose, score) in enumerate(zip(self.poses, self.scores)):
+            result = {
+                'pose': pose,
+                'score': score,
+                **{'sucos': sucos_scores[i]},
+                **le_results[i],
+                **inters_results[i]
+            }
+            eval_results.append(result)
         return eval_results
 
 
@@ -103,7 +117,7 @@ def dock_eval(work_dir:Path, target:str) -> list[dict]:
 
     def _extract_and_eval(results, mode):
         poses, scores = extract_results(results, mode=mode)
-        return DockEval(poses, scores, target).eval()
+        return DockEval(poses, scores, target).evaluate()
 
     # Initialize directories and read molecules
     target_dir = work_dir / target
@@ -118,6 +132,7 @@ def dock_eval(work_dir:Path, target:str) -> list[dict]:
     )
     
     if conformation_check(mols): # Check scoring results if original molecules are 3D
+        project_logger.info('Original molecules are 3D, checking scoring results...')
         score_results = _read_and_validate(
             results_dir, target, lens, mode='score_only',
             error_msg="please run `tarpass dock -mode score_only`."

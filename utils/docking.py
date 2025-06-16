@@ -1,9 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-06-13 16:15:36
+LastEditTime: 2025-06-16 20:08:31
 Description: 
 '''
+from copy import deepcopy
 from rdkit import Chem, RDLogger
 from rdkit.Chem.rdDistGeom import EmbedMolecule
 from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMolecule
@@ -55,7 +56,7 @@ class LigPrep():
             ob_mol.localopt(forcefield="MMFF94", steps=200)
         return ob_mol
 
-    def ligprep(self, polaronly=False, correctforph=True, PH=7.4) -> Chem.Mol:
+    def ligprep(self, polaronly=True, correctforph=True, PH=7.4) -> Chem.Mol:
         """Protonate or generate a 3D conformation for the ligand.
         Args:
             polaronly (bool, optional): Add polar hydrogens only. Defaults to False.
@@ -63,7 +64,7 @@ class LigPrep():
             PH (int, optional): pH value. Defaults to 7.4.
         """
         # RDmol 2 OBmol for protonation
-        p_mol = Chem.AddHs(self.mol)
+        p_mol = deepcopy(self.mol)
         if not self.mol.GetNumConformers(): # Check 3D conformation
             try: # RDKit pipeline
                 EmbedMolecule(p_mol, useRandomCoords=True)
@@ -81,7 +82,7 @@ class LigPrep():
         ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
         prep_mol = obmol2rdkit(ob_mol)
         if prep_mol is None and backup: # If protonation failed, use conformation with Hs instead
-            project_logger.warning(f"Protonation failed in {self.mol.GetProp('_Name')}, adding hydrogens instead.")
+            project_logger.warning(f"Protonation failed in {self.mol.GetProp('_Name')}, using original conformation instead.")
             prep_mol = backup
         return prep_mol
 
