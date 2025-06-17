@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-06-16 20:08:31
+LastEditTime: 2025-06-17 19:46:29
 Description: 
 '''
 from copy import deepcopy
@@ -10,7 +10,8 @@ from rdkit.Chem.rdDistGeom import EmbedMolecule
 from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMolecule
 RDLogger.DisableLog('rdApp.*') # type: ignore
 from meeko import MoleculePreparation, PDBQTWriterLegacy
-from openbabel import pybel
+from openbabel import openbabel, pybel
+openbabel.obErrorLog.SetOutputLevel(openbabel.obError)
 from utils.io import write_sdf
 from utils.logger import project_logger
 from utils.preprocess import standard_mol
@@ -65,6 +66,7 @@ class LigPrep():
         """
         # RDmol 2 OBmol for protonation
         p_mol = deepcopy(self.mol)
+        p_mol = Chem.AddHs(p_mol, addCoords=True)
         if not self.mol.GetNumConformers(): # Check 3D conformation
             try: # RDKit pipeline
                 EmbedMolecule(p_mol, useRandomCoords=True)

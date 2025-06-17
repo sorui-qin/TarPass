@@ -1,9 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-13 19:52:43
+LastEditTime: 2025-06-17 10:55:55
 Description: 
 '''
+from functools import lru_cache
 from pathlib import Path
 from typing import DefaultDict, Iterable, Literal
 from collections import defaultdict
@@ -94,7 +95,8 @@ class Preprocess():
         self.readins = readins
         self.num = len(readins)
         self.format = format
-        
+    
+    @lru_cache(maxsize=1000)
     def valid(self) -> list[Chem.Mol]:
         if self.format == 'sdf':
             valids = [mol for idx, mol in enumerate(self.readins) if sanitize_valid(mol, idx)]

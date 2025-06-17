@@ -1,24 +1,27 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-16 11:53:49
+LastEditTime: 2025-06-17 20:04:37
 Description: 
 '''
+import itertools
 from functools import partial
 from pathlib import Path
 from typing import Literal
 import pandas as pd
 from tqdm.contrib.concurrent import process_map
-from eval.module.druglikeness import calc_le
-from eval.module.sucos import check_sucos
 from interaction.interaction_tools import allkey_inters, interactions
+from module.druglikeness import calc_le
+from module.intermolecular_distance import check_intermolecular_distance
+from module.sucos import check_sucos
 from utils.constant import DASHLINE, ROOT, TARGETS
 from utils.eval import find_dockpkl
-from utils.io import read_pkl, read_sdf
+from utils.io import read_pdb_rdmol, read_pkl, read_sdf
 from utils.logger import log_config, project_logger
 from utils.preprocess import Chem, conformation_check, read_in, to_smiles
 
 TARGET_PATH = ROOT / 'Targets'
+
 
 class DockEval:
     """Evaluate docking results of generated molecules for a specific target.
@@ -28,55 +31,71 @@ class DockEval:
         target (str): Name of the target protein.
     """
     def __init__(self, poses:list[Chem.Mol], scores:list[float], target:str):
-        if len(poses) != len(scores):
+        self.lens = len(poses)
+        if self.lens != len(scores):
             raise ValueError(f"Length of poses ({len(poses)}) and scores ({len(scores)}) must be equal.")
         self.poses = poses
         self.scores = scores
         self.target = target
-
-    def interactions(self):
-        """Calculate interactions for all molecules in the target."""
-        target = self.target
-        key_inters = allkey_inters[target]
-        pdb_files = list((TARGET_PATH / self.target).glob(f'{self.target}*.pdb'))
+        self.pdb_path, self.lig_path = self._get_target()
+        self.pdb_rdmol, self.lig_mol = read_pdb_rdmol(self.pdb_path), read_sdf(self.lig_path)
+    
+    def _get_target(self):
+        target_ditr = TARGET_PATH / self.target
+        pdb_files = list((target_ditr).glob(f'{self.target}*.pdb'))
         if not pdb_files:
             raise FileNotFoundError(f"No pdb file found for target {self.target}")
-        empty_pdb = pdb_files[0]
-        return interactions(poses=self.poses, empty_pdb=empty_pdb, key_inters=key_inters)
-    
-    def ligand_efficiency(self):
-        """Calculate ligand efficiency for all molecules in the target."""
-        return process_map(
-            calc_le, zip(self.poses, self.scores),chunksize=10,
-            desc=f"Calculating ligand efficiency for {self.target}...", 
-            )
-    
-    def sucos(self):
-        """Calculate SUCOS for all molecules in the target."""
         sdf_files = list((TARGET_PATH / self.target).glob(f'{self.target}*.sdf'))
         if not sdf_files:
             raise FileNotFoundError(f"No sdf file found for target {self.target}")
-        mol_true = read_sdf(sdf_files[0])
-        sucos_fn = partial(check_sucos, mol_true=mol_true)
+        return pdb_files[0], sdf_files[0]
+
+    def clash(self):
+        """Check for clashes between the poses and the target protein."""
+        clash_fn = partial(check_intermolecular_distance, mol_cond=self.pdb_rdmol)
         return process_map(
-            sucos_fn, self.poses,chunksize=10,
-            desc=f"Calculating SUCOS for {self.target}...",
+            clash_fn, self.poses, chunksize=100,
+            desc=f"Checking clashes",
             )
 
+    def interactions(self):
+        """Calculate interactions for all molecules in the target."""
+        return interactions(
+            poses=self.poses, empty_pdb=self.pdb_path, 
+            key_inters=allkey_inters[self.target]
+            )
+
+    def ligand_efficiency(self):
+        """Calculate ligand efficiency for all molecules in the target."""
+        return process_map(
+            calc_le, zip(self.poses, self.scores), chunksize=100,
+            desc=f"Calculating ligand efficiency",
+            total=self.lens
+            )
+
+    def sucos(self):
+        """Calculate SUCOS for all molecules in the target."""
+        sucos_fn = partial(check_sucos, mol_true=self.lig_mol)
+        return process_map(
+            sucos_fn, self.poses, chunksize=100,
+            desc=f"Calculating SUCOS",
+            )
+ 
     def evaluate(self):
         """Evaluate docking results for the target."""
         # Calculate all metrics
+        clashes = self.clash()
         inters_results = self.interactions()
         le_results = self.ligand_efficiency()
         sucos_scores = self.sucos()
         
         # Combine all results
         eval_results = []
-        for i, (pose, score) in enumerate(zip(self.poses, self.scores)):
+        for i, score in enumerate(self.scores):
             result = {
-                'pose': pose,
                 'score': score,
-                **{'sucos': sucos_scores[i]},
+                **clashes[i],
+                **sucos_scores[i],
                 **le_results[i],
                 **inters_results[i]
             }
@@ -88,7 +107,7 @@ def extract_results(results:list[dict], mode:Literal['dock', 'score_only']) -> t
     """Extract docking results from the results directory."""
     mapping = {
         'dock': ('pose', 'docking score'),
-        'score_only': ('mol', 'scoring score')
+        'score_only': ('mol', 'vina score')
     }
     p, s = mapping[mode]
     poses = [res[p] for res in results]
@@ -96,7 +115,7 @@ def extract_results(results:list[dict], mode:Literal['dock', 'score_only']) -> t
     return poses, scores
 
 
-def dock_eval(work_dir:Path, target:str) -> list[dict]:
+def dock_eval(target_dir:Path, target:str) -> list[dict]:
     """Evaluate docking results for a specific target protein.
     Args:
         work_dir (Path): Path to the working directory.
@@ -120,7 +139,6 @@ def dock_eval(work_dir:Path, target:str) -> list[dict]:
         return DockEval(poses, scores, target).evaluate()
 
     # Initialize directories and read molecules
-    target_dir = work_dir / target
     results_dir = target_dir / 'results'
     _, mols = read_in(target_dir)
     lens = len(mols)
@@ -130,28 +148,35 @@ def dock_eval(work_dir:Path, target:str) -> list[dict]:
         results_dir, target, lens, mode='dock',
         error_msg="please run `tarpass dock -mode dock`."
     )
-    
+    project_logger.info(f'Now evaluating docking results for {target}...')
+
     if conformation_check(mols): # Check scoring results if original molecules are 3D
-        project_logger.info('Original molecules are 3D, checking scoring results...')
         score_results = _read_and_validate(
             results_dir, target, lens, mode='score_only',
             error_msg="please run `tarpass dock -mode score_only`."
         )
     else:
-        scorepkl = None
+        score_results = None
 
     # Extract results and evaluate
     dock_eval_results = _extract_and_eval(results=dock_results, mode='dock')
-    score_eval_results = _extract_and_eval(results=score_results, mode='score_only') if scorepkl else []
+    if score_results:
+        project_logger.info('Initial molecules are 3D, checking scoring results...')
+        score_eval_results = _extract_and_eval(results=score_results, mode='score_only')
+    else:
+        project_logger.info(f'Initial molecules are not 3D, skipping scoring results for {target}.')
+        score_eval_results = []
     
     #Combine results
     eval_all_results = []
     smis = to_smiles(mols)
-    for idx, (smiles, dock_res, score_res) in enumerate(zip(smis, dock_eval_results, score_eval_results)):
+    for idx, (smiles, dock_res, score_res) in enumerate(
+        itertools.zip_longest(smis, dock_eval_results, score_eval_results, fillvalue=None)
+    ):
         info_di = {'index': idx, 'target': target, 'smiles': smiles,}
         # Rename keys
-        prefix_dock = {f"Dock {k}": v for k, v in dock_res.items()}
-        prefix_score = {f"Score {k}": v for k, v in score_res.items()} if score_res else {}
+        prefix_dock = {f"Dock {k}": v for k, v in dock_res.items()} if dock_res else {}
+        prefix_score = {f"Initial {k}": v for k, v in score_res.items()} if score_res else {}
         # Combine all results
         eval_all_results.append({**info_di, **prefix_dock, **prefix_score})
     project_logger.info(f"Evaluation completed for {target}.")
@@ -182,6 +207,9 @@ def dockeval_execute(args):
         
         # Execute evaluation and save results
         project_logger.info(DASHLINE)
-        pd.DataFrame(dock_eval(work_dir, target)).to_csv(eval_csv, index=False)
+        pd.DataFrame(dock_eval(target_dir, target)).to_csv(eval_csv, index=False)
         project_logger.info(f"Evaluation results saved to {eval_csv}.")
         project_logger.info(DASHLINE)
+
+if __name__ == "__main__":
+    dock_eval(target_dir=Path('/home/sorui/Research/Results-tarpass/Reference/5HT2A'), target='5HT2A')

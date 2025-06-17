@@ -16,8 +16,11 @@ pip install plip
 ```
 
 ### Docking with Gnina (suggested)
-We highly suggest performancing docking with Gnina.
-You can download Gnina [here](https://github.com/gnina/gnina).
+We highly suggest performancing docking with Gnina (Version 1.3).  
+You can download Gnina [here](https://github.com/gnina/gnina/releases/tag/v1.3) or:
+```
+wget https://github.com/gnina/gnina/releases/download/v1.3/gnina
+```
 
 ### Docking with AutoDock-Vina (Optional)
 <details>

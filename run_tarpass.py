@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-06-14 17:24:27
+LastEditTime: 2025-06-17 17:18:57
 Description: 
 '''
 import argparse
@@ -39,15 +39,31 @@ def main():
 
     ### Evaluation module ###
     eval_module = importlib.import_module("eval")
-
     dockeval_parser = subparsers.add_parser("dockeval", help="Evaluate docking results")
     eval_module.setup_arguments(dockeval_parser)
 
+    #moleeval_parser = subparsers.add_parser("moleeval", help="Evaluate molecular properties")
+    #eval_module.setup_arguments(moleeval_parser)
+
+    # Merge configuration for dock module
     args = parser.parse_args()
-    module = importlib.import_module(args.module)
     if args.module == 'dock':
         args = merge_config(args)
-    module.execute(args)
+
+    command_mapping = {
+        'dock': (dock_module, 'execute'),
+        'interaction': (interaction_module, 'execute'),
+        'dockeval': (eval_module, 'dockeval_execute'),
+        #'moleeval': (eval_module, 'mole_eval') 
+    }
+
+    # Get the relevant module and function based on the command
+    module, function_name = command_mapping[args.module]
+
+    if hasattr(module, function_name):
+        getattr(module, function_name)(args)
+    else:
+        raise AttributeError(f"Module {module} does not have function {function_name}")
 
 if __name__ == "__main__":
     main()

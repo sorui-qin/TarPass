@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-06-13 16:15:22
+LastEditTime: 2025-06-17 15:25:48
 Description: 
 '''
 import os
@@ -12,7 +12,7 @@ from collections.abc import Iterable
 from contextlib import contextmanager
 import yaml
 from rdkit import Chem, RDLogger
-from utils.constant import TMP
+from utils.constant import Path, TMP
 from utils.logger import project_logger
 
 RDLogger.DisableLog('rdApp.*') # type: ignore
@@ -36,8 +36,14 @@ def read_pkl(pkl_file):
                 break
     return data if len(data) > 1 else data[0]
 
-def read_sdf(sdf_file, sanitize=False, removeHs=False):
-    mols = [mol for mol in Chem.SDMolSupplier(sdf_file, sanitize=sanitize, removeHs=removeHs) if mol]
+def read_pdb_rdmol(pdb_file:str|Path, sanitize=False, removeHs=False):
+    mol = Chem.MolFromPDBFile(str(pdb_file), 
+                              sanitize=sanitize, removeHs=removeHs)
+    return mol
+
+def read_sdf(sdf_file:str|Path, sanitize=False, removeHs=False):
+    mols = [mol for mol in Chem.SDMolSupplier(
+        str(sdf_file), sanitize=sanitize, removeHs=removeHs) if mol]
     return mols[0] if len(mols) == 1 else mols
 
 def write_sdf(sdf_file, mols):
@@ -46,8 +52,9 @@ def write_sdf(sdf_file, mols):
         w.write(mol)
     w.close()
 
-def read_smi(smi_file, delimiter='', sanitize=False):
-    supp = Chem.SmilesMolSupplier(smi_file, delimiter=delimiter, sanitize=sanitize, titleLine=False)
+def read_smi(smi_file:str|Path, delimiter='', sanitize=False):
+    supp = Chem.SmilesMolSupplier(str(smi_file), 
+                                  delimiter=delimiter, sanitize=sanitize, titleLine=False)
     mols = [mol for mol in supp if mol]
     return mols[0] if len(mols) == 1 else mols
 

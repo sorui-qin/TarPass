@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-06-14 15:52:07
+LastEditTime: 2025-06-17 17:32:46
 Description: 
 '''
 import json
@@ -12,7 +12,7 @@ from pathlib import Path
 from plip.structure.preparation import PDBComplex, PLInteraction
 from rdkit import Chem
 from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger
-from tqdm import tqdm
+from tqdm.contrib.concurrent import process_map
 from utils.constant import INTERACTION_TYPES, ROOT, TMP
 from utils.io import temp_manager
 from utils.logger import project_logger
@@ -168,13 +168,8 @@ def interactions(poses:list[Chem.Mol], empty_pdb:Path, key_inters:dict) -> list[
     """
     plip_tmp() # Clean up temp dir
     if conformation_check(poses):
-        total_num = len(poses)
-        project_logger.info(f"Total {total_num} molecules to analyze.")
         # Running interaction analysis in parallel
         analyze_func = partial(analyze_tmppdb, empty_pdb=empty_pdb, key_inters=key_inters)
-        with Pool() as pool:
-            all_match = list(tqdm(pool.imap(analyze_func, poses),
-                                desc="Analyzing interactions", total=total_num))
-        return all_match
+        return process_map(analyze_func, poses, desc="Analyzing interactions", chunksize=10)
     else:
         return []

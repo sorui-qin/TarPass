@@ -45,13 +45,13 @@ def check_intermolecular_distance(  # noqa: PLR0913
     atoms_ligand = np.array([a.GetSymbol() for a in mol_pred.GetAtoms()])
     atoms_protein_all = np.array([a.GetSymbol() for a in mol_cond.GetAtoms()])
 
-    idxs_ligand = np.array([a.GetIdx() for a in mol_pred.GetAtoms()])
+    #idxs_ligand = np.array([a.GetIdx() for a in mol_pred.GetAtoms()])
     idxs_protein = np.array([a.GetIdx() for a in mol_cond.GetAtoms()])
 
     mask = [a.GetSymbol() != "H" for a in mol_pred.GetAtoms()]
     coords_ligand = coords_ligand[mask, :]
     atoms_ligand = atoms_ligand[mask]
-    mask_ligand_idxs = idxs_ligand[mask]
+    #mask_ligand_idxs = idxs_ligand[mask]
     if ignore_types:
         mask = get_atom_type_mask(mol_cond, ignore_types)
         coords_protein = coords_protein[mask, :]
@@ -67,7 +67,7 @@ def check_intermolecular_distance(  # noqa: PLR0913
     mask_protein = distances_all.min(axis=0) <= search_distance
     distances = distances_all[:, mask_protein]
     radius_protein = radius_protein_all[mask_protein]
-    atoms_protein = atoms_protein_all[mask_protein]
+    #atoms_protein = atoms_protein_all[mask_protein]
     mask_protein_idxs = mask_protein_idxs[mask_protein]
 
     radius_sum = radius_ligand[:, None] + radius_protein[None, :]
@@ -83,24 +83,23 @@ def check_intermolecular_distance(  # noqa: PLR0913
 
     # collect details around those violations in a dataframe
     details = pd.DataFrame()
+    #details["ligand_atom_id"] = reverse_ligand_idxs
+    #details["protein_atom_id"] = reverse_protein_idxs
+    #details["ligand_element"] = [atoms_ligand[i] for i in violation_ligand]
+    #details["protein_element"] = [atoms_protein[i] for i in violation_protein]
+    details["ligand_vdw"] = [radius_ligand[i] for i in violation_ligand]
+    details["protein_vdw"] = [radius_protein[i] for i in violation_protein]
+    details["sum_radii"] = details["ligand_vdw"] + details["protein_vdw"]
     details["distance"] = distances[violation_ligand, violation_protein]
     details["sum_radii_scaled"] = details["sum_radii"] * radius_scale
     details["relative_distance"] = details["distance"] / details["sum_radii_scaled"]
     details["clash"] = details["relative_distance"] < clash_cutoff
 
     results = {
-        "smallest_distance": details["distance"].min(),
-        "not_too_far_away": details["distance"].min() <= max_distance,
-        "num_pairwise_clashes": details["clash"].sum(),
         "no_clashes": not details["clash"].any(),
     }
 
-    # add most extreme values to results table
-    i = np.argmin(details["relative_distance"]) if len(details) > 0 else None
-    most_extreme = {"most_extreme_" + c: details.loc[i][str(c)] if i is not None else pd.NA for c in details.columns}
-    results = {**results, **most_extreme}
-
-    return {"results": results, "details": details}
+    return results
 
 
 def _pairwise_distance(x: np.ndarray, y: np.ndarray) -> np.ndarray:

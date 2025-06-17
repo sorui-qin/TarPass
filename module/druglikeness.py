@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-06-14 14:52:25
+LastEditTime: 2025-06-17 17:54:15
 Description: 
 '''
 import numpy as np
@@ -17,7 +17,6 @@ def molwt(mol: Chem.Mol) -> float:
 def calc_le(args:tuple[Chem.Mol, float]) -> dict:
     pose, score = args
     mol = standard_mol(pose)
-    if score <= 0:
-        le_heavyatom = mol.GetNumHeavyAtoms() / abs(score) if abs(score) > 0 else np.nan
-        le_mw = molwt(mol) / abs(score) if abs(score) > 0 else np.nan
+    le_heavyatom = mol.GetNumHeavyAtoms() / abs(score) if score < 0 else np.nan
+    le_mw = molwt(mol) / abs(score) if score < 0 else np.nan
     return {'LE_heavyatom': le_heavyatom, 'LE_mw': le_mw}
