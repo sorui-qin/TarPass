@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-17 21:42:10
+LastEditTime: 2025-06-17 22:16:43
 Description: 
 '''
 import argparse
@@ -70,7 +70,7 @@ def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
                 raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
             project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
             return latest_idx
-    return -1
+    return 0
 
 ############## Execution Functions ##############
 
@@ -112,9 +112,9 @@ def execute(args):
         result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
         latest_idx = breakpoint_check(result_pkl, total_lens)
         # Docking
-        for i, mol in tqdm(enumerate(latest:=mols[latest_idx+1:]), 
+        for i, mol in tqdm(enumerate(latest:=mols[latest_idx:]), 
                            desc=f'Docking with {target}', total=len(latest)):
-            index = range(total_lens)[4+i]+1
+            index = range(total_lens)[latest_idx+i]
             dock = Dock(mol, target, args)
             pose, score = dock.run()
             # Save results
