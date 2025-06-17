@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-14 17:01:10
+LastEditTime: 2025-06-17 21:42:10
 Description: 
 '''
 import argparse
@@ -65,7 +65,7 @@ def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
         project_logger.info(f"Detected previous docking results.")
         results = read_pkl(result_pkl)
         if isinstance(results, list):
-            latest_idx = results[-1]['index']
+            latest_idx = len(results)
             if latest_idx > total_lens:
                 raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
             project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
@@ -106,21 +106,24 @@ def execute(args):
 
         # Preprocess
         _, mols = read_in(target_dir, args.num)
+        total_lens = len(mols)
         # Breakpoint check
         Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
         result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
-        latest_idx = breakpoint_check(result_pkl, len(mols))
+        latest_idx = breakpoint_check(result_pkl, total_lens)
         # Docking
-        for mol in tqdm(latest:=mols[latest_idx+1:], desc=f'Docking with {target}', total=len(latest)):
+        for i, mol in tqdm(enumerate(latest:=mols[latest_idx+1:]), 
+                           desc=f'Docking with {target}', total=len(latest)):
+            index = range(total_lens)[4+i]+1
             dock = Dock(mol, target, args)
             pose, score = dock.run()
             # Save results
             if args.mode == 'dock':
                 append_pkl(result_pkl, 
-                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'pose': pose, 'docking score': score})
+                        {'index': index, 'mol': mol, 'pose': pose, 'docking score': score})
             elif args.mode == 'score_only':
                 append_pkl(result_pkl, 
-                        {'index': int(mol.GetProp('_Name')), 'mol': mol, 'vina score': score})
+                        {'index': index, 'mol': mol, 'vina score': score})
         
         project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
         print(DASHLINE)
