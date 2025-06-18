@@ -1,9 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-06-17 15:25:48
+LastEditTime: 2025-06-18 16:09:55
 Description: 
 '''
+import json
 import os
 import pickle
 import shutil
@@ -35,6 +36,13 @@ def read_pkl(pkl_file):
             except EOFError:
                 break
     return data if len(data) > 1 else data[0]
+
+def load_json(json_file):
+    return json.load(open(json_file, 'r'))
+
+def dump_json(json_file, data):
+    with open(json_file, 'w') as f:
+        json.dump(data, f, indent=2)
 
 def read_pdb_rdmol(pdb_file:str|Path, sanitize=False, removeHs=False):
     mol = Chem.MolFromPDBFile(str(pdb_file), 

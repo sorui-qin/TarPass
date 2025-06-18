@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-17 20:04:37
+LastEditTime: 2025-06-18 16:39:10
 Description: 
 '''
 import itertools
@@ -16,7 +16,7 @@ from module.intermolecular_distance import check_intermolecular_distance
 from module.sucos import check_sucos
 from utils.constant import DASHLINE, ROOT, TARGETS
 from utils.eval import find_dockpkl
-from utils.io import read_pdb_rdmol, read_pkl, read_sdf
+from utils.io import read_pdb_rdmol, read_pkl, read_sdf, dump_json
 from utils.logger import log_config, project_logger
 from utils.preprocess import Chem, conformation_check, read_in, to_smiles
 
@@ -175,8 +175,8 @@ def dock_eval(target_dir:Path, target:str) -> list[dict]:
     ):
         info_di = {'index': idx, 'target': target, 'smiles': smiles,}
         # Rename keys
-        prefix_dock = {f"Dock {k}": v for k, v in dock_res.items()} if dock_res else {}
-        prefix_score = {f"Initial {k}": v for k, v in score_res.items()} if score_res else {}
+        prefix_dock = {f"Dock_{k}": v for k, v in dock_res.items()} if dock_res else {}
+        prefix_score = {f"Initial_{k}": v for k, v in score_res.items()} if score_res else {}
         # Combine all results
         eval_all_results.append({**info_di, **prefix_dock, **prefix_score})
     project_logger.info(f"Evaluation completed for {target}.")
@@ -186,7 +186,8 @@ def dock_eval(target_dir:Path, target:str) -> list[dict]:
 
 def dockeval_execute(args):
     log_config(project_logger, args)
-    # Preparation for reading poses
+    format = args.format
+
     work_dir = Path(args.path)
     for target in TARGETS:
 
@@ -200,16 +201,17 @@ def dockeval_execute(args):
         # Check if results exists
         project_logger.info(f'Start evaluating docking results for {target}...')
         results_dir = target_dir / 'results'
-        eval_csv = results_dir / f'dock_eval_results.csv'
-        if eval_csv.exists():
+        eval_output = results_dir / f'dock_eval_results.{format}'
+        if eval_output.exists():
             project_logger.info(f"Evaluation results already exist for {target}, skipping evaluation.")
             continue
         
         # Execute evaluation and save results
         project_logger.info(DASHLINE)
-        pd.DataFrame(dock_eval(target_dir, target)).to_csv(eval_csv, index=False)
-        project_logger.info(f"Evaluation results saved to {eval_csv}.")
+        result = dock_eval(target_dir, target)
+        if format == 'json':
+            dump_json(eval_output, result)
+        if format == 'csv':
+            pd.DataFrame(result).to_csv(eval_output, index=False)
+        project_logger.info(f"Evaluation results saved to {eval_output}.")
         project_logger.info(DASHLINE)
-
-if __name__ == "__main__":
-    dock_eval(target_dir=Path('/home/sorui/Research/Results-tarpass/Reference/5HT2A'), target='5HT2A')

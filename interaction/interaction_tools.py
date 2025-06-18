@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-06-17 17:32:46
+LastEditTime: 2025-06-18 15:34:41
 Description: 
 '''
 import json
@@ -42,7 +42,7 @@ def combined_pdb_complex(pdb:str|Path, ligand:Chem.Mol, output_pdb:str):
     combined = Chem.CombineMols(protein, ligand)
     Chem.MolToPDBFile(combined, output_pdb)
 
-def analyze_plip(pdb:str|Path) -> defaultdict:
+def analyze_plip(pdb:str|Path) -> dict[str, list]:
     """
     Execute PLIP analysis with specific pdb file.
     Args:
@@ -55,7 +55,7 @@ def analyze_plip(pdb:str|Path) -> defaultdict:
     analyzer.load_pdb(str(pdb))
     analyzer.analyze()
     interactions = analyzer.interaction_sets['UNL:Z:1'] # UNL:Z:1 is default if combined with RDKit
-    return get_interactions(interactions)
+    return dict(get_interactions(interactions))
 
 def analyze_tmppdb(mol:Chem.Mol, empty_pdb:Path, key_inters:dict) -> dict:
     """
@@ -73,7 +73,7 @@ def analyze_tmppdb(mol:Chem.Mol, empty_pdb:Path, key_inters:dict) -> dict:
     match = match_interactions(detect_inters, key_inters)
     return match
 
-def get_interactions(interactions: PLInteraction) -> defaultdict:
+def get_interactions(interactions: PLInteraction) -> defaultdict[str, list]:
     """
     Get interactions from PLIP analysis.
     Args:
@@ -110,7 +110,7 @@ def get_interactions(interactions: PLInteraction) -> defaultdict:
     inters['Hydrophobic contact'].extend(inters['Pi-stacking'])
     return inters
 
-def match_interactions(detect_inters: defaultdict, key_inters:dict) -> dict:
+def match_interactions(detect_inters: dict, key_inters:dict) -> dict:
     """
     Match detected interactions with key interactions group.
     Args:
