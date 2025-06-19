@@ -1,15 +1,14 @@
 '''
 Author: Rui Qin
 Date: 2025-03-01 15:57:14
-LastEditTime: 2025-06-13 14:11:29
+LastEditTime: 2025-06-18 19:03:16
 Description: 
 '''
 # Adapted from https://github.com/guanjq/targetdiff/blob/main/utils/evaluation/docking_vina.py
 from meeko import PDBQTMolecule, RDKitMolCreate
 from typing import Tuple, List
 from vina import Vina
-from rdkit import Chem
-from utils.constant import ROOT
+from utils.constant import Mol, ROOT
 from utils.docking import sdf2centroid
 from dock.docking_gnina import BaseDockTask
 import json
@@ -53,7 +52,7 @@ class VinaDock(BaseDockTask):
         v.compute_vina_maps(self._get_center(), box_size)
         v.write_maps(map_prefix_filename=str(self.maps), overwrite=True)
 
-    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Chem.Mol, float]:
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> Tuple[Mol, float]:
         """Running AutoDock-Vina.
 
         Args:

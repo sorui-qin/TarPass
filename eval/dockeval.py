@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-18 16:39:10
+LastEditTime: 2025-06-18 19:03:55
 Description: 
 '''
 import itertools
@@ -14,11 +14,11 @@ from interaction.interaction_tools import allkey_inters, interactions
 from module.druglikeness import calc_le
 from module.intermolecular_distance import check_intermolecular_distance
 from module.sucos import check_sucos
-from utils.constant import DASHLINE, ROOT, TARGETS
+from utils.constant import DASHLINE, Mol, ROOT, TARGETS
 from utils.eval import find_dockpkl
 from utils.io import read_pdb_rdmol, read_pkl, read_sdf, dump_json
 from utils.logger import log_config, project_logger
-from utils.preprocess import Chem, conformation_check, read_in, to_smiles
+from utils.preprocess import conformation_check, read_in, to_smiles
 
 TARGET_PATH = ROOT / 'Targets'
 
@@ -30,7 +30,7 @@ class DockEval:
         scores (list[float]): Docking scores of the poses.
         target (str): Name of the target protein.
     """
-    def __init__(self, poses:list[Chem.Mol], scores:list[float], target:str):
+    def __init__(self, poses:list[Mol], scores:list[float], target:str):
         self.lens = len(poses)
         if self.lens != len(scores):
             raise ValueError(f"Length of poses ({len(poses)}) and scores ({len(scores)}) must be equal.")

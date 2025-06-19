@@ -1,13 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-06-13 16:14:11
+LastEditTime: 2025-06-18 19:02:08
 Description: 
 '''
 import subprocess
 from typing import Literal
-import rdkit.Chem as Chem
-from utils.constant import ROOT
+from utils.constant import ROOT, Mol
 from utils.io import read_sdf, temp_manager
 
 
@@ -57,7 +56,7 @@ class GninaDock(BaseDockTask):
         mol = mol[0] if isinstance(mol, list) else mol
         return mol, float(mol.GetProp('minimizedAffinity'))
 
-    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> tuple[Chem.Mol, float]:
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> tuple[Mol, float]:
         """Running Gnina docking task.
         Args:
             seed (int, optional): Random seed (default: 0; ramdomly choosed)

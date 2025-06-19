@@ -1,21 +1,20 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-06-18 15:34:41
+LastEditTime: 2025-06-18 19:04:46
 Description: 
 '''
 import json
 from collections import defaultdict
 from functools import partial
-from multiprocessing import Pool
 from pathlib import Path
 from plip.structure.preparation import PDBComplex, PLInteraction
 from rdkit import Chem
+from rdkit.Chem import Mol
 from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger
 from tqdm.contrib.concurrent import process_map
 from utils.constant import INTERACTION_TYPES, ROOT, TMP
 from utils.io import temp_manager
-from utils.logger import project_logger
 from utils.preprocess import conformation_check
 
 allkey_inters = json.load(open(ROOT/'interaction/key_interactions.json'))
@@ -31,7 +30,7 @@ def plip_tmp():
             file.unlink()
     return plip_tmp
 
-def combined_pdb_complex(pdb:str|Path, ligand:Chem.Mol, output_pdb:str):
+def combined_pdb_complex(pdb:str|Path, ligand:Mol, output_pdb:str):
     """Combine protein and ligand into a single PDB file.
     """
     # Uncharge the ligand
@@ -57,7 +56,7 @@ def analyze_plip(pdb:str|Path) -> dict[str, list]:
     interactions = analyzer.interaction_sets['UNL:Z:1'] # UNL:Z:1 is default if combined with RDKit
     return dict(get_interactions(interactions))
 
-def analyze_tmppdb(mol:Chem.Mol, empty_pdb:Path, key_inters:dict) -> dict:
+def analyze_tmppdb(mol:Mol, empty_pdb:Path, key_inters:dict) -> dict:
     """
     Analyze the interactions of a ligand with a target protein using PLIP.
     Args:
@@ -155,7 +154,7 @@ def match_interactions(detect_inters: dict, key_inters:dict) -> dict:
     result['fully_matched'] = (successful_matches == total_checks)
     return result
 
-def interactions(poses:list[Chem.Mol], empty_pdb:Path, key_inters:dict) -> list[dict]:
+def interactions(poses:list[Mol], empty_pdb:Path, key_inters:dict) -> list[dict]:
     """Anlysis the interactions of the poses with the target protein.
 
     Args:

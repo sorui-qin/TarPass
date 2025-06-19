@@ -1,13 +1,13 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:00:12
-LastEditTime: 2025-05-08 21:11:26
+LastEditTime: 2025-06-18 19:02:10
 Description: 
 '''
 # Partly adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
 import random
 import numpy as np
-from rdkit.Chem import DataStructs
+from rdkit.Chem import DataStructs, Mol
 from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
 from multiprocessing import Pool
 
@@ -29,13 +29,13 @@ fp_types = {
     'scfp': mfpgen.GetSparseCountFingerprint
 }
 
-def fingerprint(mol, fp_type):
+def fingerprint(mol:Mol, fp_type:str):
     return fp_types[fp_type](mol)
 
-def fingerprints(mols, fp_type='fp'):
+def fingerprints(mols:list[Mol], fp_type='fp'):
     return [fingerprint(mol, fp_type) for mol in mols]
 
-def morgan_frags(mol):
+def morgan_frags(mol:Mol):
     fp = fingerprint(mol, fp_type='scfp')
     return list(fp.GetNonzeroElements().keys())
 

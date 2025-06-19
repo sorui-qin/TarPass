@@ -1,11 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-06-17 19:46:29
+LastEditTime: 2025-06-18 18:59:51
 Description: 
 '''
 from copy import deepcopy
 from rdkit import Chem, RDLogger
+from rdkit.Chem import Mol
 from rdkit.Chem.rdDistGeom import EmbedMolecule
 from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMolecule
 RDLogger.DisableLog('rdApp.*') # type: ignore
@@ -25,7 +26,7 @@ def sdf2centroid(sdf_file):
     centroid_z = lig_xyz[:,2].mean()
     return [centroid_x, centroid_y, centroid_z]
 
-def rdkit2obmol(mol:Chem.Mol) -> pybel.Molecule:
+def rdkit2obmol(mol:Mol) -> pybel.Molecule:
     return pybel.readstring("mol", Chem.MolToMolBlock(mol))
 
 def obmol2rdkit(ob_mol:pybel.Molecule) -> Chem.Mol:
@@ -42,13 +43,13 @@ class LigPrep():
         mol (Chem.Mol): Molecule object.
         reset_conf (bool, optional): Reset the original conformation. Defaults to False.
     """
-    def __init__(self, mol:Chem.Mol, reset_conf=False):
+    def __init__(self, mol:Mol, reset_conf=False):
         if reset_conf:
             self.mol = standard_mol(mol)
         else:
             self.mol = Chem.RemoveHs(mol)
 
-    def obmol_conf(self, mol:Chem.Mol, minimize=False) -> pybel.Molecule:
+    def obmol_conf(self, mol:Mol, minimize=False) -> pybel.Molecule:
         """Create conformation with openbabel.
         """
         ob_mol = rdkit2obmol(mol)

@@ -1,10 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 16:12:18
-LastEditTime: 2025-05-13 17:32:24
+LastEditTime: 2025-06-18 19:02:38
 Description: 
 '''
 from pathlib import Path
+from rdkit.Chem import Mol
 
 ROOT = Path(__file__).parent.parent
 TMP = ROOT / 'tmp'

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-17 22:16:43
+LastEditTime: 2025-06-18 18:07:54
 Description: 
 '''
 import argparse
@@ -79,13 +79,13 @@ def setup_arguments(parser: argparse.ArgumentParser):
     #group1.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
 
     group2 = parser.add_argument_group("Docking parameters\ndefaultly loaded from config file `configs/dock/gnina_dock.yml`")
-    group2.add_argument('-m', '--method', type=str, help='docking method to use (`gnina` or `vina`).')
+    group2.add_argument('-m', '--mode', type=str, choices=['dock', 'score_only'], help='docking mode.')
     group2.add_argument('--verbose', type=int, help='verbosity level of the docking process.')
     group2.add_argument('--seed', type=int, help='random seed for docking.')
     group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
     group2.add_argument('--poses', type=int, help='number of poses to generate.')
-    group2.add_argument('--mode', type=str, choices=['dock', 'score_only'], help='docking mode.')
-    group2.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file')
+    group2.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file.')
+    group2.add_argument('--method', type=str, help='docking method to use (`gnina` or `vina`).')
 
     group3 = parser.add_argument_group("Optional arguments")
     group3.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")

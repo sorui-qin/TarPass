@@ -1,17 +1,18 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-06-13 16:16:19
+LastEditTime: 2025-06-18 17:42:11
 Description: 
 '''
 import copy
 import networkx as nx
 import numpy as np
 from rdkit import Chem
+from rdkit.Chem import Mol
 from rdkit.Chem.Lipinski import NumRotatableBonds  # type: ignore[import-untyped]
 
 
-def get_torsions(mol:Chem.rdchem.Mol) -> list:
+def get_torsions(mol:Mol) -> list:
     # Adapted from https://github.com/fengshikun/FradNMI
     """
     Extracts the torsion angles from a molecule.
@@ -57,7 +58,7 @@ def get_torsions(mol:Chem.rdchem.Mol) -> list:
     return torsionList
 
 
-def get_dihedral(mol:Chem.rdchem.Mol) -> list:
+def get_dihedral(mol:Mol) -> list:
     # Adapted from https://github.com/gcorso/torsional-diffusion/
     """
     Extracts **all** the dihedral angles from a molecule.\n
@@ -65,7 +66,7 @@ def get_dihedral(mol:Chem.rdchem.Mol) -> list:
     some *"not-so-important"* dihedral angles.
 
     Args:
-        mol (Chem.rdchem.Mol): Single molecule object from RDKit.
+        mol (Mol): Single molecule object from RDKit.
     Returns:
         list: A list of tuples, where each tuple contains four integers representing the indices of the atoms
         that define a dihedral angle in the molecule
