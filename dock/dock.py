@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-18 18:07:54
+LastEditTime: 2025-06-20 08:51:00
 Description: 
 '''
 import argparse
@@ -68,27 +68,24 @@ def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
             latest_idx = len(results)
             if latest_idx > total_lens:
                 raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
-            project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
+            project_logger.info(f"Docking will start from {latest_idx} of {total_lens} molecules.")
             return latest_idx
     return 0
 
 ############## Execution Functions ##############
 
 def setup_arguments(parser: argparse.ArgumentParser):
-    #group1 = parser.add_argument_group("Necessary arguments")
-    #group1.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
+    group1 = parser.add_argument_group("Docking parameters\ndefaultly loaded from config file `configs/dock/gnina_dock.yml`")
+    group1.add_argument('-m', '--mode', type=str, choices=['dock', 'score_only'], help='docking mode.')
+    group1.add_argument('--verbose', type=int, help='verbosity level of the docking process.')
+    group1.add_argument('--seed', type=int, help='random seed for docking.')
+    group1.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
+    group1.add_argument('--poses', type=int, help='number of poses to generate.')
+    group1.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file.')
+    group1.add_argument('--method', type=str, help='docking method to use (`gnina` or `vina`).')
 
-    group2 = parser.add_argument_group("Docking parameters\ndefaultly loaded from config file `configs/dock/gnina_dock.yml`")
-    group2.add_argument('-m', '--mode', type=str, choices=['dock', 'score_only'], help='docking mode.')
-    group2.add_argument('--verbose', type=int, help='verbosity level of the docking process.')
-    group2.add_argument('--seed', type=int, help='random seed for docking.')
-    group2.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
-    group2.add_argument('--poses', type=int, help='number of poses to generate.')
-    group2.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file.')
-    group2.add_argument('--method', type=str, help='docking method to use (`gnina` or `vina`).')
-
-    group3 = parser.add_argument_group("Optional arguments")
-    group3.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")
+    group2 = parser.add_argument_group("Optional arguments")
+    group2.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")
     return parser
 
 def execute(args):
