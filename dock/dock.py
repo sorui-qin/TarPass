@@ -1,64 +1,17 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-20 08:51:00
+LastEditTime: 2025-06-20 18:22:37
 Description: 
 '''
 import argparse
 from tqdm import tqdm
-from utils.io import read_pkl, append_pkl, temp_manager
+from utils.io import read_pkl, append_pkl, temp_manager, write_sdf
 from utils.logger import project_logger, log_config
-from utils.docking import LigPrep
 from utils.constant import ROOT, TARGETS, DASHLINE
-from utils.preprocess import read_in
+from utils.preprocess import conformation_check, read_in
 from pathlib import Path
-
-class Dock():
-    def __init__(self, mol, target, args):
-        self.mol = mol
-        self.idx = mol.GetProp('_Name')
-        if self.mol.GetNumConformers() == 0 and args.mode == 'score_only':
-            raise ValueError(f"Conformation is not detected, `score_only` mode is banned.")
-        self.target = target
-        self.method_name = args.method
-        if self.method_name == 'vina':
-            from dock.docking_vina import VinaDock
-            self.method = VinaDock
-        else:
-            from dock.docking_gnina import GninaDock
-            self.method = GninaDock
-        self.args = args
-    
-    def ligprep(self):
-        prep = LigPrep(self.mol, self.args.reset)
-        if self.method_name == 'vina':
-            return prep.get_pdbqt()
-        with temp_manager('.sdf', auto_remove=False) as sdf_file:
-            if prep.save_sdf(sdf_file):
-                return sdf_file
-            else:
-                return None
-
-    def run(self):
-        ligand = self.ligprep()
-        if ligand is None:
-            project_logger.error(f"Failed to prepare ligand {self.idx}.")
-            return None, None
-        try:
-            dock = self.method(ligand, self.target, self.args.mode)
-            return dock.run(
-                seed=self.args.seed,
-                exhaust=self.args.exhaust,
-                n_poses=self.args.poses,
-                verbose=self.args.verbose,
-                )
-        except Exception as e:
-            project_logger.error(f"Docking failed for {self.idx}.")
-            project_logger.error(e)
-            return None, None
-        finally:
-            if self.method_name != 'vina':
-                Path(ligand).unlink()
+from dock.dock_class import SingleDock, BatchDock
 
 def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
     if result_pkl.exists():
@@ -72,6 +25,14 @@ def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
             return latest_idx
     return 0
 
+def save_results(pkl_path, index, mol, pose, score, mode):
+    """Save docking results to a pickle file."""
+    if mode == 'dock':
+        append_pkl(pkl_path, {'index': index, 'mol': mol, 'pose': pose, 'docking score': score})
+    elif mode == 'score_only':
+        append_pkl(pkl_path, {'index': index, 'mol': mol, 'vina score': score})
+
+
 ############## Execution Functions ##############
 
 def setup_arguments(parser: argparse.ArgumentParser):
@@ -82,10 +43,11 @@ def setup_arguments(parser: argparse.ArgumentParser):
     group1.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
     group1.add_argument('--poses', type=int, help='number of poses to generate.')
     group1.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file.')
-    group1.add_argument('--method', type=str, help='docking method to use (`gnina` or `vina`).')
+    group1.add_argument('--method', type=str, choices=['gnina', 'vina'], help='docking method to use (default: gnina).')
 
     group2 = parser.add_argument_group("Optional arguments")
-    group2.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available")
+    group2.add_argument('--reset', action="store_true", help="reset the original 3D conformation if available.")
+    group2.add_argument('--in_single', action="store_true", default=False, help="docking in single mode.")
     return parser
 
 def execute(args):
@@ -108,19 +70,27 @@ def execute(args):
         Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
         result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
         latest_idx = breakpoint_check(result_pkl, total_lens)
+
         # Docking
-        for i, mol in tqdm(enumerate(latest:=mols[latest_idx:]), 
-                           desc=f'Docking with {target}', total=len(latest)):
-            index = range(total_lens)[latest_idx+i]
-            dock = Dock(mol, target, args)
-            pose, score = dock.run()
-            # Save results
-            if args.mode == 'dock':
-                append_pkl(result_pkl, 
-                        {'index': index, 'mol': mol, 'pose': pose, 'docking score': score})
-            elif args.mode == 'score_only':
-                append_pkl(result_pkl, 
-                        {'index': index, 'mol': mol, 'vina score': score})
+        if args.in_single or latest_idx != 0:
+            for i, mol in tqdm(enumerate(latest:=mols[latest_idx:]), 
+                            desc=f'Docking with {target}', total=len(latest)):
+                index = range(total_lens)[latest_idx+i]
+                dock = SingleDock(mol, target, args)
+                pose, score = dock.run()
+                # Save results
+                save_results(result_pkl, index, mol, pose, score, args.mode)
+        
+        elif not (args.in_single and latest_idx):
+            # Execute batch docking if not in single mode and no previous results
+            project_logger.info(f'Batch docking with {target}, total {total_lens}...')
+            dock = BatchDock(mols, target, args)
+            results = dock.run()
+            for index, (pose, score) in enumerate(results):
+                if len(results) != total_lens:
+                    raise ValueError(f"Batch docking results length {len(results)} does not match total ligands {total_lens}.")
+                mol = mols[index]
+                save_results(result_pkl, index, mol, pose, score, args.mode)
         
         project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
         print(DASHLINE)

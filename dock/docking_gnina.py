@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-06-18 19:02:08
+LastEditTime: 2025-06-20 17:21:56
 Description: 
 '''
 import subprocess
@@ -51,18 +51,22 @@ class GninaDock(BaseDockTask):
         except StopIteration:
             raise FileNotFoundError(f"No config files {self.target}.txt found in `<INSTALL_PATH>/dock/paras`")
 
-    def _get_result(self, output_sdf:str):
-        mol = read_sdf(output_sdf)
-        mol = mol[0] if isinstance(mol, list) else mol
-        return mol, float(mol.GetProp('minimizedAffinity'))
+    def _get_result(self, output_sdf:str, in_batch:bool=False):
+        mols = read_sdf(output_sdf)
+        if isinstance(mols, list) and in_batch:
+            return [(mol, float(mol.GetProp('minimizedAffinity'))) for mol in mols]
+        else:
+            mol = mols[0] if isinstance(mols, list) else mols
+            return mol, float(mol.GetProp('minimizedAffinity'))
 
-    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0) -> tuple[Mol, float]:
+    def run(self, seed=0, exhaust=8, n_poses=1, verbose=0, in_batch=False) -> tuple[Mol, float] | list[tuple[Mol, float]]:
         """Running Gnina docking task.
         Args:
             seed (int, optional): Random seed (default: 0; ramdomly choosed)
             exhaust (int, optional): Exhaustiveness of docking. Defaults to 32.
             n_poses (int, optional): Mumber of pose to generate. Defaults to 1.
-            Verbosity (int, optional): Verbosity. 0: not output, 1: verbose. Defaults to 1.
+            verbosity (int, optional): Verbosity. 0: not output, 1: verbose. Defaults to 1.
+            in_batch (bool, optional): docking in batch mode. Defaults to False.
 
         Returns:
             Tuple[Chem.Mol, float], float]: Best docking pose in RdMol object and its score.
@@ -85,4 +89,4 @@ class GninaDock(BaseDockTask):
                 command.append('--score_only')
             devnull = None if verbose != 0 else subprocess.DEVNULL
             subprocess.run(command, check=True, stdout=devnull, stderr=devnull)
-            return self._get_result(tmp_file)
+            return self._get_result(tmp_file, in_batch)

@@ -1,13 +1,15 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 12:03:05
-LastEditTime: 2025-06-13 16:14:49
+LastEditTime: 2025-06-20 19:17:37
 Description: 
 '''
 import logging
 import sys
 from tqdm import tqdm
 from utils.constant import DASHLINE
+from rdkit import RDLogger
+from openbabel import openbabel
 
 
 class TqdmHandler(logging.StreamHandler):
@@ -38,3 +40,8 @@ def log_config(project_logger, args):
     for key, value in args.__dict__.items():
         project_logger.info(f"{key:10} : {str(value):<}")
     project_logger.info(DASHLINE)
+
+def configure_third_logging():
+    RDLogger.DisableLog('rdApp.*') # type: ignore
+    #openbabel.obErrorLog.SetOutputLevel(openbabel.obError)
+    openbabel.obErrorLog.StopLogging()

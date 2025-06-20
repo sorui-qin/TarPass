@@ -1,13 +1,16 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-06-18 18:00:42
+LastEditTime: 2025-06-20 19:16:30
 Description: 
 '''
 import argparse
 import importlib
 from pathlib import Path
 from utils.io import read_yaml, temp_dir
+from utils.logger import configure_third_logging
+
+configure_third_logging()
 
 def merge_config(args:argparse.Namespace) -> argparse.Namespace:
     """Merge command line arguments with configuration file."""
