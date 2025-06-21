@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-20 18:22:37
+LastEditTime: 2025-06-20 19:40:47
 Description: 
 '''
 import argparse
@@ -31,7 +31,6 @@ def save_results(pkl_path, index, mol, pose, score, mode):
         append_pkl(pkl_path, {'index': index, 'mol': mol, 'pose': pose, 'docking score': score})
     elif mode == 'score_only':
         append_pkl(pkl_path, {'index': index, 'mol': mol, 'vina score': score})
-
 
 ############## Execution Functions ##############
 
