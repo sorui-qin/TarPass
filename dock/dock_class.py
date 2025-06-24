@@ -1,13 +1,14 @@
 '''
 Author: Rui Qin
 Date: 2025-06-20 16:16:54
-LastEditTime: 2025-06-20 18:31:12
+LastEditTime: 2025-06-23 16:32:40
 Description: 
 '''
 from abc import ABC, abstractmethod
 from utils.constant import Path, Mol
 from utils.io import temp_manager, write_sdf
 from utils.docking import LigPrep
+from utils.logger import project_logger
 from utils.preprocess import conformation_check
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')  # type: ignore
@@ -87,6 +88,7 @@ class BatchDock(DockBase):
             raise ValueError(f"Batch docking with Vina is not supported.")
 
     def _ligprep(self) -> str | None:
+        project_logger.info(f"Preparing ligands for {self.target}...")
         preps = [LigPrep(mol, self.args.reset).ligprep() for mol in self.mols]
         
         with temp_manager('.sdf', auto_remove=False) as sdf_file:
@@ -96,4 +98,5 @@ class BatchDock(DockBase):
             return sdf_file
 
     def _docking(self, ligand: str):
+        #TODO: Add progress bar for batch docking mode
         return super()._docking(ligand, in_batch=True)

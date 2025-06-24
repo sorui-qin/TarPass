@@ -1,10 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-06-20 17:21:56
+LastEditTime: 2025-06-23 16:35:49
 Description: 
 '''
-import subprocess
+import subprocess, sys
 from typing import Literal
 from utils.constant import ROOT, Mol
 from utils.io import read_sdf, temp_manager
@@ -72,7 +72,7 @@ class GninaDock(BaseDockTask):
             Tuple[Chem.Mol, float], float]: Best docking pose in RdMol object and its score.
         """
         rec_pdb = next(self.target_dir.glob("*rec*.pdb"))
-        # Run docking--
+        # Run docking
         with temp_manager('.sdf') as tmp_file:
             command = [
                 'gnina',
@@ -87,6 +87,8 @@ class GninaDock(BaseDockTask):
             ]
             if self.mode == 'score_only':
                 command.append('--score_only')
-            devnull = None if verbose != 0 else subprocess.DEVNULL
-            subprocess.run(command, check=True, stdout=devnull, stderr=devnull)
+            if verbose == 0:
+                subprocess.run(command, check=True)
+            else:
+                subprocess.run(command, check=True, stdout=sys.stderr)
             return self._get_result(tmp_file, in_batch)

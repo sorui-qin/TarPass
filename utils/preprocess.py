@@ -1,10 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-17 10:55:55
+LastEditTime: 2025-06-24 19:38:00
 Description: 
 '''
-from functools import lru_cache
+from copy import deepcopy
 from pathlib import Path
 from typing import DefaultDict, Iterable, Literal
 from collections import defaultdict
@@ -44,7 +44,8 @@ def sanitize_valid(mol:Chem.Mol, idx:int) -> bool:
     if mol:
         mol.SetProp('_Name', f'{idx}') # set the name of the molecule
         try:
-            Chem.SanitizeMol(mol)
+            molcopy = deepcopy(mol)
+            Chem.SanitizeMol(molcopy)
             return True
         except:
             return False
@@ -96,7 +97,6 @@ class Preprocess():
         self.num = len(readins)
         self.format = format
     
-    @lru_cache(maxsize=1000)
     def valid(self) -> list[Chem.Mol]:
         if self.format == 'sdf':
             valids = [mol for idx, mol in enumerate(self.readins) if sanitize_valid(mol, idx)]

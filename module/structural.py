@@ -1,16 +1,16 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-06-18 17:42:11
-Description: 
+LastEditTime: 2025-06-24 21:02:39
+Description: Topological and structural properties of a molecule.
 '''
 import copy
 import networkx as nx
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Mol
-from rdkit.Chem.Lipinski import NumRotatableBonds  # type: ignore[import-untyped]
+from rdkit.Chem import Mol, GraphDescriptors, SpacialScore
 
+#### Torsion and Dihedral Angles ####
 
 def get_torsions(mol:Mol) -> list:
     # Adapted from https://github.com/fengshikun/FradNMI
@@ -94,29 +94,16 @@ def get_dihedral(mol:Mol) -> list:
     return dihedralList
 
 
-def get_angels_number(mol:Chem.rdchem.Mol, fct=get_torsions):
+def get_torsions_number(mol:Mol, fct=get_torsions) -> int:
     return len(fct(mol))
 
-
-def get_rotatable(mol:Chem.rdchem.Mol) -> int:
-    """
-    Get the number of rotatable bonds.
-
-    Args:
-        mol (Chem.rdchem.Mol): Single molecule object from RDKit.
-
-    Returns:
-        int: The number of rotatable bonds.
-    """
-    return NumRotatableBonds(mol)
-
+#### Ring and Fused Ring Properties ####
 
 class RingProp:
     """
     Calculate numerical properties of ring information.
     """
-
-    def __init__(self, mol:Chem.rdchem.Mol):
+    def __init__(self, mol:Mol):
         self.info = mol.GetRingInfo()
         self.rings = self.info.AtomRings()
         # If no ring in molecule, all methods return 0
@@ -125,7 +112,7 @@ class RingProp:
             for method in methods:
                 setattr(self, method, self._return_zero)
     
-    def _return_zero(self, *args, **kwargs):
+    def _return_zero(self):
         return len(self.rings)
 
     def ring_numbers(self) -> int:
@@ -168,7 +155,6 @@ class FusedRingProp(RingProp):
     """
     Calculate numerical properties of fused ring.
     """
-
     def __init__(self, mol):
         super().__init__(mol)
     
@@ -195,7 +181,19 @@ class FusedRingProp(RingProp):
         """
         return max([len(r) for r in self.fused_systems()], default=0)
 
-#if __name__ == '__main__':
-    #mol = Chem.MolFromSmiles('CC(C)C[C@H](C(=O)O)N(C)Cc1cccc(CN)c1')
-    #a = FusedRingProp(mol).largest_member()
-    #print(a)
+#### Topological Properties ####
+
+def bertzCT(mol:Mol) -> float:
+    """
+    Calculate the BertzCT (Bertz Complexity Topological) index of a molecule.
+    Ref: `S. H. Bertz, J. Am. Chem. Soc., vol 103, 3599-3601 (1981).`
+    """
+    return GraphDescriptors.BertzCT(mol)
+
+def spacial_score(mol:Mol) -> float:
+    """
+    Spacial score (SPS) is an empirical scoring system to express the spacial complexity of a compound in an uniform manner 
+    and on a highly granular scale for ranking and comparison between molecules.  
+    Ref: `Krzyzanowski, A.; et al. Spacial Score─A Comprehensive Topological Indicator for Small-Molecule Complexity. J. Med. Chem. 2023.`
+    """
+    return SpacialScore.SPS(mol)
