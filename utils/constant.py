@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 16:12:18
-LastEditTime: 2025-06-18 19:02:38
+LastEditTime: 2025-06-25 13:27:56
 Description: 
 '''
 from pathlib import Path
@@ -9,6 +9,7 @@ from rdkit.Chem import Mol
 
 ROOT = Path(__file__).parent.parent
 TMP = ROOT / 'tmp'
+TARGET_PATH = ROOT / 'Targets'
 
 TARGETS = [
     '5HT2A',

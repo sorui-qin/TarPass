@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-06-24 20:20:44
+LastEditTime: 2025-06-25 11:37:45
 Description: 
 '''
 import importlib.util
@@ -18,6 +18,7 @@ module_path = Path(RDConfig.RDContribDir) / 'SA_Score' / 'sascorer.py'
 spec = importlib.util.spec_from_file_location("sascorer", module_path)
 sa = importlib.util.module_from_spec(spec) # type: ignore
 spec.loader.exec_module(sa)  # type: ignore
+
 
 class DruglikenessCalculator:
     def __init__(self):
@@ -40,6 +41,7 @@ class DruglikenessCalculator:
             # Global Structural Descriptors
             'heavy_atoms': mol.GetNumHeavyAtoms(),
             'heteroatoms': rdMolDescriptors.CalcNumHeteroatoms(mol),
+            'all_common': common_atoms(mol),
             'csp3': rdMolDescriptors.CalcFractionCSP3(mol),
             'rotatable_bonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
             'spiro_atoms': rdMolDescriptors.CalcNumSpiroAtoms(mol),
@@ -81,6 +83,16 @@ class DruglikenessCalculator:
         rule_4 = (logp >= -2) & (logp <= 5)
         rule_5 = self.properties.get('rotatable_bonds', 0) <= 101
         return sum([rule_1, rule_2, rule_3, rule_4, rule_5])
+    
+#### Common Atoms #####
+
+def common_atoms(mol:Mol) -> bool:
+    """Check if the molecule doesn't contain uncommon atoms.  
+    Namely, the atom does not belong to the following categories:  
+    core elements `C, H, O, N`, halogens `F, Cl, Br, I`, or common functional group elements `P, S, B`.
+    """
+    common = {'C', 'H', 'O', 'N', 'F', 'Cl', 'Br', 'I', 'P', 'S', 'B'}
+    return all(atom.GetSymbol() in common for atom in mol.GetAtoms())
 
 #### Ligand Effciency #####
 

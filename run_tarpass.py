@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-06-20 20:44:52
+LastEditTime: 2025-06-25 15:37:24
 Description: 
 '''
 import argparse
@@ -42,11 +42,14 @@ def main():
 
     ### Evaluation module ###
     eval_module = importlib.import_module("eval")
+    eval_parser = subparsers.add_parser("eval", help="Evaluate docking and molecular properties")
+    eval_module.setup_arguments(eval_parser)
+
+    # Sub-module for evaluation
     dockeval_parser = subparsers.add_parser("dockeval", help="Evaluate docking results")
     eval_module.setup_arguments(dockeval_parser)
-
-    #moleeval_parser = subparsers.add_parser("moleeval", help="Evaluate molecular properties")
-    #eval_module.setup_arguments(moleeval_parser)
+    moleeval_parser = subparsers.add_parser("moleeval", help="Evaluate molecular properties")
+    eval_module.setup_arguments(moleeval_parser)
 
     # Merge configuration for dock module
     args = parser.parse_args()
@@ -57,7 +60,8 @@ def main():
         'dock': (dock_module, 'execute'),
         'interaction': (interaction_module, 'execute'),
         'dockeval': (eval_module, 'dockeval_execute'),
-        #'moleeval': (eval_module, 'mole_eval') 
+        'moleeval': (eval_module, 'eval_execute'),
+        'eval': (eval_module, 'eval_execute'),
     }
 
     # Get the relevant module and function based on the command

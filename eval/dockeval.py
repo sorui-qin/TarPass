@@ -1,26 +1,25 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-18 19:03:55
+LastEditTime: 2025-06-25 15:12:51
 Description: 
 '''
 import itertools
 from functools import partial
 from pathlib import Path
 from typing import Literal
-import pandas as pd
+from rdkit.Chem import Mol
 from tqdm.contrib.concurrent import process_map
 from interaction.interaction_tools import allkey_inters, interactions
 from module.druglikeness import calc_le
-from module.intermolecular_distance import check_intermolecular_distance
+from module.intermolecular_distance import (centriod_distance,
+                                            check_intermolecular_distance)
 from module.sucos import check_sucos
-from utils.constant import DASHLINE, Mol, ROOT, TARGETS
+from utils.constant import DASHLINE, TARGET_PATH, TARGETS
 from utils.eval import find_dockpkl
-from utils.io import read_pdb_rdmol, read_pkl, read_sdf, dump_json
+from utils.io import dump_json, read_pdb_rdmol, read_pkl, read_sdf
 from utils.logger import log_config, project_logger
 from utils.preprocess import conformation_check, read_in, to_smiles
-
-TARGET_PATH = ROOT / 'Targets'
 
 
 class DockEval:
@@ -56,6 +55,14 @@ class DockEval:
         return process_map(
             clash_fn, self.poses, chunksize=100,
             desc=f"Checking clashes",
+            )
+    
+    def centriod_shift(self):
+        """Calculate the centroid shift of the poses relative to the ref ligand."""
+        shift_fn = partial(centriod_distance, mol_ref=self.lig_mol)
+        return process_map(
+            shift_fn, self.poses, chunksize=100,
+            desc=f"Calculating centroid shift",
             )
 
     def interactions(self):
@@ -115,16 +122,17 @@ def extract_results(results:list[dict], mode:Literal['dock', 'score_only']) -> t
     return poses, scores
 
 
-def dock_eval(target_dir:Path, target:str) -> list[dict]:
+def dock_eval(mols:list[Mol], target_dir:Path) -> list[dict]:
     """Evaluate docking results for a specific target protein.
     Args:
-        work_dir (Path): Path to the working directory.
-        target (str): Name of the target protein.
+        mols (list[Mol]): List of molecules to be evaluated.
+        target_dir (Path): Path to the target directory.
+
     Returns:
         list[dict]: Evaluated results for the target.
     """
 
-    def _read_and_validate(results_dir, target,lens, mode, error_msg):
+    def _read_and_validate(results_dir, target, lens, mode, error_msg):
         pkl_file = find_dockpkl(results_dir, mode=mode)
         if not pkl_file:
             raise RuntimeError(f"Results not found for {target}, {error_msg}.")
@@ -140,8 +148,8 @@ def dock_eval(target_dir:Path, target:str) -> list[dict]:
 
     # Initialize directories and read molecules
     results_dir = target_dir / 'results'
-    _, mols = read_in(target_dir)
     lens = len(mols)
+    target = target_dir.name
 
     # Check before evaluation
     dock_results = _read_and_validate(
@@ -186,7 +194,6 @@ def dock_eval(target_dir:Path, target:str) -> list[dict]:
 
 def dockeval_execute(args):
     log_config(project_logger, args)
-    format = args.format
 
     work_dir = Path(args.path)
     for target in TARGETS:
@@ -201,17 +208,15 @@ def dockeval_execute(args):
         # Check if results exists
         project_logger.info(f'Start evaluating docking results for {target}...')
         results_dir = target_dir / 'results'
-        eval_output = results_dir / f'dock_eval_results.{format}'
+        eval_output = results_dir / f'dock_eval_results.json'
         if eval_output.exists():
             project_logger.info(f"Evaluation results already exist for {target}, skipping evaluation.")
             continue
         
         # Execute evaluation and save results
         project_logger.info(DASHLINE)
-        result = dock_eval(target_dir, target)
-        if format == 'json':
-            dump_json(eval_output, result)
-        if format == 'csv':
-            pd.DataFrame(result).to_csv(eval_output, index=False)
+        _, mols = read_in(target_dir)
+        result = dock_eval(mols, target_dir)
+        dump_json(eval_output, result)
         project_logger.info(f"Evaluation results saved to {eval_output}.")
         project_logger.info(DASHLINE)

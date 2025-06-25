@@ -200,3 +200,13 @@ def _keep_atom(  # noqa: PLR0913, PLR0911
         return False
 
     return True
+
+from utils.docking import centriod
+
+def centriod_distance(mol_pred: Mol, mol_ref: Mol):
+    """Calculate the distance between the centroids of two molecules."""
+    centroid_pred = centriod(mol_pred)
+    centroid_cond = centriod(mol_ref)
+    return np.linalg.norm(
+        np.array(centroid_pred) - np.array(centroid_cond)
+        )

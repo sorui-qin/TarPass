@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-06-24 21:02:39
+LastEditTime: 2025-06-25 15:37:22
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -9,6 +9,59 @@ import networkx as nx
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import Mol, GraphDescriptors, SpacialScore
+from functools import cached_property
+
+class StructuralCalculator:
+    def __init__(self):
+        self.properties = {}
+    
+    def calculate_all(self, mol:Mol) -> dict[str, float]:
+        """
+        Calculate all structural properties of a molecule.
+        
+        Args:
+            mol (Chem.rdchem.Mol): Single molecule object from RDKit.
+
+        Returns:
+            dict: A dictionary containing various structural properties of the molecule.
+        """
+        if mol is None:
+            return {}
+        
+        rings = FusedRingProp(mol)
+
+        self.properties = {
+            # Torsion and topological properties
+            'torsion angles': get_torsions_number(mol),
+            'bertzCT': bertzCT(mol),
+            'spacial score': spacial_score(mol),
+
+            # Ring properties
+            'ring numbers': rings.ring_numbers(),
+            'largest ring': rings.largest_ring(),
+            'unexpect rings': rings.unexpect(),
+            'fused numbers': rings.fused_numbers(),
+            'largest fused member': rings.largest_member(),
+            'rings in fused system': rings.rings_in_fused(),
+        }
+
+        self.properties.update({
+            'unexpect ratio': self.unexpect_ratio(),
+            'fused ratio': self.fused_ratio(),
+        })
+        return self.properties
+
+    def unexpect_ratio(self) -> float:
+        if self.properties['ring numbers'] > 0:
+            return self.properties['unexpect rings'] / self.properties['ring numbers'] 
+        else:
+            return 0
+        
+    def fused_ratio(self) -> float:
+        if self.properties['ring numbers'] > 0:
+            return self.properties['fused numbers'] / self.properties['ring numbers']
+        else:
+            return 0
 
 #### Torsion and Dihedral Angles ####
 
@@ -61,7 +114,7 @@ def get_torsions(mol:Mol) -> list:
 def get_dihedral(mol:Mol) -> list:
     # Adapted from https://github.com/gcorso/torsional-diffusion/
     """
-    Extracts **all** the dihedral angles from a molecule.\n
+    Extracts **all** the dihedral angles from a molecule.  
     Compared to `get_torsion` with SMARTS matching, this function is much slower and may detect
     some *"not-so-important"* dihedral angles.
 
@@ -129,20 +182,20 @@ class RingProp:
         """
         return max(len(r) for r in self.rings)
     
-    def unusual(self, lower=5, upper=7, upper_only=False) -> int:
+    def unexpect(self, lower=5, upper=7, upper_only=False) -> int:
         """
-        The number of *"uncommon"* rings containing either too many or too few atoms.\n
-        By default, the range for the number of atoms in *"common"* rings is set between **5 and 7**,\n
-        as these rings exhibit greater stability due to their ring strain.\n
-        Rings that fall outside this range may be unstable and be seen as **unusual**.
+        The number of *"unexpect"* rings containing either too many or too few atoms.  
+        By default, the range for the number of atoms in *"expect"* rings is set between **5 and 7**,
+        as these rings exhibit greater stability due to their ring strain.  
+        Rings that fall outside this range may be unstable and be seen as **unexpect**.
 
         Args:
-            lower (int, optional): Lower Limit of "common" rings. Defaults to 5.
-            upper (int, optional): Upper Limit of "common" rings. Defaults to 7.
+            lower (int, optional): Lower Limit of "expect" rings. Defaults to 5.
+            upper (int, optional): Upper Limit of "expect" rings. Defaults to 7.
             upper_only (bool, optional): Only consider upper limit, accept 3 & 4-membered rings. Defaults to False.
 
         Returns:
-            int: The number of "uncommon" rings.
+            int: The number of "unexpect" rings.
         """
         if lower > 5 or upper < 7 or lower >= upper:
             raise(ValueError('Invalid input value!'))
@@ -158,6 +211,7 @@ class FusedRingProp(RingProp):
     def __init__(self, mol):
         super().__init__(mol)
     
+    @cached_property
     def fused_systems(self) -> list:
         """
         Returns:
@@ -169,17 +223,53 @@ class FusedRingProp(RingProp):
             for idx2 in range(idx1, n):
                 if self.info.AreRingsFused(idx1, idx2):
                     adj_matrix[idx1][idx2] = 1
-                    
+        if adj_matrix.size == 0:
+            return []
         G = nx.from_numpy_array(adj_matrix)
         fused_sys = [g for g in nx.connected_components(G) if len(g) > 1]
         return fused_sys
+    
+    @cached_property
+    def fused_sizes(self) -> list:
+        """
+        Returns:
+            list: List with the number of rings in each fused ring system.
+        """
+        return [len(r) for r in self.fused_systems]
+    
+    def fused_numbers(self) -> int:
+        """
+        Returns:
+            int: The number of fused ring systems in a molecule.
+        """
+        return len(self.fused_systems)
     
     def largest_member(self) -> int:
         """
         Returns:
             int: The number of ring members that constitute the largest fused ring system.
         """
-        return max([len(r) for r in self.fused_systems()], default=0)
+        return max(self.fused_sizes) if self.fused_systems else 0
+    
+    def is_highly_fused(self, threshold: int = 3) -> bool:
+        """
+        Check if the molecule contains highly fused ring systems.
+        
+        Args:
+            threshold: Minimum number of rings in a system to be considered "highly fused"
+        Returns:
+            bool: True if any fused system has >= threshold rings
+        """
+        return self.largest_member() >= threshold
+    
+    def rings_in_fused(self) -> int:
+        """
+        Returns:
+            int: The number of rings in the largest fused ring system.
+        """
+        if not self.fused_systems:
+            return 0
+        return sum(self.fused_sizes) if self.fused_systems else 0
 
 #### Topological Properties ####
 

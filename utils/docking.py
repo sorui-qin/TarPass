@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-06-18 18:59:51
+LastEditTime: 2025-06-24 23:46:09
 Description: 
 '''
 from copy import deepcopy
@@ -17,14 +17,20 @@ from utils.io import write_sdf
 from utils.logger import project_logger
 from utils.preprocess import standard_mol
 
-
-def sdf2centroid(sdf_file):
-    supp = Chem.SDMolSupplier(sdf_file, sanitize=False)
-    lig_xyz = supp[0].GetConformer().GetPositions()
+def centriod(mol:Mol) -> list[float]:
+    """Calculate the centroid of a molecule.
+    """
+    if not mol.GetNumConformers():
+        raise ValueError("The molecule has no conformation.")
+    lig_xyz = mol.GetConformer().GetPositions()
     centroid_x = lig_xyz[:,0].mean()
     centroid_y = lig_xyz[:,1].mean()
     centroid_z = lig_xyz[:,2].mean()
     return [centroid_x, centroid_y, centroid_z]
+
+def sdf2centroid(sdf_file):
+    supp = Chem.SDMolSupplier(sdf_file, sanitize=False)
+    return centriod(supp[0]) if supp else None
 
 def rdkit2obmol(mol:Mol) -> pybel.Molecule:
     return pybel.readstring("mol", Chem.MolToMolBlock(mol))
