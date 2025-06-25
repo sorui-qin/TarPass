@@ -1,14 +1,15 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 15:13:31
-LastEditTime: 2025-06-25 15:32:09
+LastEditTime: 2025-06-25 17:10:14
 Description: 
 '''
+import pandas as pd
 from eval.dockeval import dock_eval
 from eval.moleeval import mole_eval
+from utils.constant import DASHLINE, TARGETS, Path
 from utils.io import dump_json
-from utils.constant import Path, DASHLINE, TARGETS
-from utils.logger import project_logger, log_config
+from utils.logger import log_config, project_logger
 from utils.preprocess import read_in
 
 
@@ -18,7 +19,6 @@ def eval_execute(args):
     for target in TARGETS:
 
         # Check if target directory exists
-        project_logger.info(DASHLINE)
         target_dir = work_dir / target
         if not target_dir.exists():
             project_logger.warning(f"Target folder {target_dir} not found, skipping evaluation.")
@@ -44,7 +44,7 @@ def eval_execute(args):
         if not mole_output.exists():
             project_logger.info(f'Start evaluating molecules for {target}...')
             mole_res = mole_eval(smis)
-            dump_json(mole_output, mole_res)
+            pd.DataFrame(mole_res).to_csv(mole_output, index=False)
         else:
             project_logger.info(f"Evaluation results already exist for {target}, skipping evaluation.")
 

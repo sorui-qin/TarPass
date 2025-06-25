@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:00:12
-LastEditTime: 2025-06-18 19:02:10
+LastEditTime: 2025-06-25 16:57:30
 Description: 
 '''
 # Partly adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
@@ -35,7 +35,13 @@ def fingerprint(mol:Mol, fp_type:str):
 def fingerprints(mols:list[Mol], fp_type='fp'):
     return [fingerprint(mol, fp_type) for mol in mols]
 
-def morgan_frags(mol:Mol):
+def morgan_frags(mol:Mol) -> list:
+    """ Get Morgan fingerprint fragments for a molecule.
+    Args:
+        mol (Mol): RDKit molecule object.
+    Returns:
+        list: List of non-zero fragment identifiers.
+    """
     fp = fingerprint(mol, fp_type='scfp')
     return list(fp.GetNonzeroElements().keys())
 

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-06-25 15:37:24
+LastEditTime: 2025-06-25 16:41:14
 Description: 
 '''
 import argparse
@@ -10,6 +10,9 @@ from pathlib import Path
 from utils.io import read_yaml, temp_dir
 from utils.logger import configure_third_logging
 
+# Suppress warnings
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning, message="to-Python converter for boost::shared_ptr")
 configure_third_logging()
 
 def merge_config(args:argparse.Namespace) -> argparse.Namespace:

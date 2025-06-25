@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-25 15:12:51
+LastEditTime: 2025-06-25 17:07:36
 Description: 
 '''
 import itertools
@@ -169,7 +169,7 @@ def dock_eval(mols:list[Mol], target_dir:Path) -> list[dict]:
     # Extract results and evaluate
     dock_eval_results = _extract_and_eval(results=dock_results, mode='dock')
     if score_results:
-        project_logger.info('Initial molecules are 3D, checking scoring results...')
+        project_logger.info('Initial molecules are 3D, checking scoring results of initial conformation...')
         score_eval_results = _extract_and_eval(results=score_results, mode='score_only')
     else:
         project_logger.info(f'Initial molecules are not 3D, skipping scoring results for {target}.')

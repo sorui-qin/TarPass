@@ -1,15 +1,17 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-06-25 15:37:22
+LastEditTime: 2025-06-25 17:00:14
 Description: Topological and structural properties of a molecule.
 '''
 import copy
+from functools import cached_property
 import networkx as nx
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Mol, GraphDescriptors, SpacialScore
-from functools import cached_property
+from rdkit.Chem import GraphDescriptors, Mol, SpacialScore
+from utils.measure import morgan_frags
+
 
 class StructuralCalculator:
     def __init__(self):
@@ -33,6 +35,7 @@ class StructuralCalculator:
         self.properties = {
             # Torsion and topological properties
             'torsion angles': get_torsions_number(mol),
+            'morgen fragments': len(morgan_frags(mol)),
             'bertzCT': bertzCT(mol),
             'spacial score': spacial_score(mol),
 
