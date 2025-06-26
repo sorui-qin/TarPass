@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-25 17:07:36
+LastEditTime: 2025-06-26 14:14:15
 Description: 
 '''
 import itertools
@@ -182,11 +182,10 @@ def dock_eval(mols:list[Mol], target_dir:Path) -> list[dict]:
         itertools.zip_longest(smis, dock_eval_results, score_eval_results, fillvalue=None)
     ):
         info_di = {'index': idx, 'target': target, 'smiles': smiles,}
-        # Rename keys
-        prefix_dock = {f"Dock_{k}": v for k, v in dock_res.items()} if dock_res else {}
-        prefix_score = {f"Initial_{k}": v for k, v in score_res.items()} if score_res else {}
-        # Combine all results
-        eval_all_results.append({**info_di, **prefix_dock, **prefix_score})
+        info_di.update({'dock': dock_res})
+        if score_res:
+            info_di.update({'score': score_res})
+        eval_all_results.append(info_di)
     project_logger.info(f"Evaluation completed for {target}.")
     return eval_all_results
 

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-06-25 16:41:14
+LastEditTime: 2025-06-25 18:36:38
 Description: 
 '''
 import argparse
@@ -13,6 +13,7 @@ from utils.logger import configure_third_logging
 # Suppress warnings
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning, message="to-Python converter for boost::shared_ptr")
+warnings.filterwarnings("ignore", category=UserWarning, module="prody.utilities.misctools")
 configure_third_logging()
 
 def merge_config(args:argparse.Namespace) -> argparse.Namespace:
