@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 19:34:16
-LastEditTime: 2025-06-23 16:35:49
+LastEditTime: 2025-06-27 14:44:12
 Description: 
 '''
 import subprocess, sys
@@ -87,8 +87,6 @@ class GninaDock(BaseDockTask):
             ]
             if self.mode == 'score_only':
                 command.append('--score_only')
-            if verbose == 0:
-                subprocess.run(command, check=True)
-            else:
-                subprocess.run(command, check=True, stdout=sys.stderr)
+            dullnev = subprocess.DEVNULL if verbose == 0 else None
+            subprocess.run(command, check=True, stdout=dullnev, stderr=dullnev)
             return self._get_result(tmp_file, in_batch)

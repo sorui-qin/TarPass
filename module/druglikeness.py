@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-06-25 11:37:45
+LastEditTime: 2025-06-27 16:40:38
 Description: 
 '''
 import importlib.util
@@ -46,7 +46,7 @@ class DruglikenessCalculator:
             'rotatable_bonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
             'spiro_atoms': rdMolDescriptors.CalcNumSpiroAtoms(mol),
             'chiral_atoms': len(Chem.FindMolChiralCenters(mol, includeUnassigned=True)),
-            'completeness': int(len(Chem.GetMolFrags(mol)) == 1),
+            'completeness': len(Chem.GetMolFrags(mol)) == 1,
         }
         
         # Derived Properties
@@ -98,11 +98,11 @@ def common_atoms(mol:Mol) -> bool:
 
 def le_heavyatom(mol:Mol, score: float) -> float:
     """Calculate the ligand efficiency based on the number of heavy atoms and docking score."""
-    return mol.GetNumHeavyAtoms() / abs(score) if score <0 else np.nan
+    return abs(score) / mol.GetNumHeavyAtoms() if score < 0 else np.nan
 
 def le_mw(mol:Mol, score: float) -> float:
     """Calculate the ligand efficiency based on molecular weight and docking score."""
-    return rdMolDescriptors.CalcExactMolWt(mol) / abs(score) if score < 0 else np.nan
+    return abs(score) / rdMolDescriptors.CalcExactMolWt(mol) if score < 0 else np.nan
 
 def calc_le(args:tuple[Mol, float]) -> dict:
     """Calculate the ligand effciency for a given molecule and its docking score.

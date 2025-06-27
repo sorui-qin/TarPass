@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-06-18 19:04:46
+LastEditTime: 2025-06-27 17:04:02
 Description: 
 '''
 import json
@@ -119,9 +119,10 @@ def match_interactions(detect_inters: dict, key_inters:dict) -> dict:
         dict: Matching results
     """
     result = {
-        'fully_matched': True,
         'total_checks': 0,
         'matched_count': 0,
+        'fully_matched': True,
+        'matched_rate': 0,
         'detected_interactions': detect_inters,
         'matched_details': [],
         'unmatched_details': [],
@@ -151,6 +152,7 @@ def match_interactions(detect_inters: dict, key_inters:dict) -> dict:
 
     result['total_checks'] = total_checks
     result['matched_count'] = successful_matches
+    result['matched_rate'] = successful_matches / total_checks if total_checks > 0 else 0
     result['fully_matched'] = (successful_matches == total_checks)
     return result
 
