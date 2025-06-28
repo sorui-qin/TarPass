@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 19:02:11
-LastEditTime: 2025-06-27 16:36:28
+LastEditTime: 2025-06-28 15:53:41
 Description: 
 '''
 from pathlib import Path
@@ -15,10 +15,10 @@ def find_dockpkl(results_dir:str|Path, mode:Literal['dock','origin','score_only'
     patterns = ['gnina', 'vina']
     for p in patterns:
         docked_pkl_path = Path(results_dir) / f'{p}-{m}_docking_results.pkl'
-    if not docked_pkl_path.exists():
-        raise FileNotFoundError(f"Docking results file '{docked_pkl_path}' does not exist,\
-                                please rerun `tarpass dock -m {mode}`.")
-    return docked_pkl_path
+        if docked_pkl_path.exists():
+            return docked_pkl_path
+    raise FileNotFoundError(f"No docking results file found in '{results_dir}' for mode '{mode}'.\
+                            Please rerun `tarpass dock -m {mode}` with a valid docking method.")
 
 EVAL_MAP = {
     'dock': (load_json, 'dock_eval_results.json'),

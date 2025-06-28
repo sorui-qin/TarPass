@@ -2,415 +2,423 @@
   "5HT2A": {
     "Hydrophobic contact": [
       {
-        "match_mode": "any",
         "residues": [
           "A_TRP336",
-          "A_PHE339"
-        ]
+          "A_PHE339",
+          "A_PHE340"
+        ],
+        "match_mode": "any"
       }
     ],
     "Salt Bridge pneg": [
       {
-        "match_mode": "all",
         "residues": [
           "A_ASP155"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "5HT2A-AF": {
     "Hydrophobic contact": [
       {
-        "match_mode": "any",
         "residues": [
           "A_TRP336",
-          "A_PHE339"
-        ]
+          "A_PHE339",
+          "A_PHE340"
+        ],
+        "match_mode": "any"
       }
     ],
     "Salt Bridge pneg": [
       {
-        "match_mode": "all",
         "residues": [
           "A_ASP155"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "BCL2": {
     "Hydrophobic contact": [
       {
-        "match_mode": "all",
         "residues": [
           "A_PHE104"
-        ]
+        ],
+        "match_mode": "all"
       },
       {
-        "match_mode": "all",
         "residues": [
           "A_TYR108",
           "A_ARG146"
-        ]
+        ],
+        "match_mode": "any"
       },
       {
-        "match_mode": "all",
         "residues": [
           "A_PHE153"
-        ]
+        ],
+        "match_mode": "all"
       },
       {
-        "match_mode": "all",
         "residues": [
-          "A_ASP111",
           "A_PHE112"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "BRAF": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_CYS532"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "BRD4": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_ASN140"
-        ]
+        ],
+        "match_mode": "all"
       }
     ],
     "Hydrophobic contact": [
       {
-        "match_mode": "any",
         "residues": [
           "A_TRP81",
           "A_PRO82",
           "A_PHE83"
-        ]
+        ],
+        "match_mode": "any"
       },
       {
-        "match_mode": "any",
         "residues": [
           "A_LEU92",
           "A_LEU94",
           "A_VAL87",
           "A_TYR97"
-        ]
+        ],
+        "match_mode": "any"
       }
     ]
   },
   "BRD4-holo": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_ASN140"
-        ]
+        ],
+        "match_mode": "all"
       }
     ],
     "Hydrophobic contact": [
       {
-        "match_mode": "any",
         "residues": [
           "A_TRP81",
           "A_PRO82",
           "A_PHE83"
-        ]
+        ],
+        "match_mode": "any"
       },
       {
-        "match_mode": "any",
         "residues": [
           "A_LEU92",
           "A_LEU94",
           "A_VAL87",
           "A_TYR97"
-        ]
+        ],
+        "match_mode": "any"
       }
     ]
   },
   "BTK": {
-    "H-Bond": [
-      {
-        "match_mode": "all",
-        "residues": [
-          "A_MET477"
-        ]
-      }
-    ],
     "H-Bond acceptor": [
       {
-        "match_mode": "all",
         "residues": [
-          "A_MET477"
-        ]
+          "A_MET477",
+          "A_GLU475"
+        ],
+        "match_mode": "any"
       }
     ],
     "H-Bond donor": [
       {
-        "match_mode": "all",
         "residues": [
           "A_MET477"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "Beta2AR": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_SER203",
           "A_SER207"
-        ]
+        ],
+        "match_mode": "any"
       },
       {
-        "match_mode": "all",
         "residues": [
           "A_ASN379",
           "A_TYR383"
-        ]
+        ],
+        "match_mode": "any"
       }
     ],
     "Pi-stacking": [
       {
-        "match_mode": "all",
         "residues": [
           "A_PHE357"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "DRD2": {
     "Hydrophobic contact": [
       {
-        "match_mode": "all",
         "residues": [
-          "A_TRP386"
-        ]
+          "A_PHE386"
+        ],
+        "match_mode": "all"
       }
     ],
     "Salt Bridge pneg": [
       {
-        "match_mode": "all",
         "residues": [
           "A_ASP114"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "HDAC6": {
-    "Pi-stacking": [
+    "Hydrophobic contact": [
       {
-        "match_mode": "any",
         "residues": [
           "A_PHE583",
-          "A_PHE643"
-        ]
+          "A_HIS614"
+        ],
+        "match_mode": "all"
+      },
+      {
+        "residues": [
+          "A_LEU712",
+          "A_HIS463",
+          "A_PRO464"
+        ],
+        "match_mode": "any"
       }
     ]
   },
   "HIV-RT": {
     "Hydrophobic contact": [
       {
-        "match_mode": "any",
         "residues": [
           "A_TYR181",
           "A_TYR188",
           "A_PHE227",
           "A_TRP229"
-        ]
+        ],
+        "match_mode": "any"
       },
       {
-        "match_mode": "any",
         "residues": [
           "A_LEU100",
           "A_LYS101"
-        ]
+        ],
+        "match_mode": "any"
       },
       {
-        "match_mode": "any",
         "residues": [
           "A_LYS103",
           "A_VAL106",
           "A_LEU234",
           "A_PRO236",
           "A_TYR318"
-        ]
+        ],
+        "match_mode": "any"
       }
     ]
   },
   "JAK2": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
-          "A_GLU930",
           "A_LEU932"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "MEK1": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "B_SER212"
-        ]
+        ],
+        "match_mode": "all"
       }
     ],
     "Halogen bond": [
       {
-        "match_mode": "all",
         "residues": [
           "B_VAL127"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "NAMPT": {
     "H-Bond": [
       {
-        "match_mode": "any",
         "residues": [
           "A_SER275",
           "A_ASP219"
-        ]
+        ],
+        "match_mode": "any"
       }
     ],
     "Hydrophobic contact": [
       {
-        "match_mode": "all",
         "residues": [
           "A_VAL242"
-        ]
+        ],
+        "match_mode": "all"
       }
     ],
     "Pi-stacking": [
       {
-        "match_mode": "all",
         "residues": [
           "A_PHE193",
           "B_TYR18"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "PI3K-alpha": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_VAL851"
-        ]
+        ],
+        "match_mode": "all"
       }
     ],
     "Hydrophobic contact": [
       {
-        "match_mode": "any",
         "residues": [
           "A_TYR836",
           "A_ILE932"
-        ]
+        ],
+        "match_mode": "any"
       }
     ]
   },
   "PPAR-alpha": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
-          "A_SER280",
-          "A_TYR314"
-        ]
+          "A_SER280"
+        ],
+        "match_mode": "all"
+      },
+      {
+        "residues": [
+          "A_TYR314",
+          "A_TYR464"
+        ],
+        "match_mode": "any"
       }
     ],
     "Salt Bridge lneg": [
       {
-        "match_mode": "all",
         "residues": [
           "A_HIS440"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "PRMT5": {
     "H-Bond": [
       {
-        "match_mode": "any",
         "residues": [
           "A_LYS333",
           "A_GLU444",
           "A_GLU435"
-        ]
+        ],
+        "match_mode": "any"
       },
       {
-        "match_mode": "any",
         "residues": [
           "A_GLU312",
+          "A_SER578",
           "A_PHE580"
-        ]
+        ],
+        "match_mode": "any"
       }
     ],
     "Pi-stacking": [
       {
-        "match_mode": "any",
         "residues": [
           "A_PHE327",
           "A_TRP579"
-        ]
+        ],
+        "match_mode": "any"
       }
     ]
   },
   "ROCK1": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_MET156"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "RXR-alpha": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_ALA327"
-        ]
+        ],
+        "match_mode": "all"
       }
     ],
     "Salt Bridge lneg": [
       {
-        "match_mode": "all",
         "residues": [
           "A_ARG316"
-        ]
+        ],
+        "match_mode": "all"
       }
     ]
   },
   "TYK2": {
     "H-Bond": [
       {
-        "match_mode": "all",
         "residues": [
           "A_VAL690"
-        ]
+        ],
+        "match_mode": "all"
       },
       {
-        "match_mode": "any",
         "residues": [
           "A_LYS642",
           "A_GLU688"
-        ]
+        ],
+        "match_mode": "any"
       }
     ]
   }
