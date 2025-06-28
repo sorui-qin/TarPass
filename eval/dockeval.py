@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-26 14:14:15
+LastEditTime: 2025-06-28 18:04:51
 Description: 
 '''
 import itertools
@@ -16,7 +16,7 @@ from module.intermolecular_distance import (centriod_distance,
                                             check_intermolecular_distance)
 from module.sucos import check_sucos
 from utils.constant import DASHLINE, TARGET_PATH, TARGETS
-from utils.eval import find_dockpkl
+from utils.eval import check_mols_equal, find_dockpkl
 from utils.io import dump_json, read_pdb_rdmol, read_pkl, read_sdf
 from utils.logger import log_config, project_logger
 from utils.preprocess import conformation_check, read_in, to_smiles
@@ -132,14 +132,16 @@ def dock_eval(mols:list[Mol], target_dir:Path) -> list[dict]:
         list[dict]: Evaluated results for the target.
     """
 
-    def _read_and_validate(results_dir, target, lens, mode, error_msg):
+    def _read_and_validate(results_dir, target, mols, mode, error_msg):
         pkl_file = find_dockpkl(results_dir, mode=mode)
         if not pkl_file:
             raise RuntimeError(f"Results not found for {target}, {error_msg}.")
         
         results = read_pkl(pkl_file)
-        if len(results) < lens:
-            raise RuntimeError(f"Incomplete results for {target}, {error_msg}.")
+        #TODO: update checking logic.
+        if not check_mols_equal(mols, 
+                                [r['mol'] for r in results]):
+            raise RuntimeError(f"Incomplete or unmatched results for {target}, {error_msg}.")
         return results
 
     def _extract_and_eval(results, mode):
@@ -148,19 +150,18 @@ def dock_eval(mols:list[Mol], target_dir:Path) -> list[dict]:
 
     # Initialize directories and read molecules
     results_dir = target_dir / 'results'
-    lens = len(mols)
     target = target_dir.name
 
     # Check before evaluation
     dock_results = _read_and_validate(
-        results_dir, target, lens, mode='dock',
+        results_dir, target, mols, mode='dock',
         error_msg="please run `tarpass dock -mode dock`."
     )
     project_logger.info(f'Now evaluating docking results for {target}...')
 
     if conformation_check(mols): # Check scoring results if original molecules are 3D
         score_results = _read_and_validate(
-            results_dir, target, lens, mode='score_only',
+            results_dir, target, mols, mode='score_only',
             error_msg="please run `tarpass dock -mode score_only`."
         )
     else:

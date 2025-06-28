@@ -1,13 +1,22 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 19:02:11
-LastEditTime: 2025-06-28 15:53:41
+LastEditTime: 2025-06-28 18:02:35
 Description: 
 '''
 from pathlib import Path
 from typing import Literal, Union
 from utils.io import load_json
+from utils.preprocess import to_inchi
 import pandas as pd
+
+def check_mols_equal(mols1, mols2):
+    """Check if two sets of molecules are equal."""
+    if len(mols1) != len(mols2):
+        return False
+    inchi1 = set(to_inchi(mols1))
+    inchi2 = set(to_inchi(mols2))
+    return inchi1 == inchi2
 
 def find_dockpkl(results_dir:str|Path, mode:Literal['dock','origin','score_only']) -> Path:
     if (m:=mode) == 'origin':

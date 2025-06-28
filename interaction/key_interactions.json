@@ -185,7 +185,7 @@
     "Hydrophobic contact": [
       {
         "residues": [
-          "A_PHE386"
+          "A_TRP386"
         ],
         "match_mode": "all"
       }
@@ -205,14 +205,6 @@
         "residues": [
           "A_PHE583",
           "A_HIS614"
-        ],
-        "match_mode": "all"
-      },
-      {
-        "residues": [
-          "A_LEU712",
-          "A_HIS463",
-          "A_PRO464"
         ],
         "match_mode": "any"
       }
@@ -330,13 +322,6 @@
           "A_SER280"
         ],
         "match_mode": "all"
-      },
-      {
-        "residues": [
-          "A_TYR314",
-          "A_TYR464"
-        ],
-        "match_mode": "any"
       }
     ],
     "Salt Bridge lneg": [

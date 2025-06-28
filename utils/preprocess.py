@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-24 19:38:00
+LastEditTime: 2025-06-28 17:56:56
 Description: 
 '''
 from copy import deepcopy
@@ -21,7 +21,10 @@ def to_mols(smiles:Iterable) -> list[Chem.Mol]:
     return [mol for smile in smiles if (mol:=Chem.MolFromSmiles(smile))]
 
 def to_smiles(mols:Iterable) -> list[str]:
-    return [smi for mol in mols if (smi:=Chem.MolToSmiles(mol, kekuleSmiles= True))]
+    return [smi for mol in mols if (smi:=Chem.MolToSmiles(mol, kekuleSmiles=True))]
+
+def to_inchi(mols:Iterable) -> list:
+    return [Chem.MolToInchi(mol) for mol in mols if mol]
 
 def standard_mol(mol:Chem.Mol) -> Chem.Mol:
     """Reset the molecule to *standard* form without conformation.  
@@ -113,7 +116,7 @@ class Preprocess():
         mols = self.valid()
         unique_di = defaultdict(list)
         for mol in mols:
-            smi = Chem.MolToSmiles(mol)
+            smi = Chem.MolToSmiles(mol, kekuleSmiles=True)
             unique_di[smi].append(mol)
         project_logger.info(f'Unique SMILES: {len(unique_di.items())} out of {len(mols)}')
         return unique_di
