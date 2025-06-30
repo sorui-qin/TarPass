@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-28 18:04:51
+LastEditTime: 2025-06-30 13:17:03
 Description: 
 '''
 import itertools
@@ -92,6 +92,7 @@ class DockEval:
         """Evaluate docking results for the target."""
         # Calculate all metrics
         clashes = self.clash()
+        shifts = self.centriod_shift()
         inters_results = self.interactions()
         le_results = self.ligand_efficiency()
         sucos_scores = self.sucos()
@@ -103,6 +104,7 @@ class DockEval:
                 'score': score,
                 **clashes[i],
                 **sucos_scores[i],
+                **shifts[i],
                 **le_results[i],
                 **inters_results[i]
             }

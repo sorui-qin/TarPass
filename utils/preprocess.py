@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-06-28 17:56:56
+LastEditTime: 2025-06-30 10:55:49
 Description: 
 '''
 from copy import deepcopy
@@ -133,13 +133,13 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> tuple[list[str], list[
     read_dir = Path(target_dir) #/'generated' # Modify here when the read-in path is different
 
     # Check all readable files
-    sdf_files = list(read_dir.glob('*.sdf'))
+    sdf_files = list(read_dir.glob('*.sdf')) #TODO: sorted list to make sure the reproducibility
     if sdf_files: #SDF files will be prioritized for reading
         project_logger.info(f"Found {len(sdf_files)} SDF file(s). Reading SDF files...")
         read_files, reader, format = sdf_files, read_sdf, 'sdf'
     else: # If no SDF files found, read SMILES
         project_logger.info("No SDF files found. Reading SMILES instead...")
-        read_files, reader, format = list(Path(read_dir).iterdir()), read_strings, 'smi'
+        read_files, reader, format = list(read_dir.iterdir()), read_strings, 'smi' #TODO: sorted list to make sure the reproducibility
 
     # Read in the files
     readins = []
