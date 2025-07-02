@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-06-24 23:46:09
+LastEditTime: 2025-07-01 13:41:07
 Description: 
 '''
 from copy import deepcopy
@@ -9,6 +9,7 @@ from rdkit import Chem, RDLogger
 from rdkit.Chem import Mol
 from rdkit.Chem.rdDistGeom import EmbedMolecule
 from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMolecule
+from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger
 RDLogger.DisableLog('rdApp.*') # type: ignore
 from meeko import MoleculePreparation, PDBQTWriterLegacy
 from openbabel import openbabel, pybel
@@ -38,9 +39,12 @@ def rdkit2obmol(mol:Mol) -> pybel.Molecule:
 def obmol2rdkit(ob_mol:pybel.Molecule) -> Chem.Mol:
     return Chem.MolFromMolBlock(ob_mol.write("mol"), removeHs=False)
 
+def uncharge(mol:Mol) -> Mol:
+    uncharger = Uncharger()
+    return uncharger.uncharge(Chem.RemoveHs(mol))
 
 class LigPrep():
-    """Preparation of ligand.\n
+    """Preparation of ligand.  
     The molecule will undergo hydrogen adding and protonation. 
     If the molecule has no conformation or chooses to reset the conformation, 
     conformation generation will be performed using RDKit or Open Babel and optimized using the MMFF94 force field.
@@ -50,10 +54,9 @@ class LigPrep():
         reset_conf (bool, optional): Reset the original conformation. Defaults to False.
     """
     def __init__(self, mol:Mol, reset_conf=False):
+        mol = uncharge(mol)  # Uncharge the molecule if formal charge != 0
         if reset_conf:
             self.mol = standard_mol(mol)
-        else:
-            self.mol = Chem.RemoveHs(mol)
 
     def obmol_conf(self, mol:Mol, minimize=False) -> pybel.Molecule:
         """Create conformation with openbabel.

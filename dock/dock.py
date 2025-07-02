@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-23 11:02:42
+LastEditTime: 2025-06-30 19:17:21
 Description: 
 '''
 import argparse
@@ -21,7 +21,7 @@ def breakpoint_check(result_pkl: Path, total_lens:int) -> int:
             latest_idx = len(results)
             if latest_idx > total_lens:
                 raise ValueError(f"Index {latest_idx} exceeds the total number of ligands {total_lens}.")
-            project_logger.info(f"Docking will start from {latest_idx} of {total_lens} molecules.")
+            project_logger.info(f"Docking will start from {latest_idx+1} of {total_lens} molecules.")
             return latest_idx
     return 0
 

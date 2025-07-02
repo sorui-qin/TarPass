@@ -10,11 +10,11 @@ pip install -e .
 ### For basic functions
 
 ```Shell
-conda install -c conda-forge scipy umap-learn
+conda install -c conda-forge scipy scipy-posthocs
 conda install -c conda-forge pandas matplotlib seaborn
 conda install -c conda-forge rdkit openbabel
 conda install -c conda-forge biopython meeko
-pip install more_itertools pyyaml tqdm networkx
+pip install more_itertools pyyaml tqdm networkx statsmodels
 
 # Running PLIP
 pip install plip

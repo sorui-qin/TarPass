@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-06-27 17:04:02
+LastEditTime: 2025-06-30 19:19:32
 Description: 
 '''
 import json
@@ -11,9 +11,9 @@ from pathlib import Path
 from plip.structure.preparation import PDBComplex, PLInteraction
 from rdkit import Chem
 from rdkit.Chem import Mol
-from rdkit.Chem.MolStandardize.rdMolStandardize import Uncharger
 from tqdm.contrib.concurrent import process_map
 from utils.constant import INTERACTION_TYPES, ROOT, TMP
+from utils.docking import uncharge
 from utils.io import temp_manager
 from utils.preprocess import conformation_check
 
@@ -35,8 +35,7 @@ def combined_pdb_complex(pdb:str|Path, ligand:Mol, output_pdb:str):
     """
     # Uncharge the ligand
     # Charged molecules may interfere with PLIP's judgment of hydrogen bonds
-    uncharger = Uncharger()
-    ligand = uncharger.uncharge(Chem.RemoveHs(ligand))
+    ligand = uncharge(ligand)
     protein = Chem.MolFromPDBFile(str(pdb), sanitize=True)
     combined = Chem.CombineMols(protein, ligand)
     Chem.MolToPDBFile(combined, output_pdb)
