@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-06-30 14:14:53
+LastEditTime: 2025-07-03 16:24:03
 Description: 
 '''
 import itertools
@@ -140,8 +140,8 @@ def dock_eval(mols:list[Mol], target_dir:Path) -> list[dict]:
             raise RuntimeError(f"Results not found for {target}, {error_msg}.")
         
         results = read_pkl(pkl_file)
-        #TODO: update checking logic.
-        if not check_mols_equal(mols, extract_results(results, 'score_only')[0]):
+
+        if not check_mols_equal(mols, [res['mol'] for res in results]):
             raise RuntimeError(f"Incomplete or unmatched results for {target}, {error_msg}.")
         return results
 

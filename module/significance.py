@@ -1,12 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
-LastEditTime: 2025-07-02 19:52:45
+LastEditTime: 2025-07-02 23:46:52
 Description: 
 '''
 import numpy as np
 import pandas as pd
-from typing import Union
+from typing import Optional, Union
 from utils.stats import (
     test_normality, test_variance_homogeneity,
     ttest, mann_whitney_u, anova, kruskal,
@@ -42,20 +42,27 @@ def washing_data(*data_groups) -> list[np.ndarray]:
 class SignificanceTester:
     """Statistical significance tester with automatic method selection.
     Args:
-        control: Control group data
         data_groups: Test groups (list of arrays or single array)
+        control: External control group data (optional if comparing multiple groups)
     """
-    
-    def __init__(self, control, data_groups: Union[list, np.ndarray], metrics_name: str = 'default'):
-        # Clean control group
-        self.control = washing_data(control)[0]
+    def __init__(self,
+                 data_groups: Union[list, np.ndarray],
+                 control: Optional[np.ndarray],
+                 metrics_name: str = 'default'):
+
         # Handle different input formats for data_groups
-        if not isinstance(data_groups, (list, tuple)):
+        if isinstance(data_groups, np.ndarray):
             data_groups = [data_groups]
         self.data_groups = washing_data(*data_groups)
         self.n_groups = len(self.data_groups)
-        self.all_data = [self.control] + self.data_groups
         self.metrics_name = metrics_name
+
+        self.control = washing_data(control)[0] if control is not None else None
+        if self.control is not None:
+            self.all_data = [self.control] + self.data_groups
+        else:
+            self.all_data = self.data_groups.copy() 
+
 
     def normality(self) -> tuple[bool, list[float]]:
         """Test normality for all groups.
@@ -111,7 +118,8 @@ class SignificanceTester:
 
     def compare_multiple_groups(self) -> list[dict]:
         """
-        Perform overall test for multiple groups.
+        Perform overall test for multiple groups.  
+        If control is provided, perform post-hoc tests.
         """
         if self.n_groups < 2:
             raise ValueError("Need at least 2 test groups for multiple comparison")
@@ -126,7 +134,7 @@ class SignificanceTester:
             is_sig, p_val = anova(*self.all_data, equal_var=equal_var)
             test_name = f"{'One-way' if equal_var else 'Welch'} ANOVA"
             effect_size = omega_sq(*self.all_data)
-            if p_val < 0.05:
+            if p_val < 0.05 and self.control:
                 if equal_var:
                     posthoc_name = "Dunnett's test"
                     posthoc_sigs, posthoc_ps = dunnett(*self.data_groups, control=self.control)
@@ -141,7 +149,7 @@ class SignificanceTester:
             is_sig, p_val = kruskal(*self.all_data)
             test_name = "Kruskal-Wallis H-test"
             effect_size = epsilon_sq(*self.all_data)
-            if p_val < 0.05:
+            if p_val < 0.05 and self.control:
                 posthoc_name = "Dunn's test"
                 posthoc_sigs, posthoc_ps = dunn(*self.data_groups, control=self.control)
                 posthoc_effect_size, posthoc_effect_interp = zip(*[
@@ -156,7 +164,7 @@ class SignificanceTester:
                 'index': i,
                 'total_groups': self.n_groups,
                 'all_normal': all_normal,
-                'normal_p_values': normal_p[i+1],
+                'normal_p_values': normal_p[i+1 if self.control else i],
                 'equal_variance': locals().get('equal_var', None),
                 'test_name': test_name,
                 'p_value': p_val,
@@ -164,7 +172,7 @@ class SignificanceTester:
                 'effect_size': effect_size,
             }
 
-            posthoc = {} if p_val >= 0.05 else {
+            posthoc = {} if (p_val >= 0.05 or not self.control) else {
                 'posthoc_name': posthoc_name,
                 'posthoc_significant': posthoc_sigs[i],
                 'posthoc_p_value': posthoc_ps[i],
