@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-07-01 13:41:07
+LastEditTime: 2025-07-03 17:53:03
 Description: 
 '''
 from copy import deepcopy
@@ -54,7 +54,7 @@ class LigPrep():
         reset_conf (bool, optional): Reset the original conformation. Defaults to False.
     """
     def __init__(self, mol:Mol, reset_conf=False):
-        mol = uncharge(mol)  # Uncharge the molecule if formal charge != 0
+        self.mol = uncharge(mol)  # Uncharge the molecule if formal charge != 0
         if reset_conf:
             self.mol = standard_mol(mol)
 
