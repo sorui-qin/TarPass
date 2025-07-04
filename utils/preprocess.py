@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-07-04 12:15:27
+LastEditTime: 2025-07-04 12:24:24
 Description: 
 '''
 from copy import deepcopy
@@ -46,7 +46,7 @@ def sanitize_valid(mol:Chem.Mol, idx:int) -> bool:
     """
     if mol:
         mol.SetProp('_Name', f'{idx}') # set the name of the molecule
-        if Chem.MolToSmiles(mol) is None: # Check the empty Mol object.
+        if not Chem.MolToSmiles(mol): # Check the empty Mol object.
             return False
         try:
             molcopy = deepcopy(mol)

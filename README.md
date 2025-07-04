@@ -1,22 +1,11 @@
 # Tarpass
 
-## Setup
+## Quick Setup
 
-```Shell
-conda create -n tarpass python=3.11
-pip install -e . 
-```
-
-### For basic functions
-
-```Shell
-conda install -c conda-forge scipy pandas matplotlib seaborn
-conda install -c conda-forge rdkit openbabel
-conda install -c conda-forge biopython meeko
-pip install more_itertools pyyaml tqdm networkx statsmodels scikit-posthocs
-
-# Running PLIP
-pip install plip
+```bash
+conda env create -f environment.yml
+conda activate tarpass
+pip install -e .
 ```
 
 ### Docking with Gnina (Suggested)
@@ -28,9 +17,14 @@ You can download Gnina [here](https://github.com/gnina/gnina/releases/tag/v1.3) 
 wget https://github.com/gnina/gnina/releases/download/v1.3/gnina
 ```
 
-Then add Gnina to the system path.
+Then add Gnina to the system path by modifying `~/.bashrc`.
 
-### Docking with AutoDock-Vina (Optional, NOT suggested)
+```Shell
+export PATH=<GNINA_PATH>:$PATH
+export PYTHONUNBUFFERED=1
+```
+
+### Docking with AutoDock-Vina (Deprecated, NOT suggested)
 
 <details>
 <summary>Click to expand setup instructions</summary>
@@ -109,13 +103,6 @@ tarpass -p test_folder dock --mode score_only
 ### Dock
 
 **Execute docking.**
-
-```Text
-export PATH=<GNINA_PATH>:$PATH
-export PYTHONUNBUFFERED=1
-```
-
-You can use the command above before you executing dock module in a slurm-based cluster.
 
 ```Text
 options:

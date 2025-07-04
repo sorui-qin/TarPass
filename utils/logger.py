@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-10 12:03:05
-LastEditTime: 2025-06-20 19:17:37
+LastEditTime: 2025-07-04 14:04:55
 Description: 
 '''
 import logging
@@ -33,6 +33,11 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 project_logger = get_logger("project")
+
+def disable_logger():
+    """Ban all logging."""
+    project_logger.disabled = True
+    project_logger.setLevel(logging.CRITICAL + 1)
 
 def log_config(project_logger, args):
     project_logger.info(DASHLINE)

@@ -1,0 +1,22 @@
+name: tarpass
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - scipy
+  - pandas
+  - matplotlib
+  - seaborn
+  - rdkit
+  - openbabel
+  - biopython
+  - meeko
+  - fcd
+  - pip
+  - pip:
+      - more_itertools
+      - pyyaml
+      - tqdm
+      - statsmodels
+      - scikit-posthocs
+      - plip
