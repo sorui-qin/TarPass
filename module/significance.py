@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
-LastEditTime: 2025-07-02 23:46:52
+LastEditTime: 2025-07-04 17:51:22
 Description: 
 '''
 import numpy as np
@@ -161,7 +161,7 @@ class SignificanceTester:
 
             part1 = {
                 'metric_name': self.metrics_name,
-                'index': i,
+                #'index': i,
                 'total_groups': self.n_groups,
                 'all_normal': all_normal,
                 'normal_p_values': normal_p[i+1 if self.control else i],

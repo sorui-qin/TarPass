@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-26 19:02:36
-LastEditTime: 2025-07-02 19:37:06
+LastEditTime: 2025-07-04 20:03:41
 Description: 
 '''
 from typing import Literal
@@ -172,33 +172,35 @@ def multiple_correction(p_values: np.ndarray,
 ###### Effect Size #####
 
 def cohen_d(data1, data2) -> tuple[float, str]:
-    """Calculate Cohen's d effect size for two independent samples.
-    Args:
-        data1 (array-like): First sample data.
-        data2 (array-like): Second sample data.
+    """Calculate Cohen's d effect size for two independent samples.  
+    Interpretation is refered from Cohen, J. (1988). 
+    Statistical power analysis for the behavioral sciences (2nd ed.). Hillside, NJ: Lawrence Erlbaum Associates.
     """
     nx, ny = len(data1), len(data2)
     s1, s2 = np.var(data1, ddof=1), np.var(data2, ddof=1)
     s_pooled = np.sqrt(((nx - 1)*s1 + (ny - 1)*s2) / (nx + ny - 2))
     d = (np.mean(data1) - np.mean(data2)) / s_pooled
-    size = 'small' if abs(d) < 0.2 else 'medium' if abs(d) < 0.5 else 'large'
+    size = 'negligible' if abs(d) < 0.2 else 'small' if abs(d) < 0.5 else \
+        'medium' if abs(d) < 0.8 else 'large'
     return d, size
 
 def cliff_delta(data1, data2) -> tuple[float, str]:
-    """Calculate Cliff's delta effect size for two independent samples.
-    Args:
-        data1 (array-like): First sample data.
-        data2 (array-like): Second sample data.
+    """Calculate Cliff's delta effect size for two independent samples.  
+    Interpretation is refered from Romano, J., et al. (2006).
+    Annual meeting of the Florida Association of Institutional Research. Vol. 177. No. 34
     """
     n1, n2 = len(data1), len(data2)
     diff = data1[:, None] - data2[None, :]
     count = np.sum(diff > 0) - np.sum(diff < 0)
     delta = count / (n1 * n2)
-    size = 'small' if abs(delta) < 0.15 else 'medium' if abs(delta) < 0.33 else 'large'
+    size = 'negligible' if abs(delta) < 0.147 else 'small' if abs(delta) < 0.33 else \
+        'medium' if abs(delta) < 0.474 else 'large'
     return delta, size
 
-def omega_sq(*groups) -> float:
-    """Calculate the omega squared effect size for multiple groups.
+def omega_sq(*groups) -> tuple[float, str]:
+    """Calculate the omega squared effect size for multiple groups.  
+    Interpretation is refered from Field, A (2013) Discovering statistics using IBM SPSS Statistics. 
+    Fourth Edition. Sage:London.
     """
     all_data = np.concatenate(groups)
     k = len(groups)
@@ -212,13 +214,17 @@ def omega_sq(*groups) -> float:
     ms_within = ss_within / df_within
 
     omega_sq = (ss_between - df_between * ms_within) / (ss_total + ms_within)
-    return omega_sq
+    size = 'small' if omega_sq < 0.06 else 'medium' if omega_sq < 0.14 else 'large'
+    return omega_sq, size
 
-def epsilon_sq(*groups) -> float:
-    """Calculate the epsilon squared effect size for multiple groups.
+def epsilon_sq(*groups) -> tuple[float, str]:
+    """Calculate the epsilon squared effect size for multiple groups.  
+    Interpretation is refered from Rea, L. M., & Parker, R. A. (1992). Designing and conducting survey research:
+    a comprehensive guide. San Francisco: Jossey-Bass Publishers.
     """
     h, _ = stats.kruskal(*groups)
     n = sum(len(g) for g in groups)
     k = len(groups)
     epsilon_sq = (h - k + 1) / (n - k)
-    return epsilon_sq
+    size = 'small' if epsilon_sq < 0.04 else 'medium' if epsilon_sq < 0.16 else 'large'
+    return epsilon_sq, size
