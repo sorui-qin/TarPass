@@ -10,11 +10,10 @@ pip install -e .
 ### For basic functions
 
 ```Shell
-conda install -c conda-forge scipy scipy-posthocs
-conda install -c conda-forge pandas matplotlib seaborn
+conda install -c conda-forge scipy pandas matplotlib seaborn
 conda install -c conda-forge rdkit openbabel
 conda install -c conda-forge biopython meeko
-pip install more_itertools pyyaml tqdm networkx statsmodels
+pip install more_itertools pyyaml tqdm networkx statsmodels scikit-posthocs
 
 # Running PLIP
 pip install plip
@@ -110,6 +109,13 @@ tarpass -p test_folder dock --mode score_only
 ### Dock
 
 **Execute docking.**
+
+```Text
+export PATH=<GNINA_PATH>:$PATH
+export PYTHONUNBUFFERED=1
+```
+
+You can use the command above before you executing dock module in a slurm-based cluster.
 
 ```Text
 options:
