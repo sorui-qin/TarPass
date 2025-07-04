@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
-LastEditTime: 2025-07-04 17:51:22
+LastEditTime: 2025-07-04 20:06:49
 Description: 
 '''
 import numpy as np
@@ -133,7 +133,7 @@ class SignificanceTester:
             equal_var, _ = self.variance_homogeneity()
             is_sig, p_val = anova(*self.all_data, equal_var=equal_var)
             test_name = f"{'One-way' if equal_var else 'Welch'} ANOVA"
-            effect_size = omega_sq(*self.all_data)
+            effect_size, effect_interp = omega_sq(*self.all_data)
             if p_val < 0.05 and self.control:
                 if equal_var:
                     posthoc_name = "Dunnett's test"
@@ -148,7 +148,7 @@ class SignificanceTester:
             # Use Kruskal-Wallis
             is_sig, p_val = kruskal(*self.all_data)
             test_name = "Kruskal-Wallis H-test"
-            effect_size = epsilon_sq(*self.all_data)
+            effect_size, effect_interp = epsilon_sq(*self.all_data)
             if p_val < 0.05 and self.control:
                 posthoc_name = "Dunn's test"
                 posthoc_sigs, posthoc_ps = dunn(*self.data_groups, control=self.control)
@@ -170,6 +170,7 @@ class SignificanceTester:
                 'p_value': p_val,
                 'significant': is_sig,
                 'effect_size': effect_size,
+                'effect_interpretation': effect_interp,
             }
 
             posthoc = {} if (p_val >= 0.05 or not self.control) else {
