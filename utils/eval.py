@@ -1,11 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 19:02:11
-LastEditTime: 2025-06-28 18:02:35
+LastEditTime: 2025-07-04 15:52:28
 Description: 
 '''
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal, Union, overload
 from utils.io import load_json
 from utils.preprocess import to_inchi
 import pandas as pd
@@ -33,6 +33,14 @@ EVAL_MAP = {
     'dock': (load_json, 'dock_eval_results.json'),
     'mole': (pd.read_csv, 'mole_eval_results.csv')
 }
+
+@overload
+def read_eval(results_dir: str | Path, mode: Literal['dock']) -> dict:
+    ...
+
+@overload
+def read_eval(results_dir: str | Path, mode: Literal['mole']) -> pd.DataFrame:
+    ...
 
 def read_eval(results_dir:str|Path, mode:Literal['dock', 'mole']) -> Union[dict, pd.DataFrame]:
     """

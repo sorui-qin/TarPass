@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-06-27 16:40:38
+LastEditTime: 2025-07-04 16:00:25
 Description: 
 '''
 import importlib.util
@@ -41,11 +41,11 @@ class DruglikenessCalculator:
             # Global Structural Descriptors
             'heavy_atoms': mol.GetNumHeavyAtoms(),
             'heteroatoms': rdMolDescriptors.CalcNumHeteroatoms(mol),
-            'all_common': common_atoms(mol),
             'csp3': rdMolDescriptors.CalcFractionCSP3(mol),
             'rotatable_bonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
             'spiro_atoms': rdMolDescriptors.CalcNumSpiroAtoms(mol),
             'chiral_atoms': len(Chem.FindMolChiralCenters(mol, includeUnassigned=True)),
+            'all_common': common_atoms(mol),
             'completeness': len(Chem.GetMolFrags(mol)) == 1,
         }
         

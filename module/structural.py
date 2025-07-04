@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-06-25 17:00:14
+LastEditTime: 2025-07-04 16:01:01
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -35,7 +35,7 @@ class StructuralCalculator:
         self.properties = {
             # Torsion and topological properties
             'torsion angles': get_torsions_number(mol),
-            'morgen fragments': len(morgan_frags(mol)),
+            'morgan fragments': len(morgan_frags(mol)),
             'bertzCT': bertzCT(mol),
             'spacial score': spacial_score(mol),
 
