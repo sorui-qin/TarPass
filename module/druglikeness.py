@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-07-04 16:00:25
+LastEditTime: 2025-07-05 15:36:40
 Description: 
 '''
 import importlib.util
@@ -111,8 +111,7 @@ def calc_le(args:tuple[Mol, float]) -> dict:
         args (tuple[Chem.Mol, float]): Molecule and its docking score.
     """
     pose, score = args
-    mol = standard_mol(pose)
     return {
-        'LE_heavyatom': le_heavyatom(mol, score), 
-        'LE_mw': le_mw(mol, score)
+        'LE_heavyatom': le_heavyatom(pose, score), 
+        'LE_mw': le_mw(pose, score)
         }

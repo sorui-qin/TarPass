@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-04-10 20:57:37
-LastEditTime: 2025-07-05 15:11:13
+LastEditTime: 2025-07-05 15:21:21
 Description: 
 '''
 import json
@@ -34,8 +34,9 @@ def plip_tmp():
 def combined_pdb_complex(pdb:str|Path, ligand:Mol, output_pdb:str):
     """Combine protein and ligand into a single PDB file.
     """
-    # Uncharge the ligand
-    # Charged molecules may interfere with PLIP's judgment of hydrogen bonds
+    # Uncharge the ligand. in this step 
+    # Charged molecules may interfere with PLIP's judgment of hydrogen bonds.
+    # Since a small number of charged groups have valency errors and cannot be uncharged, they are retained.
     try:
         ligand = uncharge(ligand)
     except ValueError as e:
