@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 15:13:31
-LastEditTime: 2025-07-03 17:24:24
+LastEditTime: 2025-07-05 15:03:31
 Description: 
 '''
 import pandas as pd
@@ -37,8 +37,7 @@ def eval_execute(args):
         dock_output = results_dir / f'dock_eval_results.json'
         if not dock_output.exists():
             project_logger.info(f'Start evaluating docking results for {target}...')
-            dock_res = dock_eval(target_dir)
-            dump_json(dock_output, dock_res)
+            dump_json(dock_output, dock_eval(target_dir))
             project_logger.info(f"Evaluation results saved to {dock_output}.")
         else:
             project_logger.info(f"Docking valuation results already exist for {target}, skipping to the next...")
@@ -47,8 +46,8 @@ def eval_execute(args):
         mole_output = results_dir / f'mole_eval_results.csv'
         if not mole_output.exists():
             project_logger.info(f'Start evaluating molecules for {target}...')
-            mole_res = mole_eval(smis)
-            pd.DataFrame(mole_res).to_csv(mole_output, index=False)
+            pd.DataFrame(mole_eval(smis)).to_csv(mole_output, index=False)
+            project_logger.info(f"Evaluation results saved to {mole_output}.")
         else:
             project_logger.info(f"Evaluation results already exist for {target}, skipping evaluation.")
 
