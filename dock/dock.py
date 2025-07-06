@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-06-30 19:17:21
+LastEditTime: 2025-07-06 14:31:57
 Description: 
 '''
 import argparse
@@ -36,7 +36,7 @@ def save_results(pkl_path, index, mol, pose, score, mode):
 
 def setup_arguments(parser: argparse.ArgumentParser):
     group1 = parser.add_argument_group("Docking parameters\ndefaultly loaded from config file `configs/dock/gnina_dock.yml`")
-    group1.add_argument('-m', '--mode', type=str, choices=['dock', 'score_only'], help='docking mode.')
+    group1.add_argument('-m', '--mode', type=str, choices=['dock', 'score_only', 'all'], default='all', help='docking mode.')
     group1.add_argument('--verbose', type=int, help='verbosity level of the docking process.')
     group1.add_argument('--seed', type=int, help='random seed for docking.')
     group1.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
@@ -65,34 +65,47 @@ def execute(args):
         # Preprocess
         _, mols = read_in(target_dir, args.num)
         total_lens = len(mols)
-        # Breakpoint check
-        Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
-        result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
-        latest_idx = breakpoint_check(result_pkl, total_lens)
-        if latest_idx == total_lens:
-            project_logger.info(f"All molecules in {target} have been docked.")
-            continue
 
-        # Docking
-        if args.in_single or latest_idx != 0:
-            for i, mol in tqdm(enumerate(latest:=mols[latest_idx:]), 
-                            desc=f'Docking with {target}', total=len(latest)):
-                index = range(total_lens)[latest_idx+i]
-                dock = SingleDock(mol, target, args)
-                pose, score = dock.run()
+        if args.mode == 'all':
+            if conformation_check(mols):
+                modes = ['dock', 'score_only'] 
+            else:
+                project_logger.warning(f"Conformations are not detected in {target}, switching to `dock` mode.")
+                modes = ['dock']
+        else:
+            modes = [args.mode]
+
+        for mode in modes:
+            args.mode = mode
+            # Breakpoint check
+            Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
+            result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
+            latest_idx = breakpoint_check(result_pkl, total_lens)
+            if latest_idx == total_lens:
+                project_logger.info(f"All molecules in {target} have been docked.")
+                continue
+            
+            # Docking
+            if args.in_single or latest_idx != 0:
+                for i, mol in tqdm(enumerate(latest:=mols[latest_idx:]), 
+                                desc=f'Docking with {target}', total=len(latest)):
+                    index = range(total_lens)[latest_idx+i]
+                    dock = SingleDock(mol, target, args)
+                    pose, score = dock.run()
+                    # Save results
+                    save_results(result_pkl, index, mol, pose, score, mode)
+            
+            elif not (args.in_single and latest_idx):
+                # Execute batch docking if not in single mode and no previous results
+                project_logger.info(f'Batch docking with {target}, total {total_lens}...')
+                dock = BatchDock(mols, target, args)
+                results = dock.run()
                 # Save results
-                save_results(result_pkl, index, mol, pose, score, args.mode)
-        
-        elif not (args.in_single and latest_idx):
-            # Execute batch docking if not in single mode and no previous results
-            project_logger.info(f'Batch docking with {target}, total {total_lens}...')
-            dock = BatchDock(mols, target, args)
-            results = dock.run()
-            for index, (pose, score) in enumerate(results):
-                if len(results) != total_lens:
-                    raise ValueError(f"Batch docking results length {len(results)} does not match total ligands {total_lens}.")
-                mol = mols[index]
-                save_results(result_pkl, index, mol, pose, score, args.mode)
-        
-        project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
-        print(DASHLINE)
+                for index, (pose, score) in enumerate(results):
+                    if len(results) != total_lens:
+                        raise ValueError(f"Batch docking results length {len(results)} does not match total ligands {total_lens}.")
+                    mol = mols[index]
+                    save_results(result_pkl, index, mol, pose, score, mode)
+            
+            project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
+            print(DASHLINE)
