@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 15:13:31
-LastEditTime: 2025-07-05 15:03:31
+LastEditTime: 2025-07-07 16:13:46
 Description: 
 '''
 import pandas as pd
@@ -50,5 +50,3 @@ def eval_execute(args):
             project_logger.info(f"Evaluation results saved to {mole_output}.")
         else:
             project_logger.info(f"Evaluation results already exist for {target}, skipping evaluation.")
-
-        project_logger.info(DASHLINE)

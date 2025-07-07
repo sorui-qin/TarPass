@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-07-04 12:24:24
+LastEditTime: 2025-07-06 17:30:39
 Description: 
 '''
 from copy import deepcopy
@@ -73,10 +73,9 @@ def conformation_check(mols:list[Chem.Mol]) -> bool:
     """
     confs = [1 if mol.GetNumConformers() else 0 for mol in mols]
     if any(confs) + any(confs) == 0:
-        return False  # If no 3D conformations, return False
+        return False
     elif any(confs) + any(confs) == 1:
         raise RuntimeError('Some molecules have not 3D conformation. Please check the input molecules.')
-    # If all molecules have 3D conformations, return True
     return True
 
 def check_duplicate3D(mols:list[Chem.Mol]) -> list[Chem.Mol]:
@@ -135,13 +134,13 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> tuple[list[str], list[
     read_dir = Path(target_dir) #/'generated' # Modify here when the read-in path is different
 
     # Check all readable files
-    sdf_files = list(read_dir.glob('*.sdf')) #TODO: sorted list to make sure the reproducibility
+    sdf_files = sorted(read_dir.glob('*.sdf'))
     if sdf_files: #SDF files will be prioritized for reading
         project_logger.info(f"Found {len(sdf_files)} SDF file(s). Reading SDF files...")
         read_files, reader, format = sdf_files, read_sdf, 'sdf'
     else: # If no SDF files found, read SMILES
         project_logger.info("No SDF files found. Reading SMILES instead...")
-        read_files, reader, format = list(read_dir.iterdir()), read_strings, 'smi' #TODO: sorted list to make sure the reproducibility
+        read_files, reader, format = sorted(read_dir.iterdir()), read_strings, 'smi'
 
     # Read in the files
     readins = []

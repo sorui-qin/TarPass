@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 19:02:11
-LastEditTime: 2025-07-04 15:52:28
+LastEditTime: 2025-07-06 16:19:16
 Description: 
 '''
 from pathlib import Path
@@ -35,14 +35,14 @@ EVAL_MAP = {
 }
 
 @overload
-def read_eval(results_dir: str | Path, mode: Literal['dock']) -> dict:
+def read_eval(results_dir: str | Path, mode: Literal['dock']) -> list[dict]:
     ...
 
 @overload
 def read_eval(results_dir: str | Path, mode: Literal['mole']) -> pd.DataFrame:
     ...
 
-def read_eval(results_dir:str|Path, mode:Literal['dock', 'mole']) -> Union[dict, pd.DataFrame]:
+def read_eval(results_dir:str|Path, mode:Literal['dock', 'mole']) -> Union[list[dict], pd.DataFrame]:
     """
     Read evaluation results from the specified directory based on the mode.
     """
