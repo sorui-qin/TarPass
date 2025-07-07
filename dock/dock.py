@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-07-07 20:30:11
+LastEditTime: 2025-07-07 21:15:06
 Description: 
 '''
 import argparse
@@ -76,10 +76,14 @@ def execute(args):
             modes = [args.mode]
 
         for mode in modes:
-            args.mode = mode
+            # Set docking mode
+            project_logger.info(f"Current docking mode: {mode}.")
+            dock_args = argparse.Namespace(**vars(args))
+            dock_args.mode = mode
+
             # Breakpoint check
             Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
-            result_pkl = target_dir/f'results/{args.method}-{args.mode}_docking_results.pkl'
+            result_pkl = target_dir/f'results/{args.method}-{mode}_docking_results.pkl'
             latest_idx = breakpoint_check(result_pkl, total_lens)
             if latest_idx == total_lens:
                 project_logger.info(f"All molecules in {target} have been docked.")
@@ -90,7 +94,7 @@ def execute(args):
                 for i, mol in tqdm(enumerate(latest:=mols[latest_idx:]), 
                                 desc=f'Docking with {target}', total=len(latest)):
                     index = range(total_lens)[latest_idx+i]
-                    dock = SingleDock(mol, target, args)
+                    dock = SingleDock(mol, target, dock_args)
                     pose, score = dock.run()
                     # Save results
                     save_results(result_pkl, index, mol, pose, score, mode)
@@ -98,7 +102,7 @@ def execute(args):
             elif not (args.in_single and latest_idx):
                 # Execute batch docking if not in single mode and no previous results
                 project_logger.info(f'Batch docking with {target}, total {total_lens}...')
-                dock = BatchDock(mols, target, args)
+                dock = BatchDock(mols, target, dock_args)
                 results = dock.run()
                 # Save results
                 for index, (pose, score) in enumerate(results):
