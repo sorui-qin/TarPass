@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-20 16:16:54
-LastEditTime: 2025-06-23 16:32:40
+LastEditTime: 2025-07-08 17:19:03
 Description: 
 '''
 from abc import ABC, abstractmethod
@@ -11,6 +11,7 @@ from utils.docking import LigPrep
 from utils.logger import project_logger
 from utils.preprocess import conformation_check
 from rdkit import RDLogger
+from tqdm.contrib.concurrent import process_map
 RDLogger.DisableLog('rdApp.*')  # type: ignore
 
 class DockBase(ABC):
@@ -77,6 +78,10 @@ class SingleDock(DockBase):
         with temp_manager('.sdf', auto_remove=False) as sdf_file:
             return sdf_file if prep.save_sdf(sdf_file) else None
 
+def _prep(args):
+    (index, mol), reset = args
+    mol.SetProp('_Name', str(index))
+    return LigPrep(mol, reset).ligprep()
 
 class BatchDock(DockBase):
     def __init__(self, mols:list[Mol], target:str, args):
@@ -89,7 +94,8 @@ class BatchDock(DockBase):
 
     def _ligprep(self) -> str | None:
         project_logger.info(f"Preparing ligands for {self.target}...")
-        preps = [LigPrep(mol, self.args.reset).ligprep() for mol in self.mols]
+        mol_tuples = [((index, mol), self.args.reset) for index, mol in enumerate(self.mols)]
+        preps = process_map(_prep, mol_tuples, desc='Executing LigPrep')
         
         with temp_manager('.sdf', auto_remove=False) as sdf_file:
             write_sdf(sdf_file, preps) if preps else None

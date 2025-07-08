@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-07-08 16:30:55
+LastEditTime: 2025-07-08 17:27:42
 Description: 
 '''
 from copy import deepcopy
@@ -54,11 +54,11 @@ class LigPrep():
         reset_conf (bool, optional): Reset the original conformation. Defaults to False.
     """
     def __init__(self, mol:Mol, reset_conf=False):
-        self.mol = uncharge(mol)  # Uncharge the molecule if formal charge != 0
+        self.mol = uncharge(mol) # Uncharge the molecule if formal charge != 0
         if reset_conf:
             idx = mol.GetProp('_Name')
             self.mol = standard_mol(mol)
-            self.mol.SetProp('_Name', idx)  # Reset the name of the molecule
+            self.mol.SetProp('_Name', idx) # Reset the name of the molecule
 
     def obmol_conf(self, mol:Mol, minimize=False) -> pybel.Molecule:
         """Create conformation with openbabel.
@@ -76,11 +76,11 @@ class LigPrep():
             correctforph (bool, optional): Protonation based on pH value. Defaults to True.
             PH (int, optional): pH value. Defaults to 7.4.
         """
-        # RDmol 2 OBmol for protonation
         p_mol = deepcopy(self.mol)
-        p_mol = Chem.AddHs(p_mol, addCoords=True)
+
         if not self.mol.GetNumConformers(): # Check 3D conformation
             try: # RDKit pipeline
+                p_mol = Chem.AddHs(p_mol, addCoords=True)
                 EmbedMolecule(p_mol, useRandomCoords=True)
                 if MMFFOptimizeMolecule(p_mol, maxIters=200): # If fail to optimize, use Open Babel
                     ob_mol = self.obmol_conf(p_mol, minimize=True)
@@ -89,15 +89,16 @@ class LigPrep():
             except: # OpenBabel pipeline
                 ob_mol = self.obmol_conf(p_mol, minimize=True)
         else:
+            # RDmol 2 OBmol for protonation
             ob_mol = rdkit2obmol(p_mol)
 
         # Protonation
         backup = p_mol
         ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
         prep_mol = obmol2rdkit(ob_mol)
-        if prep_mol is None and backup: # If protonation failed, use conformation with Hs instead
+        if prep_mol is None and backup: # If protonation failed, use conformation without Hs
             project_logger.warning(f"Protonation failed in {self.mol.GetProp('_Name')}, using original conformation instead.")
-            prep_mol = backup
+            prep_mol = Chem.RemoveHs(backup)
         return prep_mol
 
     def get_pdbqt(self, **kwargs):
