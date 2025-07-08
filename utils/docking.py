@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-07-03 17:53:03
+LastEditTime: 2025-07-08 16:30:55
 Description: 
 '''
 from copy import deepcopy
@@ -56,7 +56,9 @@ class LigPrep():
     def __init__(self, mol:Mol, reset_conf=False):
         self.mol = uncharge(mol)  # Uncharge the molecule if formal charge != 0
         if reset_conf:
+            idx = mol.GetProp('_Name')
             self.mol = standard_mol(mol)
+            self.mol.SetProp('_Name', idx)  # Reset the name of the molecule
 
     def obmol_conf(self, mol:Mol, minimize=False) -> pybel.Molecule:
         """Create conformation with openbabel.
