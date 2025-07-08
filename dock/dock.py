@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-07-07 21:15:06
+LastEditTime: 2025-07-08 14:28:45
 Description: 
 '''
 import argparse
@@ -106,10 +106,9 @@ def execute(args):
                 results = dock.run()
                 # Save results
                 for index, (pose, score) in enumerate(results):
-                    if len(results) != total_lens:
-                        raise ValueError(f"Batch docking results length {len(results)} does not match total ligands {total_lens}.")
-                    mol = mols[index]
-                    save_results(result_pkl, index, mol, pose, score, mode)
-            
+                    save_results(result_pkl, index, mols[index], pose, score, mode)
+                if len(results) != total_lens:
+                    raise ValueError(f"Batch docking results length {len(results)} does not match total ligands {total_lens}.")
+                
             project_logger.info(f'Docking in {target} completed. Results saved in {result_pkl}.')
-            print(DASHLINE)
+            project_logger.info(DASHLINE)
