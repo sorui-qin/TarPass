@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-20 16:16:54
-LastEditTime: 2025-07-08 17:19:03
+LastEditTime: 2025-07-08 19:09:45
 Description: 
 '''
 from abc import ABC, abstractmethod
@@ -80,6 +80,7 @@ class SingleDock(DockBase):
 
 def _prep(args):
     (index, mol), reset = args
+    # NOTE: Reset the name of the ligand because it will be lost in pickle procession during multiprocessing.
     mol.SetProp('_Name', str(index))
     return LigPrep(mol, reset).ligprep()
 

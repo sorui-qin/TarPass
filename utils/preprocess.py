@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-07-08 16:21:10
+LastEditTime: 2025-07-08 19:12:16
 Description: 
 '''
 from copy import deepcopy
@@ -61,9 +61,9 @@ def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:
     """Check if a SMILES string is valid.
     """
     mol = Chem.MolFromSmiles(smi)
-    mol.SetProp('_Name', f'{idx}') # set the name of the molecule
     if mol is None:
         return None
+    mol.SetProp('_Name', f'{idx}') # set the name of the molecule
     return mol
 
 def conformation_check(mols:list[Chem.Mol]) -> bool:
@@ -131,7 +131,8 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> tuple[list[str], list[
     Returns:
         Tuple[List[str], List[Chem.Mol]]: Processed SMILES list `smis` and Mol list `mols`.
     """
-    read_dir = Path(target_dir) #/'generated' # Modify here when the read-in path is different
+    #NOTE: Modify here when the read-in path is different
+    read_dir = Path(target_dir) #/'generated'
 
     # Check all readable files
     sdf_files = sorted(read_dir.glob('*.sdf'))
