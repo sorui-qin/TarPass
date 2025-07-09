@@ -1,15 +1,20 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-08 21:14:46
+LastEditTime: 2025-07-09 13:52:25
 Description: 
 '''
 from dataclasses import dataclass, field
 from typing import Any, Literal, Optional
+
 import pandas as pd
-from utils.constant import TARGETS, Path, Mol
+from rdkit import Chem
+from tqdm import tqdm
+
+from utils.constant import TARGETS, Mol, Path
 from utils.eval import find_dockpkl, read_eval
 from utils.io import read_pkl, write_pkl
+from utils.logger import project_logger
 from utils.preprocess import conformation_check
 
 
@@ -87,7 +92,7 @@ class MolInfo:
     rdmol: Mol
     pose: Mol
     smiles: str
-    inchi: str
+    inchikey: str
 
 @dataclass(frozen=True)
 class StructInfo:
@@ -173,14 +178,13 @@ def collect_eval(results_dir: Path):
         raise FileNotFoundError(f"Results directory {results_dir} does not exist.")
     
     Mol = [MolInfo(
-        rdmol=res['mol'],
+        rdmol=(mol:=res['mol']),
         pose=res['pose'],
-        smiles=res['smiles'],
-        inchi=res['inchi']
+        smiles=Chem.MolToSmiles(mol),
+        inchikey=Chem.MolToInchiKey(mol),
     ) for res in read_pkl(find_dockpkl(results_dir, mode='dock'))]
 
     collect = CollectEval(results_dir)
-    target = collect.target
 
     nums, inters = collect.split_dock('dock')
     Dock = StructInfo(
@@ -201,11 +205,38 @@ def collect_eval(results_dir: Path):
         alerts=alerts
     )
 
-    return {
-        'target': target,
-        'data': MoleculesData(
-            Mol=Mol,
-            Dock=Dock,
-            Score=Score,
-            Prop=Prop
-            )}
+    return MoleculesData(
+        Mol=Mol, 
+        Dock=Dock,
+        Score=Score,
+        Prop=Prop
+        )
+
+
+def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=None):
+    """Collect evaluation results for all targets to a pickle file.
+    Args:
+        work_dir (str|Path): Path to the working directory containing target folders.
+        prefix (str): Prefix for the output pickle file.
+        save_dir (Optional[str|Path]): Directory to save the results. If None, saves in work_dir.
+    """
+    work_dir = Path(work_dir)
+    if not work_dir.exists():
+        raise FileNotFoundError(f"Working directory {work_dir} does not exist.")
+    
+    results = {}
+    for target in tqdm(TARGETS, desc='Collecting eval results from targets'):
+        target_dir = work_dir / target
+        if not target_dir.exists():
+            continue
+        results[target] = collect_eval(target_dir / 'results') 
+    
+    if save_dir:
+        Path(save_dir).mkdir(parents=True, exist_ok=True)
+    else:
+        save_dir = work_dir
+        save_dir.mkdir(exist_ok=True)
+    pkl_path = Path(save_dir) / f'{prefix}_eval_results.pkl'
+
+    write_pkl(pkl_path, results)
+    project_logger.info(f"Evaluation results collected and saved to {pkl_path}.")
