@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-07-08 17:27:42
+LastEditTime: 2025-07-09 09:50:36
 Description: 
 '''
 from copy import deepcopy
@@ -96,9 +96,9 @@ class LigPrep():
         backup = p_mol
         ob_mol.OBMol.AddHydrogens(polaronly, correctforph, PH)
         prep_mol = obmol2rdkit(ob_mol)
-        if prep_mol is None and backup: # If protonation failed, use conformation without Hs
+        if prep_mol is None and backup:
             project_logger.warning(f"Protonation failed in {self.mol.GetProp('_Name')}, using original conformation instead.")
-            prep_mol = Chem.RemoveHs(backup)
+            prep_mol = backup
         return prep_mol
 
     def get_pdbqt(self, **kwargs):
