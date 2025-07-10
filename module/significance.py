@@ -1,18 +1,17 @@
 '''
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
-LastEditTime: 2025-07-04 20:06:49
+LastEditTime: 2025-07-10 17:36:24
 Description: 
 '''
+from typing import Literal, Optional, Union
 import numpy as np
 import pandas as pd
-from typing import Optional, Union
-from utils.stats import (
-    test_normality, test_variance_homogeneity,
-    ttest, mann_whitney_u, anova, kruskal,
-    dunn, dunnett, tamhane,
-    cohen_d, cliff_delta, omega_sq, epsilon_sq
-)
+from utils.stats import (anova, cliff_delta, cohen_d, dunn, dunnett,
+                         epsilon_sq, kruskal, mann_whitney_u,
+                         multiple_correction, omega_sq, tamhane,
+                         test_normality, test_variance_homogeneity, ttest)
+
 
 def washing_data(*data_groups) -> list[np.ndarray]:
     """Clean and validate input data groups.
@@ -78,12 +77,16 @@ class SignificanceTester:
         """
         return test_variance_homogeneity(*self.all_data)
     
-    def compare_two_groups(self, group_index: int = 0) -> dict:
+    def compare_two_groups(self, group_index:int=0,
+                           alternative:Literal['two-sided', 'less', 'greater'] = 'two-sided'
+                           ) -> dict:
         """
         Compare control with a specific test group.
         
         Args:
             group_index: Index of test group to compare (0-based)
+            alternative: Defines the alternative hypothesis for t-test.
+                         Options are 'two-sided', 'less', or 'greater'.
         """
         if group_index >= self.n_groups:
             raise IndexError(f"Group index {group_index} out of range (0-{self.n_groups-1})")
@@ -94,12 +97,12 @@ class SignificanceTester:
         if is_normal:
             # Use parametric test
             equal_var, _ = self.variance_homogeneity()
-            is_sig, p_val = ttest(self.control, test_group, equal_var=equal_var)
+            is_sig, p_val = ttest(self.control, test_group, equal_var=equal_var, alternative=alternative)
             test_name = f"{'Student' if equal_var else 'Welch'} t-test"
             effect_size, effect_interp = cohen_d(self.control, test_group)
         else:
             # Use non-parametric test
-            is_sig, p_val = mann_whitney_u(self.control, test_group)
+            is_sig, p_val = mann_whitney_u(self.control, test_group, alternative)
             test_name = "Mann-Whitney U test"
             effect_size, effect_interp = cliff_delta(self.control, test_group)
         
@@ -191,3 +194,35 @@ class SignificanceTester:
             return [self.compare_two_groups(0)]
         else:
             return self.compare_multiple_groups()
+        
+    def ref_decoy_analysis(self, 
+                          alternative:Literal['two-sided', 'less', 'greater'] = 'two-sided'
+                          ) -> pd.DataFrame:
+        """Perform multiple tests for compared specific group to reference and decoy.
+        
+        Returns:
+            List of dictionaries with test results for each group.
+        """
+        if self.control is None:
+            raise ValueError("Control group is required for multiple analysis")
+        
+        results = []
+        for i in range(self.n_groups):
+            result = self.compare_two_groups(i, alternative=alternative)
+            results.append(result)
+
+        results = pd.DataFrame(results)
+        p_values = results['p_value'].values
+        rejected, corrected_ps = multiple_correction(np.array(p_values), method='fdr_bh')
+        results['corrected_p_value'] = corrected_ps
+        results['rejected'] = rejected
+
+        df = results.iloc[:, -4:]
+        cols = []
+        for n in ['Ref_', 'decoy_']:
+            for i in df.columns.values:
+                cols.append(n + i)
+        df_reshape = pd.DataFrame(df.iloc[:, -4:].values.reshape(1, -1))
+        df_reshape.columns = cols
+
+        return df_reshape

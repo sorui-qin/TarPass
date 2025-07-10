@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-09 13:52:25
+LastEditTime: 2025-07-10 16:48:15
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -228,6 +228,7 @@ def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=
     for target in tqdm(TARGETS, desc='Collecting eval results from targets'):
         target_dir = work_dir / target
         if not target_dir.exists():
+            project_logger.warning(f"Target folder {target_dir} not found, skipping evaluation.")
             continue
         results[target] = collect_eval(target_dir / 'results') 
     
@@ -240,3 +241,17 @@ def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=
 
     write_pkl(pkl_path, results)
     project_logger.info(f"Evaluation results collected and saved to {pkl_path}.")
+
+
+class AnalysisBase:
+    """Base class for analysis operations.
+    """
+    def __init__(
+            self,
+            test_data:MoleculesData,
+            reference:MoleculesData,
+            decoy:MoleculesData
+            ):
+        self.test_data = test_data
+        self.reference = reference
+        self.decoy = decoy

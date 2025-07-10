@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-06-18 16:09:55
+LastEditTime: 2025-07-09 19:17:17
 Description: 
 '''
 import json
@@ -11,6 +11,7 @@ import shutil
 import tempfile
 from collections.abc import Iterable
 from contextlib import contextmanager
+from typing import Any
 import yaml
 from rdkit import Chem, RDLogger
 from utils.constant import Path, TMP
@@ -26,7 +27,7 @@ def append_pkl(pkl_file, data):
     with open(pkl_file, 'ab') as f:
         pickle.dump(data, f)
 
-def read_pkl(pkl_file):
+def read_pkl(pkl_file) -> Any|list[Any]:
     data = []
     with open(pkl_file, 'rb') as f:
         while True:
