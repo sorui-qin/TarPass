@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
-LastEditTime: 2025-07-10 17:36:24
+LastEditTime: 2025-07-10 21:05:03
 Description: 
 '''
 from typing import Literal, Optional, Union
@@ -47,7 +47,7 @@ class SignificanceTester:
     def __init__(self,
                  data_groups: Union[list, np.ndarray],
                  control: Optional[np.ndarray],
-                 metrics_name: str = 'default'):
+                 metrics_name: Optional[str]=None):
 
         # Handle different input formats for data_groups
         if isinstance(data_groups, np.ndarray):
@@ -137,7 +137,7 @@ class SignificanceTester:
             is_sig, p_val = anova(*self.all_data, equal_var=equal_var)
             test_name = f"{'One-way' if equal_var else 'Welch'} ANOVA"
             effect_size, effect_interp = omega_sq(*self.all_data)
-            if p_val < 0.05 and self.control:
+            if p_val < 0.05 and self.control is not None:
                 if equal_var:
                     posthoc_name = "Dunnett's test"
                     posthoc_sigs, posthoc_ps = dunnett(*self.data_groups, control=self.control)
@@ -152,7 +152,7 @@ class SignificanceTester:
             is_sig, p_val = kruskal(*self.all_data)
             test_name = "Kruskal-Wallis H-test"
             effect_size, effect_interp = epsilon_sq(*self.all_data)
-            if p_val < 0.05 and self.control:
+            if p_val < 0.05 and self.control is not None:
                 posthoc_name = "Dunn's test"
                 posthoc_sigs, posthoc_ps = dunn(*self.data_groups, control=self.control)
                 posthoc_effect_size, posthoc_effect_interp = zip(*[
@@ -167,7 +167,7 @@ class SignificanceTester:
                 #'index': i,
                 'total_groups': self.n_groups,
                 'all_normal': all_normal,
-                'normal_p_values': normal_p[i+1 if self.control else i],
+                'normal_p_values': normal_p[i+1 if self.control is not None else i],
                 'equal_variance': locals().get('equal_var', None),
                 'test_name': test_name,
                 'p_value': p_val,
@@ -176,7 +176,7 @@ class SignificanceTester:
                 'effect_interpretation': effect_interp,
             }
 
-            posthoc = {} if (p_val >= 0.05 or not self.control) else {
+            posthoc = {} if (p_val >= 0.05 or self.control is None) else {
                 'posthoc_name': posthoc_name,
                 'posthoc_significant': posthoc_sigs[i],
                 'posthoc_p_value': posthoc_ps[i],
@@ -221,7 +221,7 @@ class SignificanceTester:
         cols = []
         for n in ['Ref_', 'decoy_']:
             for i in df.columns.values:
-                cols.append(n + i)
+                cols.append(f'{self.metrics_name}-{n}{i}')
         df_reshape = pd.DataFrame(df.iloc[:, -4:].values.reshape(1, -1))
         df_reshape.columns = cols
 

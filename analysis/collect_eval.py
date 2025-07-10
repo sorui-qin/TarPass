@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-10 16:48:15
+LastEditTime: 2025-07-10 20:19:35
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -243,15 +243,39 @@ def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=
     project_logger.info(f"Evaluation results collected and saved to {pkl_path}.")
 
 
-class AnalysisBase:
-    """Base class for analysis operations.
+class DataCroupier:
+    """Collections for evaluation results, including test data, reference, and decoy.
     """
     def __init__(
             self,
-            test_data:MoleculesData,
-            reference:MoleculesData,
-            decoy:MoleculesData
+            test_data: MoleculesData,
+            reference: MoleculesData,
+            decoy: MoleculesData
             ):
         self.test_data = test_data
         self.reference = reference
         self.decoy = decoy
+
+
+class AnalysisBase:
+    """Base class for analysis, providing a common interface for different analyses.
+    """
+    def __init__(self, analysis:DataCroupier, attr_name):
+        self.test = getattr(analysis.test_data, attr_name)
+        self.ref = getattr(analysis.reference, attr_name)
+        self.decoy = getattr(analysis.decoy, attr_name)
+        self.croupier = ['test', 'ref', 'decoy'] # Just a guilty pleasure to use this name.
+
+    def _split_attr(self, attr):
+        """Split the specified attribute.
+        """
+        if not hasattr(self, attr):
+            raise AttributeError(f"Attribute '{attr}' not found in {self.__class__.__name__}.")
+        
+        data = getattr(self, attr)
+        if isinstance(data, StructInfo):
+            return data.numericals, data.interactions
+        elif isinstance(data, PropInfo):
+            return data.descriptors, data.structural, data.alerts
+        else:
+            raise TypeError(f"Unsupported attribute type: {type(data)}.")
