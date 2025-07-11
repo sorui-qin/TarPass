@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-10 15:07:11
-LastEditTime: 2025-07-10 20:55:47
+LastEditTime: 2025-07-11 11:36:22
 Description: 
 '''
 from typing import Literal, Optional
@@ -22,7 +22,7 @@ def get_median_iqr(data):
             np.percentile(data, 75))
 
 
-class StructAnalysis(AnalysisBase):
+class PLIAnalysis(AnalysisBase):
     def __init__(self, collections: DataCroupier):
         super().__init__(collections, 'Dock')
         

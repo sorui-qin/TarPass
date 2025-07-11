@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-06-25 18:36:38
+LastEditTime: 2025-07-11 12:05:06
 Description: 
 '''
 import argparse
@@ -34,8 +34,9 @@ def main():
     parser.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
     parser.add_argument("-n", "--num", type=int, default=1000, help="number of unique molecules to verify per target (default: 1000).")
     subparsers = parser.add_subparsers(dest="module", required=True, help="Available modules")
+    
 
-    # Add subparsers for each module
+    ### Docking module ###
     dock_parser = subparsers.add_parser("dock", help="Docking operations")
     dock_module = importlib.import_module("dock")
     dock_module.setup_arguments(dock_parser)
@@ -43,6 +44,7 @@ def main():
     interaction_parser = subparsers.add_parser("interaction", help="Analyze interactions")
     interaction_module = importlib.import_module("interaction")
     interaction_module.setup_arguments(interaction_parser)
+
 
     ### Evaluation module ###
     eval_module = importlib.import_module("eval")
@@ -55,6 +57,19 @@ def main():
     moleeval_parser = subparsers.add_parser("moleeval", help="Evaluate molecular properties")
     eval_module.setup_arguments(moleeval_parser)
 
+
+    ### Anlysis module ###
+    # analysis_parser = subparsers.add_parser("analysis", help="Analyze docking and molecular properties")
+    # analysis_module = importlib.import_module("analysis")
+    # analysis_module.setup_arguments(analysis_parser)
+
+
+    ### Collect module ###
+    collect_parser = subparsers.add_parser("collect", help="Collect evaluation results")
+    collect_module = importlib.import_module("collect")
+    collect_module.setup_arguments(collect_parser)
+
+
     # Merge configuration for dock module
     args = parser.parse_args()
     if args.module == 'dock':
@@ -66,6 +81,7 @@ def main():
         'dockeval': (eval_module, 'dockeval_execute'),
         'moleeval': (eval_module, 'eval_execute'),
         'eval': (eval_module, 'eval_execute'),
+        'collect': (collect_module, 'execute'),
     }
 
     # Get the relevant module and function based on the command
