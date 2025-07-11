@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-11 17:35:47
+LastEditTime: 2025-07-11 18:58:38
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -293,7 +293,7 @@ class AnalysisBase:
             return data.numericals, data.interactions
         elif isinstance(data, PropInfo):
             return data.descriptors, data.structural, data.alerts
-        elif isinstance(data, list): # Assuming list of MolInfo
-            return to_mols([i.smiles for i in data])
+        elif isinstance(data, MolInfo):
+            return data.smiles # Only return SMILES list for further processing.
         else:
             raise TypeError(f"Unsupported attribute type: {type(data)}.")

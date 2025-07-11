@@ -174,8 +174,8 @@ class ReferenceBasedMeasure(Measure):
         super().__init__()
 
 import pandas as pd
-from eval.chemmeasure.cal_ifg_atom import CollectFG
-from eval.chemmeasure.cal_ringsystem import CollectRingSystems
+from module.chemmeasure.cal_ifg_atom import CollectFG
+from module.chemmeasure.cal_ringsystem import CollectRingSystems
 class NFragment(ReferenceBasedMeasure):
     def __init__(self, frag=None):
         super().__init__()

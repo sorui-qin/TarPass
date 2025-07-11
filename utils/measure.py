@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:00:12
-LastEditTime: 2025-06-25 16:57:30
+LastEditTime: 2025-07-11 19:06:19
 Description: 
 '''
 # Partly adapted from https://github.com/yutxie/chem-measure/blob/main/utils.py
@@ -52,7 +52,7 @@ def similarities_tanimoto(fp, fps):
     return DataStructs.BulkTanimotoSimilarity(fp, fps)
 
 def similarity_matrix_tanimoto(fps1, fps2):
-    similarities = [DataStructs.BulkTanimotoSimilarity(fp, fps2) for fp in fps1]
+    similarities = [similarities_tanimoto(fp, fps2) for fp in fps1]
     return np.array(similarities)
 
 def similarity_matrix_parallel(fps1, fps2, chunksize=100):
