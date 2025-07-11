@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-11 11:42:13
-LastEditTime: 2025-07-11 12:06:16
+LastEditTime: 2025-07-11 17:40:37
 Description: 
 '''
 import argparse
@@ -23,4 +23,4 @@ def execute(args):
     path = Path(args.path)
     if args.prefix is None:
         args.prefix = path.name
-    collect_eval_all(path, args.output, args.prefix)
+    collect_eval_all(path, args.prefix, args.output)

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-10 20:19:35
+LastEditTime: 2025-07-11 17:35:47
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -15,7 +15,7 @@ from utils.constant import TARGETS, Mol, Path
 from utils.eval import find_dockpkl, read_eval
 from utils.io import read_pkl, write_pkl
 from utils.logger import project_logger
-from utils.preprocess import conformation_check
+from utils.preprocess import conformation_check, to_mols
 
 
 class CollectEval:
@@ -89,10 +89,10 @@ class CollectEval:
 @dataclass(frozen=True)
 class MolInfo:
     """Molecular information including SMILES, InChI, RDKit Mol object, and pose."""
-    rdmol: Mol
-    pose: Mol
-    smiles: str
-    inchikey: str
+    rdmol: list[Mol]
+    pose: list[Mol]
+    smiles: list[str]
+    inchikey: list[str]
 
 @dataclass(frozen=True)
 class StructInfo:
@@ -114,7 +114,7 @@ class MoleculesData:
     """
     Molecules data class to hold docking (scoring) and property information for a list of molecules.
     """
-    Mol: list[MolInfo]
+    Mol: MolInfo
     Dock: StructInfo
     Score: Optional[StructInfo]
     Prop: PropInfo
@@ -122,7 +122,7 @@ class MoleculesData:
     def __post_init__(self):
         """Validate the lengths of all fields in the data class.
         """
-        num_molecules = len(self.Mol)
+        num_molecules = len(self.Mol.rdmol)
         for field in self.Dock.__dict__.values():
             if isinstance(field, dict):
                 for values in field.values():
@@ -144,25 +144,30 @@ class MoleculesData:
     def get_molecule(self, index: int) -> dict[str, Any]:
             """Get all detailed molecule information by index.
             """
-            if index < 0 or index >= len(self.Mol):
-                raise IndexError(f"Index out of range: {index}. Valid range is 0 to {len(self.Mol) - 1}.")
-            
+            num_molecules = len(self.Mol.rdmol)
+            if index < 0 or index >= num_molecules:
+                raise IndexError(f"Index out of range: {index}. Valid range is 0 to {num_molecules - 1}.")
             return {
-                "Mol": self.Mol[index],
+                "Mol": {
+                    "rdmol": self.Mol.rdmol[index],
+                    "pose": self.Mol.pose[index],
+                    "smiles": self.Mol.smiles[index],
+                    "inchikey": self.Mol.inchikey[index]
+                },
                 "Dock": {
                     "numerical": {k: v[index] for k, v in self.Dock.numericals.items()},
                     "interactions": {k: v[index] for k, v in self.Dock.interactions.items()}
-                    },
+                },
                 "Score": {
                     "numerical": {k: v[index] for k, v in self.Score.numericals.items()},
                     "interactions": {k: v[index] for k, v in self.Score.interactions.items()}
-                    } if self.Score else None,
+                } if self.Score else None,
                 "Prop": {
                     "Descriptors": {k: v[index] for k, v in self.Prop.descriptors.items()},
                     "Structural": {k: v[index] for k, v in self.Prop.structural.items()},
                     "Alerts": {k: v[index] for k, v in self.Prop.alerts.items()}
-                    }
-                    }
+                }
+            }
 
 
 def collect_eval(results_dir: Path):
@@ -177,12 +182,23 @@ def collect_eval(results_dir: Path):
     if not results_dir.exists():
         raise FileNotFoundError(f"Results directory {results_dir} does not exist.")
     
-    Mol = [MolInfo(
-        rdmol=(mol:=res['mol']),
-        pose=res['pose'],
-        smiles=Chem.MolToSmiles(mol),
-        inchikey=Chem.MolToInchiKey(mol),
-    ) for res in read_pkl(find_dockpkl(results_dir, mode='dock'))]
+    mol_records = read_pkl(find_dockpkl(results_dir, mode='dock'))
+    rdmol_list = []
+    pose_list = []
+    smiles_list = []
+    inchikey_list = []
+    for res in mol_records:
+        mol = res['mol']
+        rdmol_list.append(mol)
+        pose_list.append(res['pose'])
+        smiles_list.append(Chem.MolToSmiles(mol))
+        inchikey_list.append(Chem.MolToInchiKey(mol))
+    Mol = MolInfo(
+        rdmol=rdmol_list,
+        pose=pose_list,
+        smiles=smiles_list,
+        inchikey=inchikey_list
+    )
 
     collect = CollectEval(results_dir)
 
@@ -243,7 +259,7 @@ def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=
     project_logger.info(f"Evaluation results collected and saved to {pkl_path}.")
 
 
-class DataCroupier:
+class DataCroupier: # Just a guilty pleasure to use this name.
     """Collections for evaluation results, including test data, reference, and decoy.
     """
     def __init__(
@@ -264,7 +280,7 @@ class AnalysisBase:
         self.test = getattr(analysis.test_data, attr_name)
         self.ref = getattr(analysis.reference, attr_name)
         self.decoy = getattr(analysis.decoy, attr_name)
-        self.croupier = ['test', 'ref', 'decoy'] # Just a guilty pleasure to use this name.
+        self.croupier_keys = ['test', 'ref', 'decoy']
 
     def _split_attr(self, attr):
         """Split the specified attribute.
@@ -277,5 +293,7 @@ class AnalysisBase:
             return data.numericals, data.interactions
         elif isinstance(data, PropInfo):
             return data.descriptors, data.structural, data.alerts
+        elif isinstance(data, list): # Assuming list of MolInfo
+            return to_mols([i.smiles for i in data])
         else:
             raise TypeError(f"Unsupported attribute type: {type(data)}.")
