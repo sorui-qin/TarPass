@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-10 15:07:11
-LastEditTime: 2025-07-11 17:23:02
+LastEditTime: 2025-07-12 15:27:58
 Description: 
 '''
 import numpy as np
@@ -52,20 +52,16 @@ class PLIAnalysis(AnalysisBase):
     
     def _count_interactions(self):
         total = len(self.test_interaction['detected_interactions'])
-        all_inters, more_inters = [], []
-        num_conserve = self.test_numerical['total_checks'][0]
+        all_inters = []
         for idx in range(total):
             interaction = self.test_interaction['detected_interactions'][idx]
             if interaction is None:
                 all_inters.append(0)
             for v in interaction.values():
-                all_inters.append(num_inters:=sum(len(i) for i in v))
-                if not self.test_interaction['unmatched_details'][idx]:
-                    more_inters.append(num_inters - num_conserve)
+                all_inters.append(sum(len(i) for i in v))
         
         return pd.DataFrame({
             'average_interactions': round(np.mean(all_inters), 4),
-            'average_more_than_conserved': round(np.mean(more_inters), 4),
         }, index=[0])
 
 

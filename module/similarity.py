@@ -42,7 +42,7 @@ def get_similarity(mols1:list[Mol], mols2:Optional[list[Mol]],
 
 
 class Similarity:
-    def __init__(self, smis:list[str], ref_smis:Optional[list[str]], limit=10000, seed=0):
+    def __init__(self, smis:list[str], ref_smis:Optional[list[str]]=None, limit=10000, seed=0):
         self.smis = smis
         self.mols = to_mols(smis)
         self.ref_smis = ref_smis
