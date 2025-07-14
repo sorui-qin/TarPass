@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-11 17:20:24
-LastEditTime: 2025-07-12 18:36:02
+LastEditTime: 2025-07-14 12:06:47
 Description: 
 '''
 import pandas as pd
@@ -25,8 +25,8 @@ class MolDisAnalysis(AnalysisBase):
         
     def _compare_distance(self, idx:int) -> pd.DataFrame:
         key_map = {
-            0: 'Ref-',
-            1: 'Decoy-'
+            0: 'Ref',
+            1: 'Decoy'
         }
         key = key_map[idx]
         simi = Similarity(self.test_smis, self.smis_croupier[idx+1]) # type: ignore
