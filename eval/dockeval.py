@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-07-15 18:09:31
+LastEditTime: 2025-07-15 21:17:14
 Description: 
 '''
 import itertools
@@ -46,7 +46,7 @@ class DockEval:
         pdb_files = list((target_ditr).glob(f'{self.target}*.pdb'))
         if not pdb_files:
             raise FileNotFoundError(f"No pdb file found for target {self.target}")
-        sdf_files = list((TARGET_PATH / self.target).glob(f'{self.target}*.sdf'))
+        sdf_files = list((target_ditr).glob(f'{self.target}*.sdf'))
         if not sdf_files:
             raise FileNotFoundError(f"No sdf file found for target {self.target}")
         return pdb_files[0], sdf_files[0]
@@ -89,15 +89,24 @@ class DockEval:
             sucos_fn, self.poses, chunksize=100,
             desc=f"Calculating SUCOS",
             )
+    
+    def esp_sim(self):
+        """Calculate ESP similarity for all molecules in the target."""
+        args = [(pose, self.lig_mol) for pose in self.poses]
+        return process_map(
+            _esp_sim_fn, args, chunksize=100,
+            desc=f"Calculating ESP similarity",
+            )
  
     def evaluate(self):
         """Evaluate docking results for the target."""
         # Calculate all metrics
         clashes = self.clash()
-        shifts = self.centriod_shift()
-        inters_results = self.interactions()
-        le_results = self.ligand_efficiency()
         sucos_scores = self.sucos()
+        esp_scores = self.esp_sim()
+        shifts = self.centriod_shift()
+        le_results = self.ligand_efficiency()
+        inters_results = self.interactions()
         
         # Combine all results
         eval_results = []
@@ -106,12 +115,19 @@ class DockEval:
                 'score': score,
                 **clashes[i],
                 **sucos_scores[i],
+                **esp_scores[i],
                 'centroid shift': shifts[i],
                 **le_results[i],
                 **inters_results[i]
             }
             eval_results.append(result)
         return eval_results
+
+def _esp_sim_fn(args):
+    """Helper function for ESP similarity calculation."""
+    test_mol, ref_mol = args
+    esp_sim = EspSim(test_mol, ref_mol=ref_mol)
+    return esp_sim.calculate()
 
 #### Helper Functions ####
 

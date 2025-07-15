@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-07-15 17:22:56
+LastEditTime: 2025-07-15 21:21:22
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -13,6 +13,7 @@ from rdkit.Chem import GraphDescriptors, Mol, SpacialScore
 from module.espsim.electrostatics import GetEspSim, GetShapeSim
 from utils.measure import morgan_frags
 from utils.docking import uncharge
+from utils.preprocess import standard_mol
 
 
 class StructuralCalculator:
@@ -39,7 +40,7 @@ class StructuralCalculator:
             'torsion angles': get_torsions_number(mol),
             'morgan fragments': len(morgan_frags(mol)),
             'bertzCT': bertzCT(mol),
-            'spacial score': spacial_score(mol),
+            'spacial score': spacial_score(standard_mol(mol)), # conformation will influence the results
 
             # Ring properties
             'ring numbers': rings.ring_numbers(),
@@ -329,7 +330,7 @@ class EspSim:
         """
         test_addHs = Chem.AddHs(test_mol, addCoords=True)
         ref_addHs = Chem.AddHs(ref_mol, addCoords=True)
-        return GetEspSim(test_addHs, ref_addHs)
+        return GetEspSim(test_addHs, ref_addHs, partialCharges='mmff', renormalize=True)
     
     def calculate(self) -> dict[str, float]:
         """

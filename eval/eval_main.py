@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 15:13:31
-LastEditTime: 2025-07-07 16:13:46
+LastEditTime: 2025-07-15 21:06:22
 Description: 
 '''
 import pandas as pd
@@ -17,17 +17,15 @@ def eval_execute(args):
     log_config(project_logger, args)
     work_dir = Path(args.path)
     for target in TARGETS:
-
+        project_logger.info(DASHLINE)
         # Check if target directory exists
         target_dir = work_dir / target
         if not target_dir.exists():
             project_logger.warning(f"Target folder {target_dir} not found, skipping evaluation.")
             continue
         
-        # Reading...
-        results_dir = target_dir / 'results'
-        project_logger.info(DASHLINE)
         # Ensure at least docking results are available
+        results_dir = target_dir / 'results'
         dock_results = read_and_validate(
             results_dir, target, mode='dock', 
             error_msg="please run `tarpass dock -mode dock`.")
