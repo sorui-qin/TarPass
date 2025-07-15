@@ -1,10 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 13:10:00
-LastEditTime: 2025-07-15 21:05:36
+LastEditTime: 2025-07-16 00:03:01
 Description: 
 '''
 import pandas as pd
+from rdkit import Chem
 from rdkit.Chem import Mol
 from module.druglikeness import DruglikenessCalculator
 from module.structural import StructuralCalculator
@@ -20,9 +21,8 @@ class MoleEval:
     Args:
         target_path (str): Path to the target directory containing molecule files.
     """
-    def __init__(self, smis: list[str]):
-        self.smis = smis
-        self.mols = to_mols(self.smis)
+    def __init__(self, mols:list[Mol]):
+        self.mols = mols
 
     def evaluate(self) -> list[dict]:
         """Evaluate all molecules in the target directory."""
@@ -32,8 +32,8 @@ class MoleEval:
             )
         
         updated_props = []
-        for i, smi in enumerate(self.smis):
-            info = {'index': i, 'smi': smi}
+        for i, mol in enumerate(self.mols):
+            info = {'index': i, 'smi': Chem.MolToSmiles(mol)}
             info.update(props[i])
             updated_props.append(info)
         return updated_props
@@ -54,7 +54,7 @@ def all_properties(mol: Mol) -> dict:
     return properties
 
 
-def mole_eval(smis: list[str]) -> list[dict]:
+def mole_eval(mols:list[Mol]) -> list[dict]:
     """
     Evaluate a list of SMILES strings for druglikeness and structural properties.
     
@@ -64,7 +64,7 @@ def mole_eval(smis: list[str]) -> list[dict]:
     Returns:
         list[dict]: List of dictionaries containing properties for each molecule.
     """
-    evaluator = MoleEval(smis)
+    evaluator = MoleEval(mols)
     return evaluator.evaluate()
 
 ############## Execution Functions ##############
@@ -90,8 +90,8 @@ def moleeval_execute(args):
 
         # Execute evaluation and save results
         project_logger.info(DASHLINE)
-        smis, _ = read_in(target_dir)
-        result = mole_eval(smis)
+        _, mols = read_in(target_dir)
+        result = mole_eval(mols)
         pd.DataFrame(result).to_csv(eval_output, index=False)
         project_logger.info(f"Evaluation results saved to {eval_output}.")
         project_logger.info(DASHLINE)

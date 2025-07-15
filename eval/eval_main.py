@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 15:13:31
-LastEditTime: 2025-07-15 21:06:22
+LastEditTime: 2025-07-16 00:03:24
 Description: 
 '''
 import pandas as pd
@@ -29,7 +29,7 @@ def eval_execute(args):
         dock_results = read_and_validate(
             results_dir, target, mode='dock', 
             error_msg="please run `tarpass dock -mode dock`.")
-        smis = to_smiles([res['mol'] for res in dock_results])
+        mols = ([res['mol'] for res in dock_results])
 
         # Docking evaluation
         dock_output = results_dir / f'dock_eval_results.json'
@@ -44,7 +44,7 @@ def eval_execute(args):
         mole_output = results_dir / f'mole_eval_results.csv'
         if not mole_output.exists():
             project_logger.info(f'Start evaluating molecules for {target}...')
-            pd.DataFrame(mole_eval(smis)).to_csv(mole_output, index=False)
+            pd.DataFrame(mole_eval(mols)).to_csv(mole_output, index=False)
             project_logger.info(f"Evaluation results saved to {mole_output}.")
         else:
             project_logger.info(f"Evaluation results already exist for {target}, skipping evaluation.")

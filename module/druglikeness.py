@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-07-15 19:44:27
+LastEditTime: 2025-07-16 00:13:53
 Description: 
 '''
 import importlib.util
@@ -120,8 +120,10 @@ def calc_le(args:tuple[Mol, float]) -> dict:
         }
 
 #### Molecule Volume #####
+
 def molvol(mol:Mol) -> float:
     """Calculate the volume of a molecule."""
+    mol = Chem.AddHs(mol)
     if mol.GetNumConformers() == 0:
         EmbedMolecule(mol, useRandomCoords=True)
     return AllChem.ComputeMolVolume(mol)

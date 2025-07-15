@@ -66,7 +66,7 @@ def SimilarityMetric(intPrbPrb,
     if denominator!= 0:
         similarity=numerator/denominator
     else:
-        raise ValueError("Denominator in similarity calculation equals zero.")
+        similarity = np.nan
     return similarity
 
 try:
