@@ -16,4 +16,5 @@ testfile
 *.egg-info
 tmp
 *.out
+data/*.pkl
 

@@ -1,3 +1,5 @@
+# Original from https://github.com/hesther/espsim
+
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem

@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-07-04 16:01:01
+LastEditTime: 2025-07-15 17:22:56
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -10,7 +10,9 @@ import networkx as nx
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import GraphDescriptors, Mol, SpacialScore
+from module.espsim.electrostatics import GetEspSim, GetShapeSim
 from utils.measure import morgan_frags
+from utils.docking import uncharge
 
 
 class StructuralCalculator:
@@ -290,3 +292,53 @@ def spacial_score(mol:Mol) -> float:
     Ref: `Krzyzanowski, A.; et al. Spacial Score─A Comprehensive Topological Indicator for Small-Molecule Complexity. J. Med. Chem. 2023.`
     """
     return SpacialScore.SPS(mol)
+
+#### 3D shape and electrostatic similarity ####
+
+class EspSim:
+    """ Calculate the electrostatic similarity between two molecules.
+    """
+    def __init__(self, test_mol:Mol, ref_mol:Mol):
+        self.test = uncharge(test_mol)
+        self.ref = uncharge(ref_mol)
+        if self.test.GetConformer() is None:
+            raise ValueError('No conformer found for the test molecule.')
+        if self.ref.GetConformer() is None:
+            raise ValueError('No conformer found for the reference molecule.')
+    
+    @staticmethod
+    def shape_similarity(test_mol:Mol, ref_mol:Mol) -> float:
+        """
+        Calculate the shape similarity between two molecules.
+        
+        Args:
+            test_mol (Mol): Test molecule object from RDKit.
+            ref_mol (Mol): Reference molecule object from RDKit.
+        
+        """
+        return GetShapeSim(test_mol, ref_mol)
+    
+    @staticmethod
+    def electrostatic_similarity(test_mol:Mol, ref_mol:Mol) -> float:
+        """
+        Calculate the electrostatic similarity between two molecules.
+        
+        Args:
+            test_mol (Mol): Test molecule object from RDKit.
+            ref_mol (Mol): Reference molecule object from RDKit.
+        """
+        test_addHs = Chem.AddHs(test_mol, addCoords=True)
+        ref_addHs = Chem.AddHs(ref_mol, addCoords=True)
+        return GetEspSim(test_addHs, ref_addHs)
+    
+    def calculate(self) -> dict[str, float]:
+        """
+        Calculate both shape and electrostatic similarity between the test and reference molecules.
+        
+        Returns:
+            dict: A dictionary containing the shape and electrostatic similarity scores.
+        """
+        return {
+            'shape_similarity': self.shape_similarity(self.test, self.ref),
+            'electrostatic_similarity': self.electrostatic_similarity(self.test, self.ref)
+        }

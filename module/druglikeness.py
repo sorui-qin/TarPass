@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-07-05 15:36:40
+LastEditTime: 2025-07-15 19:44:27
 Description: 
 '''
 import importlib.util
@@ -9,9 +9,9 @@ from pathlib import Path
 from typing import Union
 import numpy as np
 from rdkit import Chem, RDConfig
-from rdkit.Chem import QED, Crippen, Mol, rdMolDescriptors
-from utils.preprocess import standard_mol
-from module.filter import match_pains, match_SureChEMBL, match_glaxo
+from rdkit.Chem import QED, AllChem, Crippen, Mol, rdMolDescriptors
+from rdkit.Chem.rdDistGeom import EmbedMolecule
+from module.filter import match_glaxo, match_pains, match_SureChEMBL
 
 # Importing the SA_Score module
 module_path = Path(RDConfig.RDContribDir) / 'SA_Score' / 'sascorer.py'
@@ -33,10 +33,9 @@ class DruglikenessCalculator:
             'clogP': Crippen.MolLogP(mol), # type: ignore
             'hdonors': rdMolDescriptors.CalcNumHBD(mol),
             'hacceptors': rdMolDescriptors.CalcNumHBA(mol),
-            'molwt': rdMolDescriptors.CalcExactMolWt(mol), 
-            'qed': QED.qed(mol),
+            'molwt': rdMolDescriptors.CalcExactMolWt(mol),
             'tpsa': rdMolDescriptors.CalcTPSA(mol),
-            'sa_score': sa.calculateScore(mol),
+            'molvol': molvol(mol),
             
             # Global Structural Descriptors
             'heavy_atoms': mol.GetNumHeavyAtoms(),
@@ -51,8 +50,12 @@ class DruglikenessCalculator:
         
         # Derived Properties
         self.properties.update({
+            # Structure-based Properties
             'heteroatom_ratio': self.heteroatom_ratio(),
             'flexibility': self.flexibility(),
+            # Druglikeness Properties
+            'qed': QED.qed(mol),
+            'sa_score': sa.calculateScore(mol),
             'lipinski': self.lipinski(),
         })
 
@@ -115,3 +118,10 @@ def calc_le(args:tuple[Mol, float]) -> dict:
         'LE_heavyatom': le_heavyatom(pose, score), 
         'LE_mw': le_mw(pose, score)
         }
+
+#### Molecule Volume #####
+def molvol(mol:Mol) -> float:
+    """Calculate the volume of a molecule."""
+    if mol.GetNumConformers() == 0:
+        EmbedMolecule(mol, useRandomCoords=True)
+    return AllChem.ComputeMolVolume(mol)

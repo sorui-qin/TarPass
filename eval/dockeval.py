@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-07-03 17:22:11
+LastEditTime: 2025-07-15 18:09:31
 Description: 
 '''
 import itertools
@@ -14,6 +14,7 @@ from interaction.interaction_tools import allkey_inters, interactions
 from module.druglikeness import calc_le
 from module.intermolecular_distance import (centriod_distance,
                                             check_intermolecular_distance)
+from module.structural import EspSim
 from module.sucos import check_sucos
 from utils.constant import DASHLINE, TARGET_PATH, TARGETS
 from utils.eval import find_dockpkl

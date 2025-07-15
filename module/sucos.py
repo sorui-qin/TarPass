@@ -48,7 +48,7 @@ def get_feature_map_score(
 
     # create feature map based on small molecule
     feature_map = FeatMaps.FeatMap(feats=features_small, weights=[1] * len(features_small), params=PARAMETERS)
-    feature_map.scoreMode = FeatMaps.FeatMapScoreMode.Best
+    feature_map.scoreMode = FeatMaps.FeatMapScoreMode.Best # type: ignore
 
     # score features of large molecule present in small molecule
     feature_score = feature_map.ScoreFeats(features_large)
@@ -156,12 +156,3 @@ def handle_hydrogens(mol: Mol, heavy_only: bool | None = True) -> Mol:
     if heavy_only:
         return RemoveHs(mol)
     return AddHs(mol, addCoords=True)
-
-if __name__ == "__main__":
-    from utils.io import read_sdf
-
-    mol_true = read_sdf('./Targets/5HT2A/5HT2A_7wc7_ligand_A.sdf')
-    mols = read_sdf('testfile/DiffSBDD/5HT2A/5HT2A_gen_batch_512_1.sdf')
-    mol_pred = mols[116]
-    
-    print(check_sucos(mol_pred, mol_true))
