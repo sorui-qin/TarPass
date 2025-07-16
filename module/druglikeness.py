@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-07-16 00:13:53
+LastEditTime: 2025-07-16 14:10:53
 Description: 
 '''
 import importlib.util
@@ -12,6 +12,7 @@ from rdkit import Chem, RDConfig
 from rdkit.Chem import QED, AllChem, Crippen, Mol, rdMolDescriptors
 from rdkit.Chem.rdDistGeom import EmbedMolecule
 from module.filter import match_glaxo, match_pains, match_SureChEMBL
+from utils.logger import project_logger
 
 # Importing the SA_Score module
 module_path = Path(RDConfig.RDContribDir) / 'SA_Score' / 'sascorer.py'
@@ -121,9 +122,18 @@ def calc_le(args:tuple[Mol, float]) -> dict:
 
 #### Molecule Volume #####
 
-def molvol(mol:Mol) -> float:
+from utils.docking import LigPrep, obmol2rdkit
+
+def molvol(mol) -> float:
     """Calculate the volume of a molecule."""
-    mol = Chem.AddHs(mol)
+    mol_Hs = Chem.AddHs(mol)
     if mol.GetNumConformers() == 0:
-        EmbedMolecule(mol, useRandomCoords=True)
-    return AllChem.ComputeMolVolume(mol)
+        state = EmbedMolecule(mol_Hs, 
+                              useRandomCoords=True, 
+                              maxAttempts=100)
+        if state != 0:
+            mol_Hs = obmol2rdkit(LigPrep(mol_Hs).obmol_conf(mol_Hs))
+    if mol_Hs.GetNumConformers() == 0:
+        project_logger.warning(f"Failed to generate 3D conformation, return molecular volume with NaN.")
+        return np.nan
+    return AllChem.ComputeMolVolume(mol_Hs)

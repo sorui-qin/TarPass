@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 13:10:00
-LastEditTime: 2025-07-16 00:03:01
+LastEditTime: 2025-07-16 13:54:54
 Description: 
 '''
 import pandas as pd
@@ -9,7 +9,7 @@ from rdkit import Chem
 from rdkit.Chem import Mol
 from module.druglikeness import DruglikenessCalculator
 from module.structural import StructuralCalculator
-from utils.preprocess import read_in, to_mols
+from utils.preprocess import read_in, standard_mol
 from utils.constant import Path, DASHLINE, TARGETS
 from tqdm.contrib.concurrent import process_map
 from utils.logger import project_logger
@@ -22,12 +22,12 @@ class MoleEval:
         target_path (str): Path to the target directory containing molecule files.
     """
     def __init__(self, mols:list[Mol]):
-        self.mols = mols
+        self.mols = [standard_mol(mol) for mol in mols]
 
     def evaluate(self) -> list[dict]:
         """Evaluate all molecules in the target directory."""
         props = process_map(
-            all_properties, self.mols, chunksize=100,
+            all_properties, self.mols, chunksize=1,
             desc=f"Evaluating molecular properties",
             )
         

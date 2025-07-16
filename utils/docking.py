@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-07-09 09:50:36
+LastEditTime: 2025-07-16 14:00:40
 Description: 
 '''
 from copy import deepcopy
@@ -41,7 +41,10 @@ def obmol2rdkit(ob_mol:pybel.Molecule) -> Chem.Mol:
 
 def uncharge(mol:Mol) -> Mol:
     uncharger = Uncharger()
-    return uncharger.uncharge(Chem.RemoveHs(mol))
+    try:
+        return uncharger.uncharge(Chem.RemoveHs(mol))
+    except:
+        return mol
 
 class LigPrep():
     """Preparation of ligand.  
@@ -60,7 +63,8 @@ class LigPrep():
             self.mol = standard_mol(mol)
             self.mol.SetProp('_Name', idx) # Reset the name of the molecule
 
-    def obmol_conf(self, mol:Mol, minimize=False) -> pybel.Molecule:
+    @staticmethod
+    def obmol_conf(mol:Mol, minimize=False) -> pybel.Molecule:
         """Create conformation with openbabel.
         """
         ob_mol = rdkit2obmol(mol)
@@ -81,7 +85,7 @@ class LigPrep():
         if not self.mol.GetNumConformers(): # Check 3D conformation
             try: # RDKit pipeline
                 p_mol = Chem.AddHs(p_mol, addCoords=True)
-                EmbedMolecule(p_mol, useRandomCoords=True)
+                EmbedMolecule(p_mol, useRandomCoords=True, maxAttempts=1000)
                 if MMFFOptimizeMolecule(p_mol, maxIters=200): # If fail to optimize, use Open Babel
                     ob_mol = self.obmol_conf(p_mol, minimize=True)
                 else:

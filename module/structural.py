@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-07-15 21:21:22
+LastEditTime: 2025-07-16 13:38:00
 Description: Topological and structural properties of a molecule.
 '''
 import copy
