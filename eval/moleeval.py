@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 13:10:00
-LastEditTime: 2025-07-16 13:54:54
+LastEditTime: 2025-07-16 18:09:42
 Description: 
 '''
 import pandas as pd
@@ -22,7 +22,7 @@ class MoleEval:
         target_path (str): Path to the target directory containing molecule files.
     """
     def __init__(self, mols:list[Mol]):
-        self.mols = [standard_mol(mol) for mol in mols]
+        self.mols = mols
 
     def evaluate(self) -> list[dict]:
         """Evaluate all molecules in the target directory."""

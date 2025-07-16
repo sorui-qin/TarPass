@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-07-16 14:10:53
+LastEditTime: 2025-07-16 16:28:48
 Description: 
 '''
 import importlib.util
@@ -126,7 +126,7 @@ from utils.docking import LigPrep, obmol2rdkit
 
 def molvol(mol) -> float:
     """Calculate the volume of a molecule."""
-    mol_Hs = Chem.AddHs(mol)
+    mol_Hs = Chem.AddHs(mol, addCoords=True)
     if mol.GetNumConformers() == 0:
         state = EmbedMolecule(mol_Hs, 
                               useRandomCoords=True, 

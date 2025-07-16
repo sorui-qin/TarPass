@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-11 18:58:38
+LastEditTime: 2025-07-16 20:03:05
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -72,12 +72,12 @@ class CollectEval:
     def split_mole(self) -> tuple[dict, dict, dict]:
         """Split molecule evaluation results into descriptor, structure, and alert parts.
         """
-        DESCI_IDX = [*range(2, 13), *range(23, 28)] 
-        STRUC_IDX = [*range(13, 19), *range(28, 35)]
-        ALERT_IDX = list(range(19, 23))
+        DESCI_IDX = [*range(2, 11), *range(24, 29)] 
+        STRUC_IDX = [*range(11, 18), *range(29, 36)]
+        ALERT_IDX = list(range(18, 24))
 
-        if (cols := self.mole_eval.shape[1]) != 35:
-            raise ValueError(f"Unexpected number of columns: {cols}. Expected 35.")
+        if (cols := self.mole_eval.shape[1]) != 36:
+            raise ValueError(f"Unexpected number of columns: {cols}. Expected 36.")
     
         return (
         self.mole_eval.iloc[:, DESCI_IDX].to_dict(orient='list'),
