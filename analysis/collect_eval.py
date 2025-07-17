@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-16 20:03:05
+LastEditTime: 2025-07-17 18:07:48
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -266,11 +266,13 @@ class DataCroupier: # Just a guilty pleasure to use this name.
             self,
             test_data: MoleculesData,
             reference: MoleculesData,
-            decoy: MoleculesData
+            decoy: MoleculesData,
+            target: Optional[str]=None
             ):
         self.test_data = test_data
         self.reference = reference
         self.decoy = decoy
+        self.target = target
 
 
 class AnalysisBase:
@@ -281,6 +283,7 @@ class AnalysisBase:
         self.ref = getattr(analysis.reference, attr_name)
         self.decoy = getattr(analysis.decoy, attr_name)
         self.croupier_keys = ['test', 'ref', 'decoy']
+        self.target = analysis.target
 
     def _split_attr(self, attr):
         """Split the specified attribute.

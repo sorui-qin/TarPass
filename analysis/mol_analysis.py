@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-11 17:20:24
-LastEditTime: 2025-07-14 12:06:47
+LastEditTime: 2025-07-17 18:10:53
 Description: 
 '''
 import pandas as pd
@@ -38,6 +38,7 @@ class MolDisAnalysis(AnalysisBase):
     
     def analysis(self):
         dfs = (
+            [pd.DataFrame({'target': self.target}, index=[0])] +
             [self._internal_distance()] +
             [self._compare_distance(idx) for idx in range(2)]
         )

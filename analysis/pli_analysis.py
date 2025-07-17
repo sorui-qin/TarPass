@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-10 15:07:11
-LastEditTime: 2025-07-12 15:27:58
+LastEditTime: 2025-07-17 18:10:35
 Description: 
 '''
 import numpy as np
@@ -66,10 +66,12 @@ class PLIAnalysis(AnalysisBase):
 
 
     def analysis(self) -> pd.DataFrame:
-        affinity_cols = ['score', 'sucos', 'centroid shift', 'LE_heavyatom', 'LE_mw']
+        affinity_cols = ['score', 'sucos', 'centroid shift','shape_similarity',
+                         'electrostatic_similarity', 'LE_heavyatom', 'LE_mw']
         boolean_cols = ['no_clashes', 'fully_matched', 'matched_rate']
         
         dfs = (
+        [pd.DataFrame({'target': self.target}, index=[0])] +
         [self._get_median_iqr(col) for col in affinity_cols] +
         [self._get_mean(col) for col in boolean_cols] +
         [self._score_significance()] +
