@@ -6,10 +6,8 @@ from rdkit.Chem import AllChem
 from argparse import Namespace
 import os
 import contextlib
-import pkg_resources
 import warnings
 import logging
-
 logging_level = logging.root.level
 
 def check_hs(mol):
@@ -146,7 +144,7 @@ try:
         #MUST use mols with hydrogens!
         smiles = [Chem.MolToSmiles(mol) for mol in mols]
 
-        path = pkg_resources.resource_filename(__name__, 'QM_137k.pt')
+        path = 'QM_137k.pt'
         args = Namespace(batch_size=50, checkpoint_dir=None, checkpoint_path=path, checkpoint_paths=[path], cuda=False, features_generator=None, features_path=None, gpu=None, max_data_size=None, no_features_scaling=False, preds_path=None, test_path=None, use_compound_names=False)
 
         with open(os.devnull, 'w') as devnull:
@@ -169,6 +167,7 @@ try:
             
 
         return charges
+    pass
 
 except ImportError:
     def mlCharges(mols):
