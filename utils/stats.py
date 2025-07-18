@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-26 19:02:36
-LastEditTime: 2025-07-04 20:03:41
+LastEditTime: 2025-07-18 20:11:27
 Description: 
 '''
 from typing import Literal
@@ -10,7 +10,7 @@ import scikit_posthocs as sp
 import statsmodels.stats.api as sms
 from scipy import stats
 from scipy.spatial.distance import jensenshannon
-from scipy.stats import wasserstein_distance
+from sklearn.preprocessing import RobustScaler
 from statsmodels.stats.multitest import multipletests
 
 ##### Distance Metrics #####
@@ -20,16 +20,21 @@ def jsd(p, q) -> np.float64:
     """
     return jensenshannon(p, q)
 
-def wasserstein(p, q) -> np.float64:
-    """Calculate the Wasserstein distance between two distributions.
+def wasserstein_norm(ref, test) -> np.float64:
+    """Calculate the Wasserstein distance between reference and .
     """
-    return wasserstein_distance(p, q)
+    a_scale = np.array(ref).reshape(-1, 1)
+    b_scale = np.array(test).reshape(-1, 1)
+    scaler = RobustScaler()
+    a_scale = scaler.fit_transform(a_scale).reshape(-1)
+    b_scale = scaler.transform(b_scale).reshape(-1)
+    return stats.wasserstein_distance(a_scale, b_scale)
 
-def ks_distance(p, q) -> tuple[np.float64, bool]:
+def ks_distance(p, q) -> tuple[np.float64, np.float64]:
     """Calculate the Kolmogorov-Smirnov distance and significance between two distributions.
     """
     ks_stat, p_value = stats.ks_2samp(p, q)
-    return ks_stat, p_value < 0.05 # type: ignore
+    return ks_stat, p_value # type: ignore
 
 ###### Statistical Tests #####
 
@@ -100,7 +105,7 @@ def anova(*data_groups, equal_var:bool) -> tuple[bool, float]:
         *data_groups: Variable number of data arrays to test.
         equal_var (bool): If True, assumes equal variances across groups; if False, uses Welch's ANOVA.
     """
-    use_var='equal' if equal_var else 'unequal'
+    use_var = 'equal' if equal_var else 'unequal'
     p_value = sms.anova_oneway(data=data_groups, use_var=use_var).pvalue # type: ignore
     is_significant = p_value < 0.05
     return is_significant, p_value
