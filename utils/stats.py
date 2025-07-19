@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-26 19:02:36
-LastEditTime: 2025-07-18 20:11:27
+LastEditTime: 2025-07-19 14:27:30
 Description: 
 '''
 from typing import Literal
@@ -9,32 +9,7 @@ import numpy as np
 import scikit_posthocs as sp
 import statsmodels.stats.api as sms
 from scipy import stats
-from scipy.spatial.distance import jensenshannon
-from sklearn.preprocessing import RobustScaler
 from statsmodels.stats.multitest import multipletests
-
-##### Distance Metrics #####
-
-def jsd(p, q) -> np.float64:
-    """Calculate the Jensen-Shannon Divergence between two probability distributions.
-    """
-    return jensenshannon(p, q)
-
-def wasserstein_norm(ref, test) -> np.float64:
-    """Calculate the Wasserstein distance between reference and .
-    """
-    a_scale = np.array(ref).reshape(-1, 1)
-    b_scale = np.array(test).reshape(-1, 1)
-    scaler = RobustScaler()
-    a_scale = scaler.fit_transform(a_scale).reshape(-1)
-    b_scale = scaler.transform(b_scale).reshape(-1)
-    return stats.wasserstein_distance(a_scale, b_scale)
-
-def ks_distance(p, q) -> tuple[np.float64, np.float64]:
-    """Calculate the Kolmogorov-Smirnov distance and significance between two distributions.
-    """
-    ks_stat, p_value = stats.ks_2samp(p, q)
-    return ks_stat, p_value # type: ignore
 
 ###### Statistical Tests #####
 
