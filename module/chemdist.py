@@ -1,13 +1,23 @@
 '''
 Author: Rui Qin
 Date: 2025-07-19 14:27:02
-LastEditTime: 2025-07-19 14:45:47
+LastEditTime: 2025-07-20 16:33:12
 Description: 
 '''
 import numpy as np
 from scipy import stats
 from scipy.spatial.distance import jensenshannon
 from sklearn.preprocessing import RobustScaler
+
+def get_median_iqr(data):
+    """Get median, IQR (Q1 & Q3) for the given data.
+    Args:
+        data (ArrayLike): Input data array.
+    """
+    data = np.array(data)[~np.isnan(data)]
+    return (np.median(data),
+            np.percentile(data, 25),
+            np.percentile(data, 75))
 
 def jsd(p, q) -> np.float64:
     """Calculate the Jensen-Shannon Divergence between two probability distributions.
@@ -32,7 +42,7 @@ def wasserstein_norm(ref, test) -> np.float64:
     b_scale = scaler.transform(b_scale).reshape(-1)
     return stats.wasserstein_distance(a_scale, b_scale)
 
-def wasserstein_ref_decoy(ref, decoy, test) -> tuple[np.float64, np.float64]:
+def wasserstein_ref_decoy(ref, decoy, test) -> tuple[np.float64, np.float64, np.float64]:
     """Calculate the Wasserstein distance between test and reference or decoy distributions.
     Args:
         ref (array-like): Reference distribution.
@@ -48,4 +58,8 @@ def wasserstein_ref_decoy(ref, decoy, test) -> tuple[np.float64, np.float64]:
     a_scale = scaler.fit_transform(a_scale).reshape(-1)
     b_scale = scaler.transform(b_scale).reshape(-1)
     c_scale = scaler.transform(c_scale).reshape(-1)
-    return stats.wasserstein_distance(a_scale, c_scale), stats.wasserstein_distance(b_scale, c_scale)
+    return (
+        stats.wasserstein_distance(a_scale, c_scale),
+        stats.wasserstein_distance(b_scale, c_scale),
+        stats.wasserstein_distance(a_scale, b_scale)
+    )
