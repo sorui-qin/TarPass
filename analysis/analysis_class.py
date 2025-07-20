@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-07-20 16:39:41
+LastEditTime: 2025-07-20 17:31:18
 Description: 
 '''
 import numpy as np
@@ -126,19 +126,18 @@ class PropAnalysis(AnalysisBase):
         super().__init__(collections, 'Prop')
         self.props_croupier = [self._split_attr(attr) for attr in self.croupier_keys]
         self.test_desc, self.test_struc, self.alert = self.props_croupier[0] # type: ignore
+        self.ref_desc = self.props_croupier[1][0] # type: ignore
+        self.decoy_desc = self.props_croupier[2][0] # type: ignore
 
     def descriptor_dist(self) -> pd.DataFrame:
-        test_desc = self.test_desc['descriptor'] # type: ignore
-        ref_desc = self.props_croupier[1]['descriptor'] # type: ignore
-        decoy_desc = self.props_croupier[2]['descriptor'] # type: ignore
         
-        keys = ref_desc.keys()
+        keys = self.ref_desc.keys() # type: ignore
         results = []
 
         for key in keys:
-            ref = ref_desc[key]
-            test = test_desc[key]
-            decoy = decoy_desc[key]
+            ref = self.ref_desc[key] # type: ignore
+            test = self.test_desc[key] #type: ignore
+            decoy = self.decoy_desc[key] #type: ignore
 
             w_ref, w_decoy, w_ref2decoy = wasserstein_ref_decoy(ref, decoy, test)
             w_shift = (w_ref + w_decoy) / w_ref2decoy
@@ -158,14 +157,14 @@ class PropAnalysis(AnalysisBase):
         desc_df = self.descriptor_dist()
 
         dfs = [
-            [pd.DataFrame({'target': self.target}, index=[0])],
-            [desc_df.iloc[:, 1:].mean()],
-            [pd.DataFrame(self.test_struc).mean()],
-            [pd.DataFrame(self.alert).mean()]
+            pd.DataFrame({'target': self.target}, index=[0]).T,
+            desc_df.iloc[:, 1:].mean(),
+            pd.DataFrame(self.test_struc).mean(),
+            pd.DataFrame(self.alert).mean()
         ]
         descri_info = desc_df if descriptor_info else pd.DataFrame()
 
-        return pd.concat(dfs, axis=1), descri_info
+        return pd.concat(dfs, axis=0).T, descri_info
     
 
 #TODO: Add cross-target analysis
