@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-01-04 17:22:05
-LastEditTime: 2025-07-11 20:30:11
+LastEditTime: 2025-07-21 17:29:11
 Description: 
 '''
 from typing import Optional
@@ -67,13 +67,11 @@ class Similarity:
         circ, _ = measure.measure(fps, is_vec=True, n_chunk=64)
         return circ
 
-
     def similarity(self, use_ref:bool=True) -> float:
         return get_similarity(self.mols,
                               self.ref if use_ref else None,
                               limit=self.limit, seed=self.seed,
                               use_ref=use_ref)
-
 
     def scaffold_similarity(self, use_ref:bool=True) -> float:
         """Calculate Tanimoto similarity of scaffold with ECFP4.
@@ -85,7 +83,6 @@ class Similarity:
     def intdiv(self, cal_scaffold=False):
         func = self.similarity if not cal_scaffold else self.scaffold_similarity
         return 1 - func(use_ref=False)
-
 
     def fcd(self):
         if not self.ref_smis:

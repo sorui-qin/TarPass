@@ -1,20 +1,22 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-07-08 19:12:16
+LastEditTime: 2025-07-21 14:19:46
 Description: 
 '''
+from collections import defaultdict
 from copy import deepcopy
+from functools import cached_property
+from itertools import islice
 from pathlib import Path
 from typing import DefaultDict, Iterable, Literal
-from collections import defaultdict
-from itertools import islice
-from utils.logger import project_logger
-from utils.io import read_sdf, read_strings
-from utils.constant import DASHLINE
-from rdkit import Chem
+import pandas as pd
+from rdkit import Chem, RDLogger
 from rdkit.Chem.rdMolAlign import CalcRMS
-from rdkit import RDLogger
+from utils.constant import DASHLINE, TARGETS
+from utils.io import read_sdf, read_strings
+from utils.logger import disable_logger, project_logger
+
 RDLogger.DisableLog('rdApp.*') # type: ignore
 
 def to_mols(smiles:Iterable) -> list[Chem.Mol]:
@@ -101,6 +103,7 @@ class Preprocess():
         self.num = len(readins)
         self.format = format
     
+    @cached_property
     def valid(self) -> list[Chem.Mol]:
         if self.format == 'sdf':
             valids = [mol for idx, mol in enumerate(self.readins) if sanitize_valid(mol, idx)]
@@ -114,13 +117,14 @@ class Preprocess():
         Returns:
             DefaultDict[str, List[Chem.Mol]]: A dictionary with unique SMILES as keys and a list of corresponding Mol objects as values.
         """
-        mols = self.valid()
+        mols = self.valid
         unique_di = defaultdict(list)
         for mol in mols:
             smi = Chem.MolToSmiles(mol, kekuleSmiles=True)
             unique_di[smi].append(mol)
         project_logger.info(f'Unique SMILES: {len(unique_di.items())} out of {len(mols)}')
         return unique_di
+
 
 def read_in(target_dir, num_thres=1000, isomers=False) -> tuple[list[str], list[Chem.Mol]]:
     """Read in molecules from the target directory. Return the duplicate SMILES list and Mol list.
@@ -157,7 +161,7 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> tuple[list[str], list[
     # Unique and valid process
     process = Preprocess(readins, format)
     if num_thres is None or num_thres <= 0:
-        num_thres = len(process.readins)
+        num_thres = process.num
     # Limit the number of molecules to num_thres
     processed_li = list(islice(process.unique().items(), num_thres))
     proc_smis, proc_mols = [], []
@@ -181,3 +185,62 @@ def read_in(target_dir, num_thres=1000, isomers=False) -> tuple[list[str], list[
         project_logger.info(f"Read in procession is done, top {num_thres} unique molecules are selected.")
     project_logger.info(DASHLINE)
     return proc_smis, proc_mols
+
+
+def report_val_uniq(work_dir, num_thres=1000, isomers=False):
+    """Read in molecules from the target directory and report the number of unique molecules.
+    Args:
+        target_dir (Path): Path to the target directory.
+        num_thres (int, optional): Threshold for the number of molecules. Defaults to 1000. If none, all molecules will be read in.
+        isomers (bool, optional): Whether to consider isomers. If True, the Mol list will contain isomers, which will make the list slightly longer than num_thres. Defaults to False.
+    """
+    disable_logger()
+    work_dir = Path(work_dir)
+    df_li = []
+    for target in TARGETS:
+        read_dir = work_dir / target
+
+        # Check all readable files
+        sdf_files = sorted(read_dir.glob('*.sdf'))
+        if sdf_files: #SDF files will be prioritized for reading
+            read_files, reader, format = sdf_files, read_sdf, 'sdf'
+        else: # If no SDF files found, read SMILES
+            read_files, reader, format = sorted(read_dir.iterdir()), read_strings, 'smi'
+
+        # Read in the files
+        readins = []
+        for f in read_files:
+            if f.is_dir():
+                continue
+            try:
+                readin = reader(f)
+                readins += readin if isinstance(readin, list) else [readin]
+            except:
+                continue
+        
+         # Unique and valid process
+        process = Preprocess(readins, format)
+        total_num = process.num
+        valid_num = len(process.valid)
+        validity = round(valid_num / total_num, 4)
+
+        unique_mol, unique_3d = [], []
+        # Limit the number of molecules to num_thres
+        if num_thres is None or num_thres <= 0:
+            num_thres = total_num
+        for _, mol_dupl in islice(process.unique().items(), num_thres):
+            unique_mol.append(mol_dupl[0])
+            if isomers and format == 'sdf':
+                unique_3d.extend(check_duplicate3D(mol_dupl))
+        
+        df_li.append({
+            'validity': validity,
+            'total_num': total_num,
+            'valid_num': valid_num,
+            'unique_num': len(unique_mol),
+            'unique_3d_num': len(unique_3d) if unique_3d else 0,
+        })
+    
+    df = pd.DataFrame(df_li, index=TARGETS)
+    df.loc['Average'] = df.mean()
+    df.to_csv(work_dir / 'Val_Unique_report.csv', index=True)

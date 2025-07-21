@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-07-20 17:31:18
+LastEditTime: 2025-07-21 19:23:32
 Description: 
 '''
 import numpy as np
@@ -43,7 +43,6 @@ class MolDisAnalysis(AnalysisBase):
     
     def analysis(self):
         dfs = (
-            [pd.DataFrame({'target': self.target}, index=[0])] +
             [self._internal_distance()] +
             [self._compare_distance(idx) for idx in range(2)]
         )
@@ -101,12 +100,11 @@ class PLIAnalysis(AnalysisBase):
         boolean_cols = ['no_clashes', 'fully_matched', 'matched_rate']
         
         dfs = (
-        [pd.DataFrame({'target': self.target}, index=[0])] +
         [self._get_median_iqr(col) for col in affinity_cols] +
         [self._get_mean(col) for col in boolean_cols] +
-        [self._score_significance()] +
-        [self._count_interactions()]
-    )
+        [self._count_interactions()] +
+        [self._score_significance()]
+        )
         return pd.concat(dfs, axis=1)
 
 
@@ -149,22 +147,24 @@ class PropAnalysis(AnalysisBase):
                 'Wasserstein_Ref': w_ref,
                 'Wasserstein_Shift': w_shift,
                 'KS_Ref': ks_value,
-                'Significance': ks_significance
+                'Significance': ks_significance <= 0.05
             })
         return pd.DataFrame(results)
     
-    def analysis(self, descriptor_info:bool=True) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def analysis(self, descriptor_info:bool=True) -> tuple[tuple, pd.DataFrame]:
+        """
+        Returns:
+            tuple[list[pd.Series], pd.DataFrame]: Series of mean values of descriptor distances, structural properties, and alert information,  
+            and a DataFrame of descriptor distribution information.
+        """
         desc_df = self.descriptor_dist()
-
-        dfs = [
-            pd.DataFrame({'target': self.target}, index=[0]).T,
-            desc_df.iloc[:, 1:].mean(),
-            pd.DataFrame(self.test_struc).mean(),
-            pd.DataFrame(self.alert).mean()
-        ]
+        dfs = (
+            desc_df.iloc[:, 1:].mean().to_frame().T,
+            pd.DataFrame(self.test_struc).mean().to_frame().T,
+            pd.DataFrame(self.alert).mean().to_frame().T
+        )
         descri_info = desc_df if descriptor_info else pd.DataFrame()
-
-        return pd.concat(dfs, axis=0).T, descri_info
+        return dfs, descri_info
     
 
 #TODO: Add cross-target analysis
