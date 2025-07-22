@@ -2,14 +2,12 @@ import rdkit
 import random
 import numpy as np
 import more_itertools as mit
-from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import DataStructs
 
 CHUNK_SIZE = 1000
-
 
 class Measure():
     def __init__(self):
@@ -86,7 +84,7 @@ class Diversity(DissimilarityBasedMeasure):
         if is_vec: vecs = mols
         else: vecs = self.vectorizer(mols)
         args = zip(vecs, [vecs]*len(vecs), [self.sim_mat_func]*len(vecs))
-        avg_dists = process_map(diversity_map, args, chunksize=CHUNK_SIZE)
+        avg_dists = process_map(diversity_map, args, chunksize=CHUNK_SIZE, disable=True)
         return 1. - np.sum(avg_dists) / len(avg_dists)
 
     def report(self):
@@ -130,7 +128,7 @@ class SumBottleneck(DissimilarityBasedMeasure):
         else: vecs = self.vectorizer(mols)
         
         args = zip(vecs, [vecs]*len(vecs), [self.sim_mat_func]*len(vecs))
-        min_dists = process_map(sumbot_map, args, chunksize=CHUNK_SIZE)
+        min_dists = process_map(sumbot_map, args, chunksize=CHUNK_SIZE, disable=True)
         return np.sum(min_dists)
 
     def report(self):
@@ -203,11 +201,11 @@ class NBM(ReferenceBasedMeasure):
         self.smiles = set()
         
     def measure(self, mols=[]):
-        smiles = process_map(bm_map, mols, chunksize=CHUNK_SIZE)
+        smiles = process_map(bm_map, mols, chunksize=CHUNK_SIZE, disable=True)
         return len(set(smiles))
         
     def update(self, mols=[]):
-        for mol in tqdm(mols):
+        for mol in mols:
             core = MurckoScaffold.GetScaffoldForMol(mol)
             smi = Chem.MolToSmiles(core)
             self.smiles.add(smi)
@@ -219,7 +217,7 @@ def get_circles(args, silent=True):
     vecs, sim_mat_func, t = args
     
     circs = []
-    for vec in tqdm(vecs, disable=silent):
+    for vec in vecs:
         if len(circs) > 0:
             dists = 1. - sim_mat_func([vec], circs)
             if dists.min() <= t: continue
@@ -253,7 +251,7 @@ class NCircles(Measure):
                        [self.sim_mat_func]*len(vecs_list), 
                        [self.t]*len(vecs_list))
             # print(len(vecs_list[0]))
-            circs_list = process_map(get_circles, args)
+            circs_list = process_map(get_circles, args, disable=True)
             # print(len(circs_list[0]))
             vecs = [c for ls in circs_list for c in ls]
             random.shuffle(vecs)
@@ -265,7 +263,7 @@ class NCircles(Measure):
     def update(self, mols=[], is_vec=False):
         if is_vec: vecs = mols
         else: vecs = self.vectorizer(mols)
-        for vec in tqdm(vecs):
+        for vec in vecs:
             if len(self.vecs) > 0:
                 dists = 1. - self.sim_mat_func([vec], self.vecs)
                 if dists.min() <= self.t: continue

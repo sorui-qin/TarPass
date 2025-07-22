@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-07-17 15:42:28
+LastEditTime: 2025-07-22 16:11:32
 Description: 
 '''
 import argparse
@@ -59,10 +59,9 @@ def main():
 
 
     ### Anlysis module ###
-    # analysis_parser = subparsers.add_parser("analysis", help="Analyze docking and molecular properties")
-    # analysis_module = importlib.import_module("analysis")
-    # analysis_module.setup_arguments(analysis_parser)
-
+    analysis_parser = subparsers.add_parser("analysis", help="Analyze evalution results")
+    analysis_module = importlib.import_module("analysis")
+    analysis_module.setup_arguments(analysis_parser)
 
     ### Collect module ###
     collect_parser = subparsers.add_parser("collect", help="Collect evaluation results")
@@ -81,6 +80,7 @@ def main():
         'dockeval': (eval_module, 'dockeval_execute'),
         'moleeval': (eval_module, 'eval_execute'),
         'eval': (eval_module, 'eval_execute'),
+        'analysis': (analysis_module, 'execute'),
         'collect': (collect_module, 'execute'),
     }
 
