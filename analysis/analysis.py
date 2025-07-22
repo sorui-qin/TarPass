@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:22:34
-LastEditTime: 2025-07-22 17:09:29
+LastEditTime: 2025-07-22 19:25:39
 Description: 
 '''
 import argparse
@@ -23,7 +23,6 @@ DEC_PKL = DATA_DIR / 'Decoy_eval_results.pkl'
 
 def df_add_mean(df:pd.DataFrame) -> pd.DataFrame:
     """Add a row of mean values to the DataFrame."""
-    df.index = TARGETS # type: ignore
     df.loc['Average'] = df.mean()
     return df
 
@@ -60,14 +59,13 @@ def process_pli(df_pli: pd.DataFrame) -> pd.DataFrame:
     """Process the PLI DataFrame to calculate means and significance."""
     assert df_pli.shape[1] == 19, "df_pli should have 19 columns"
     df_pli = df_pli.copy()
-    df_pli.index = TARGETS # type: ignore
     
     tricol = df_pli.iloc[:, 0:7].copy()
     meancol = df_pli.iloc[:, 7:11].copy()
     sigcol = df_pli.iloc[:, 11:19].copy()
     
     tricol.loc['Average'] = tricol.apply(triple_mean)
-    meancol.loc['Average'] = meancol.mean()
+    meancol = df_add_mean(meancol)
     sigcol = process_sig(sigcol)
 
     return pd.concat([tricol, meancol, sigcol], axis=1)
@@ -129,7 +127,7 @@ def execute(args):
         results['stru'].append(stru_prop)
         results['aler'].append(alert_info)
 
-    results_concat = {k: pd.concat(v, ignore_index=True) for k, v in results.items()}
+    results_concat = {k: pd.concat(v, ignore_index=False) for k, v in results.items()}
 
     # PLI Analysis
     results_concat['pli_dock'] = process_pli(results_concat['pli_dock'])
