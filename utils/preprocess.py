@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-07-21 14:19:46
+LastEditTime: 2025-07-23 17:12:35
 Description: 
 '''
 from collections import defaultdict
@@ -89,9 +89,12 @@ def check_duplicate3D(mols:list[Chem.Mol]) -> list[Chem.Mol]:
     for mol in mols:
         is_duplicate = False
         for unique_mol in deplicate:
-            if CalcRMS(mol, unique_mol) == 0:
+            try:
+                if CalcRMS(mol, unique_mol) == 0:
+                    is_duplicate = True
+                    break
+            except RuntimeError: # No substructure match found
                 is_duplicate = True
-                break
         if not is_duplicate:
             deplicate.append(mol)
     return deplicate
@@ -199,6 +202,8 @@ def report_val_uniq(work_dir, num_thres=1000, isomers=False):
     df_li = []
     for target in TARGETS:
         read_dir = work_dir / target
+        if not read_dir.exists():
+            continue
 
         # Check all readable files
         sdf_files = sorted(read_dir.glob('*.sdf'))
@@ -229,18 +234,22 @@ def report_val_uniq(work_dir, num_thres=1000, isomers=False):
         if num_thres is None or num_thres <= 0:
             num_thres = total_num
         for _, mol_dupl in islice(process.unique().items(), num_thres):
-            unique_mol.append(mol_dupl[0])
+            unique_mol.extend(mol_dupl)
             if isomers and format == 'sdf':
                 unique_3d.extend(check_duplicate3D(mol_dupl))
         
-        df_li.append({
-            'validity': validity,
+        df = pd.DataFrame([{
             'total_num': total_num,
             'valid_num': valid_num,
+            'validity': validity,
             'unique_num': len(unique_mol),
+            'uniqueness': round(num_thres / len(unique_mol), 4),
             'unique_3d_num': len(unique_3d) if unique_3d else 0,
-        })
+            'unique_3d': round(len(unique_3d) / len(unique_mol), 4) if unique_mol else 0,
+            }])
+        df.index = [target]
+        df_li.append(df)
     
-    df = pd.DataFrame(df_li, index=TARGETS)
+    df = pd.concat(df_li)
     df.loc['Average'] = df.mean()
     df.to_csv(work_dir / 'Val_Unique_report.csv', index=True)
