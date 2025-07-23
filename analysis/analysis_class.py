@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-07-21 19:23:32
+LastEditTime: 2025-07-22 19:18:26
 Description: 
 '''
 import numpy as np
@@ -46,7 +46,9 @@ class MolDisAnalysis(AnalysisBase):
             [self._internal_distance()] +
             [self._compare_distance(idx) for idx in range(2)]
         )
-        return pd.concat(dfs, axis=1)
+        df = pd.concat(dfs, axis=1)
+        df.index = [self.target]  # type: ignore
+        return df
 
 ##### Analysis for protein-ligand interactions (PLI) #####
 
@@ -105,7 +107,9 @@ class PLIAnalysis(AnalysisBase):
         [self._count_interactions()] +
         [self._score_significance()]
         )
-        return pd.concat(dfs, axis=1)
+        df = pd.concat(dfs, axis=1)
+        df.index = [self.target]  # type: ignore
+        return df
 
 
 class PLIAnalysisScore(PLIAnalysis):
@@ -163,6 +167,8 @@ class PropAnalysis(AnalysisBase):
             pd.DataFrame(self.test_struc).mean().to_frame().T,
             pd.DataFrame(self.alert).mean().to_frame().T
         )
+        for df in dfs:
+            df.index = [self.target] # type: ignore
         descri_info = desc_df if descriptor_info else pd.DataFrame()
         return dfs, descri_info
     
