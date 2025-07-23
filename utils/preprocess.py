@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-07-23 17:12:35
+LastEditTime: 2025-07-23 19:18:35
 Description: 
 '''
 from collections import defaultdict
@@ -30,7 +30,7 @@ def to_inchi(mols:Iterable) -> list:
 
 def standard_mol(mol:Chem.Mol) -> Chem.Mol:
     """Reset the molecule to *standard* form without conformation.  
-    Not same as `Chem.MolStandardize.rdMolStandardize.Cleanup((Mol)`
+    Not same as `Chem.MolStandardize.rdMolStandardize.Cleanup(Mol)`
     """
     return Chem.MolFromSmiles(Chem.MolToSmiles(mol))
 
@@ -233,23 +233,25 @@ def report_val_uniq(work_dir, num_thres=1000, isomers=False):
         # Limit the number of molecules to num_thres
         if num_thres is None or num_thres <= 0:
             num_thres = total_num
-        for _, mol_dupl in islice(process.unique().items(), num_thres):
+        smis = []
+        for smi, mol_dupl in islice(process.unique().items(), num_thres):
+            smis.append(smi)
             unique_mol.extend(mol_dupl)
             if isomers and format == 'sdf':
                 unique_3d.extend(check_duplicate3D(mol_dupl))
         
-        df = pd.DataFrame([{
+        series = pd.Series({
             'total_num': total_num,
             'valid_num': valid_num,
             'validity': validity,
             'unique_num': len(unique_mol),
-            'uniqueness': round(num_thres / len(unique_mol), 4),
+            'uniqueness': round(len(smis) / len(unique_mol), 4),
             'unique_3d_num': len(unique_3d) if unique_3d else 0,
             'unique_3d': round(len(unique_3d) / len(unique_mol), 4) if unique_mol else 0,
-            }])
-        df.index = [target]
-        df_li.append(df)
+            })
+        series.name = target
+        df_li.append(series)
     
-    df = pd.concat(df_li)
+    df = pd.concat(df_li, axis=1).T
     df.loc['Average'] = df.mean()
     df.to_csv(work_dir / 'Val_Unique_report.csv', index=True)
