@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-07-16 13:38:00
+LastEditTime: 2025-07-24 20:35:48
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -49,6 +49,7 @@ class StructuralCalculator:
             'fused numbers': rings.fused_numbers(),
             'largest fused member': rings.largest_member(),
             'rings in fused system': rings.rings_in_fused(),
+            'highly fused': rings.is_highly_fused(),
         }
 
         self.properties.update({
@@ -250,32 +251,32 @@ class FusedRingProp(RingProp):
         """
         return len(self.fused_systems)
     
-    def largest_member(self) -> int:
+    def largest_member(self) -> float:
         """
         Returns:
             int: The number of ring members that constitute the largest fused ring system.
         """
-        return max(self.fused_sizes) if self.fused_systems else 0
+        return max(self.fused_sizes) if self.fused_systems else np.nan
     
-    def is_highly_fused(self, threshold: int = 3) -> bool:
+    def is_highly_fused(self, threshold=3) -> bool:
         """
         Check if the molecule contains highly fused ring systems.
         
         Args:
             threshold: Minimum number of rings in a system to be considered "highly fused"
         Returns:
-            bool: True if any fused system has >= threshold rings
+            bool: True if any fused system has > threshold rings
         """
-        return self.largest_member() >= threshold
+        return self.largest_member() > threshold
     
-    def rings_in_fused(self) -> int:
+    def rings_in_fused(self) -> float:
         """
         Returns:
             int: The number of rings in the largest fused ring system.
         """
         if not self.fused_systems:
             return 0
-        return sum(self.fused_sizes) if self.fused_systems else 0
+        return sum(self.fused_sizes) if self.fused_systems else np.nan
 
 #### Topological Properties ####
 
@@ -340,6 +341,6 @@ class EspSim:
             dict: A dictionary containing the shape and electrostatic similarity scores.
         """
         return {
-            'shape_similarity': self.shape_similarity(self.test, self.ref),
-            'electrostatic_similarity': self.electrostatic_similarity(self.test, self.ref)
+            'shape similarity': self.shape_similarity(self.test, self.ref),
+            'electrostatic similarity': self.electrostatic_similarity(self.test, self.ref)
         }
