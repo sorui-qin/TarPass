@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-24 14:50:13
-LastEditTime: 2025-06-25 15:40:42
+LastEditTime: 2025-07-23 14:17:57
 Description: 
 '''
 from rdkit.Chem import Mol, FilterCatalog
@@ -29,7 +29,7 @@ def match_SureChEMBL(mol:Mol):
     return int(_SURECHEMBL.HasMatch(mol))
 
 def match_glaxo(mol:Mol):
-    """Hard Filters raised by GlaxoSmithKline.  
+    """Hard Filters raised by Glaxo Wellcome.  
     Containing reactive functional groups, unsuitable leads, and unsuitable natural products.  
     Ref: `J. Chem. Inf. Comput. Sci. 1999, 39, 5, 897–902`
     """

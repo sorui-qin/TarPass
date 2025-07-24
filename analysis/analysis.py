@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:22:34
-LastEditTime: 2025-07-22 19:25:39
+LastEditTime: 2025-07-24 11:23:46
 Description: 
 '''
 import argparse
@@ -60,8 +60,8 @@ def process_pli(df_pli: pd.DataFrame) -> pd.DataFrame:
     assert df_pli.shape[1] == 19, "df_pli should have 19 columns"
     df_pli = df_pli.copy()
     
-    tricol = df_pli.iloc[:, 0:7].copy()
-    meancol = df_pli.iloc[:, 7:11].copy()
+    tricol = df_pli.iloc[:, 0].copy()
+    meancol = df_pli.iloc[:, 1:11].copy()
     sigcol = df_pli.iloc[:, 11:19].copy()
     
     tricol.loc['Average'] = tricol.apply(triple_mean)
