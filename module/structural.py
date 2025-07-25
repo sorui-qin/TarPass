@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-07-16 13:38:00
+LastEditTime: 2025-07-25 12:19:06
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -47,7 +47,7 @@ class StructuralCalculator:
             'largest ring': rings.largest_ring(),
             'unexpect rings': rings.unexpect(),
             'fused numbers': rings.fused_numbers(),
-            'largest fused member': rings.largest_member(),
+            'highly fused': rings.is_highly_fused(),
             'rings in fused system': rings.rings_in_fused(),
         }
 
