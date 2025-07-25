@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-07-24 20:37:36
+LastEditTime: 2025-07-16 16:28:48
 Description: 
 '''
 import importlib.util
@@ -39,32 +39,32 @@ class DruglikenessCalculator:
             'molvol': molvol(mol),
             
             # Global Structural Descriptors
-            'heavy atoms': mol.GetNumHeavyAtoms(),
+            'heavy_atoms': mol.GetNumHeavyAtoms(),
             'heteroatoms': rdMolDescriptors.CalcNumHeteroatoms(mol),
             'csp3': rdMolDescriptors.CalcFractionCSP3(mol),
-            'rotatable bonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
-            'spiro atoms': rdMolDescriptors.CalcNumSpiroAtoms(mol),
-            'chiral atoms': len(Chem.FindMolChiralCenters(mol, includeUnassigned=True)),
-            'all common': common_atoms(mol),
+            'rotatable_bonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
+            'spiro_atoms': rdMolDescriptors.CalcNumSpiroAtoms(mol),
+            'chiral_atoms': len(Chem.FindMolChiralCenters(mol, includeUnassigned=True)),
+            'all_common': common_atoms(mol),
             'completeness': len(Chem.GetMolFrags(mol)) == 1,
         }
         
         # Derived Properties
         self.properties.update({
             # Structure-based Properties
-            'heteroatom ratio': self.heteroatom_ratio(),
+            'heteroatom_ratio': self.heteroatom_ratio(),
             'flexibility': self.flexibility(),
             # Druglikeness Properties
             'qed': QED.qed(mol),
-            'sa score': sa.calculateScore(mol),
+            'sa_score': sa.calculateScore(mol),
             'lipinski': self.lipinski(),
         })
 
         # Structural Alerts
         self.properties.update({
-            'PAINS alert': match_pains(mol),
-            'SureChEMBL alert': match_SureChEMBL(mol),
-            'Glaxo alert': match_glaxo(mol),
+            'PAINS_alert': match_pains(mol),
+            'SureChEMBL_alert': match_SureChEMBL(mol),
+            'Glaxo_alert': match_glaxo(mol),
         })
         return self.properties
     
