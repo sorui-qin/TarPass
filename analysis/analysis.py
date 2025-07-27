@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:22:34
-LastEditTime: 2025-07-24 11:23:46
+LastEditTime: 2025-07-27 20:54:12
 Description: 
 '''
 import argparse
@@ -28,8 +28,9 @@ def df_add_mean(df:pd.DataFrame) -> pd.DataFrame:
 
 def triple_mean(series:pd.Series) -> str:
     """Calculate the mean of a series of triples and return as a formatted string."""
-    triples = [ast.literal_eval(j) for j in series.values]
-    return str([round(n,4) for n in np.mean(triples, axis=0)])
+    triples = series.apply(lambda x: ast.literal_eval(x)).values
+    mean_values = np.array(triples).mean(axis=0) 
+    return str([round(n, 4) for n in mean_values])
 
 def count_sig(df:pd.DataFrame, effect_col=1, pval_col=3) -> float:
     return (
@@ -60,11 +61,11 @@ def process_pli(df_pli: pd.DataFrame) -> pd.DataFrame:
     assert df_pli.shape[1] == 19, "df_pli should have 19 columns"
     df_pli = df_pli.copy()
     
-    tricol = df_pli.iloc[:, 0].copy()
-    meancol = df_pli.iloc[:, 1:11].copy()
-    sigcol = df_pli.iloc[:, 11:19].copy()
+    tricol = df_pli.iloc[:, 0]
+    meancol = df_pli.iloc[:, 1:11]
+    sigcol = df_pli.iloc[:, 11:19]
     
-    tricol.loc['Average'] = tricol.apply(triple_mean)
+    tricol.loc['Average'] = triple_mean(tricol)
     meancol = df_add_mean(meancol)
     sigcol = process_sig(sigcol)
 

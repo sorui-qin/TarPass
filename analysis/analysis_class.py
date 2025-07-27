@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-07-22 19:18:26
+LastEditTime: 2025-07-27 20:53:59
 Description: 
 '''
 import numpy as np
@@ -97,9 +97,12 @@ class PLIAnalysis(AnalysisBase):
 
 
     def analysis(self) -> pd.DataFrame:
-        affinity_cols = ['score', 'sucos', 'centroid shift','shape_similarity',
-                         'electrostatic_similarity', 'LE_heavyatom', 'LE_mw']
-        boolean_cols = ['no_clashes', 'fully_matched', 'matched_rate']
+        affinity_cols = ['score']
+        boolean_cols = [
+            'sucos', 'centroid shift','shape_similarity',
+            'electrostatic_similarity', 'LE_heavyatom', 'LE_mw',
+            'no_clashes', 'fully_matched', 'matched_rate'
+            ]
         
         dfs = (
         [self._get_median_iqr(col) for col in affinity_cols] +
@@ -162,9 +165,11 @@ class PropAnalysis(AnalysisBase):
             and a DataFrame of descriptor distribution information.
         """
         desc_df = self.descriptor_dist()
+        struc_df = pd.DataFrame(self.test_struc)
+        struc_df['highly fused'] = struc_df['highly fused'].astype(bool)
         dfs = (
             desc_df.iloc[:, 1:].mean().to_frame().T,
-            pd.DataFrame(self.test_struc).mean().to_frame().T,
+            struc_df.mean().to_frame().T,
             pd.DataFrame(self.alert).mean().to_frame().T
         )
         for df in dfs:
@@ -172,5 +177,4 @@ class PropAnalysis(AnalysisBase):
         descri_info = desc_df if descriptor_info else pd.DataFrame()
         return dfs, descri_info
     
-
 #TODO: Add cross-target analysis
