@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:22:34
-LastEditTime: 2025-07-27 20:54:12
+LastEditTime: 2025-07-28 14:43:13
 Description: 
 '''
 import argparse
@@ -103,7 +103,9 @@ def execute(args):
             if test_target is None:
                 continue
         elif read_source == 'dir':
-            test_target = collect_eval(work_dir / target / 'results')
+            if not (target_dir := work_dir / target).exists():
+                continue
+            test_target = collect_eval(target_dir / 'results')
         assert isinstance(test_target, MoleculesData), f"Invalid data for target {target}"
 
         croupier = DataCroupier(test_target, refs[target], decoys[target], target) # type: ignore

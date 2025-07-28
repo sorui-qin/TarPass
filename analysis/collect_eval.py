@@ -180,7 +180,7 @@ def collect_eval(results_dir: Path):
         MoleculesData: A data class containing all collected information.
     """
     if not results_dir.exists():
-        raise FileNotFoundError(f"Results directory {results_dir} does not exist.")
+        FileNotFoundError(f"Results directory {results_dir} does not exist.")
     
     mol_records = read_pkl(find_dockpkl(results_dir, mode='dock'))
     rdmol_list = []
