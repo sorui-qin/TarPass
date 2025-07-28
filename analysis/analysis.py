@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:22:34
-LastEditTime: 2025-07-28 15:28:53
+LastEditTime: 2025-07-28 20:25:59
 Description: 
 '''
 import argparse
@@ -28,8 +28,8 @@ def df_add_mean(df:pd.DataFrame) -> pd.DataFrame:
 
 def triple_mean(series:pd.Series) -> str:
     """Calculate the mean of a series of triples and return as a formatted string."""
-    triples = series.apply(lambda x: ast.literal_eval(x)).values
-    mean_values = np.array(triples).mean(axis=1) 
+    triples = series.apply(lambda x: ast.literal_eval(x)).tolist()
+    mean_values = np.array(triples).mean(axis=0)
     return str([round(n, 4) for n in mean_values])
 
 def count_sig(df:pd.DataFrame, effect_col=1, pval_col=3) -> float:
