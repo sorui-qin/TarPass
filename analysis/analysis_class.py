@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-07-27 20:53:59
+LastEditTime: 2025-07-28 16:01:07
 Description: 
 '''
 import numpy as np
@@ -165,11 +165,9 @@ class PropAnalysis(AnalysisBase):
             and a DataFrame of descriptor distribution information.
         """
         desc_df = self.descriptor_dist()
-        struc_df = pd.DataFrame(self.test_struc)
-        struc_df['highly fused'] = struc_df['highly fused'].astype(bool)
         dfs = (
             desc_df.iloc[:, 1:].mean().to_frame().T,
-            struc_df.mean().to_frame().T,
+            pd.DataFrame(self.test_struc).mean().to_frame().T,
             pd.DataFrame(self.alert).mean().to_frame().T
         )
         for df in dfs:

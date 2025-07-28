@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-07-25 12:19:06
+LastEditTime: 2025-07-28 15:59:50
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -257,7 +257,7 @@ class FusedRingProp(RingProp):
         """
         return max(self.fused_sizes) if self.fused_systems else 0
     
-    def is_highly_fused(self, threshold: int = 3) -> bool:
+    def is_highly_fused(self, threshold: int = 3) -> float:
         """
         Check if the molecule contains highly fused ring systems.
         
@@ -266,7 +266,7 @@ class FusedRingProp(RingProp):
         Returns:
             bool: True if any fused system has >= threshold rings
         """
-        return self.largest_member() >= threshold
+        return int(self.largest_member() >= threshold)
     
     def rings_in_fused(self) -> int:
         """
