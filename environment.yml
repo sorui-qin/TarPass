@@ -12,7 +12,6 @@ dependencies:
   - openbabel
   - biopython
   - meeko
-  - fcd
   - pip
   - pip:
       - more_itertools
@@ -21,3 +20,4 @@ dependencies:
       - statsmodels
       - scikit-posthocs
       - plip
+      - fcd
