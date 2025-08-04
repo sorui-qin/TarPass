@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-01-04 17:22:05
-LastEditTime: 2025-07-21 17:29:11
+LastEditTime: 2025-08-04 21:12:03
 Description: 
 '''
 from typing import Optional
@@ -37,7 +37,8 @@ def get_similarity(mols1:list[Mol], mols2:Optional[list[Mol]],
         fps2 = fingerprints(mols2, fp_type='fp')
     else:
         fps2 = fps1
-    matrix = similarity_matrix_parallel(fps1, fps2)
+    # matrix = similarity_matrix_parallel(fps1, fps2)
+    matrix = similarity_matrix_tanimoto(fps1, fps2)
     return matrix.sum() / (len(fps1) * len(fps2))
 
 
