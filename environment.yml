@@ -20,4 +20,5 @@ dependencies:
       - statsmodels
       - scikit-posthocs
       - plip
+      - posebusters
       - fcd

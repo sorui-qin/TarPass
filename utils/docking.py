@@ -1,9 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-03-07 19:49:34
-LastEditTime: 2025-07-16 14:00:40
+LastEditTime: 2025-08-06 20:57:58
 Description: 
 '''
+import numpy as np
 from copy import deepcopy
 from rdkit import Chem, RDLogger
 from rdkit.Chem import Mol
@@ -28,6 +29,14 @@ def centriod(mol:Mol) -> list[float]:
     centroid_y = lig_xyz[:,1].mean()
     centroid_z = lig_xyz[:,2].mean()
     return [centroid_x, centroid_y, centroid_z]
+
+def centriod_distance(mol_pred: Mol, mol_ref: Mol):
+    """Calculate the distance between the centroids of two molecules."""
+    centroid_pred = centriod(mol_pred)
+    centroid_cond = centriod(mol_ref)
+    return np.linalg.norm(
+        np.array(centroid_pred) - np.array(centroid_cond)
+        )
 
 def sdf2centroid(sdf_file):
     supp = Chem.SDMolSupplier(sdf_file, sanitize=False)
