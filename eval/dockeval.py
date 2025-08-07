@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 11:22:44
-LastEditTime: 2025-08-06 21:00:07
+LastEditTime: 2025-08-07 16:12:41
 Description: 
 '''
 import itertools
@@ -53,7 +53,7 @@ class DockEval:
 
     def clash(self):
         """Check for clashes between the poses and the target protein."""
-        clash_fn = partial(check_intermolecular_distance, mol_cond=self.pdb_rdmol)
+        clash_fn = partial(clash_check, mol_cond=self.pdb_rdmol)
         return process_map(
             clash_fn, self.poses, chunksize=100,
             desc=f"Checking clashes",
@@ -129,6 +129,13 @@ def _esp_sim_fn(args):
     esp_sim = EspSim(test_mol, ref_mol=ref_mol)
     return esp_sim.calculate()
 
+def clash_check(mol_pred, mol_cond):
+    """Helper function for clash calculation."""
+    return {
+        'no_clashes':
+        check_intermolecular_distance(mol_pred, mol_cond=mol_cond)['results']['no_clashes']
+    }
+
 #### Helper Functions ####
 
 def extract_results(results:list[dict], mode:Literal['dock', 'score_only']) -> tuple[list, list]:
@@ -143,12 +150,12 @@ def extract_results(results:list[dict], mode:Literal['dock', 'score_only']) -> t
     return poses, scores
 
 def read_and_validate(results_dir, target, mode, error_msg):
-        pkl_file = find_dockpkl(results_dir, mode=mode)
-        if not pkl_file:
-            raise RuntimeError(f"Results not found for {target}, {error_msg}.")
-        
-        results = read_pkl(pkl_file)
-        return results
+    pkl_file = find_dockpkl(results_dir, mode=mode)
+    if not pkl_file:
+        raise RuntimeError(f"Results not found for {target}, {error_msg}.")
+    
+    results = read_pkl(pkl_file)
+    return results
 
 #### Docking Evaluation Function ####
 

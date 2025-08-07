@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-16 15:03:08
-LastEditTime: 2025-07-23 19:18:35
+LastEditTime: 2025-08-07 15:52:06
 Description: 
 '''
 from collections import defaultdict
@@ -68,12 +68,23 @@ def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:
     mol.SetProp('_Name', f'{idx}') # set the name of the molecule
     return mol
 
+def check_3D(mol:Chem.Mol) -> float:
+    if mol.GetNumConformers == 0:
+        return 0
+    else:
+        conformer = mol.GetConformer(0)
+        for atom_idx in range(mol.GetNumAtoms()):
+            pos = conformer.GetAtomPosition(atom_idx)
+            if pos.z == 0:
+                return 0
+    return 1
+
 def conformation_check(mols:list[Chem.Mol]) -> bool:
     """Check if all molecules have 3D conformations.
     Returns:
         bool: True if all molecules have 3D conformations, False otherwise.
     """
-    confs = [1 if mol.GetNumConformers() else 0 for mol in mols]
+    confs = [check_3D(mol) for mol in mols]
     if any(confs) + any(confs) == 0:
         return False
     elif any(confs) + any(confs) == 1:
