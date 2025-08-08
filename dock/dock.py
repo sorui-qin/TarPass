@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-07-08 14:28:45
+LastEditTime: 2025-08-08 16:36:58
 Description: 
 '''
 import argparse
@@ -83,7 +83,10 @@ def execute(args):
 
             # Breakpoint check
             Path(target_dir/'results').mkdir(parents=True, exist_ok=True)
-            result_pkl = target_dir/f'results/{args.method}-{mode}_docking_results.pkl'
+            if args.reset:
+                result_pkl = target_dir/f'results/{args.method}-reset_docking_results.pkl'
+            else:
+                result_pkl = target_dir/f'results/{args.method}-{mode}_docking_results.pkl'
             latest_idx = breakpoint_check(result_pkl, total_lens)
             if latest_idx == total_lens:
                 project_logger.info(f"All molecules in {target} have been docked.")
