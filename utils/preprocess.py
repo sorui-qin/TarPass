@@ -69,7 +69,7 @@ def smiles_valid(smi:str, idx:int) -> Chem.Mol|None:
     return mol
 
 def check_3D(mol:Chem.Mol) -> float:
-    if mol.GetNumConformers == 0:
+    if mol.GetNumConformers() == 0:
         return 0
     else:
         conformer = mol.GetConformer(0)
