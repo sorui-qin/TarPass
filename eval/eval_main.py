@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 15:13:31
-LastEditTime: 2025-07-16 00:03:24
+LastEditTime: 2025-08-17 23:26:52
 Description: 
 '''
 import pandas as pd
@@ -11,7 +11,7 @@ from eval.moleeval import mole_eval
 from utils.constant import DASHLINE, TARGETS, Path
 from utils.io import dump_json
 from utils.logger import log_config, project_logger
-from utils.preprocess import to_smiles
+from utils.preprocess import standard_mol
 
 def eval_execute(args):
     log_config(project_logger, args)
@@ -29,7 +29,7 @@ def eval_execute(args):
         dock_results = read_and_validate(
             results_dir, target, mode='dock', 
             error_msg="please run `tarpass dock -mode dock`.")
-        mols = ([res['mol'] for res in dock_results])
+        mols = ([standard_mol(res['mol']) for res in dock_results])
 
         # Docking evaluation
         dock_output = results_dir / f'dock_eval_results.json'
