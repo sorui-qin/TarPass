@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-25 15:13:31
-LastEditTime: 2025-08-17 23:26:52
+LastEditTime: 2025-08-20 00:00:43
 Description: 
 '''
 import pandas as pd
@@ -29,7 +29,7 @@ def eval_execute(args):
         dock_results = read_and_validate(
             results_dir, target, mode='dock', 
             error_msg="please run `tarpass dock -mode dock`.")
-        mols = ([standard_mol(res['mol']) for res in dock_results])
+        mols = [res['mol'] for res in dock_results]
 
         # Docking evaluation
         dock_output = results_dir / f'dock_eval_results.json'

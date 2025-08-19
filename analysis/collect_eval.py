@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-07-18 20:22:55
+LastEditTime: 2025-08-19 00:34:58
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -170,7 +170,7 @@ class MoleculesData:
             }
 
 
-def collect_eval(results_dir: Path):
+def collect_eval(results_dir: Path) -> MoleculesData:
     """Collect evaluation results from the specified directory.
     
     Args:
@@ -222,14 +222,14 @@ def collect_eval(results_dir: Path):
     )
 
     return MoleculesData(
-        Mol=Mol, 
+        Mol=Mol,
         Dock=Dock,
         Score=Score,
         Prop=Prop
         )
 
 
-def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=None):
+def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=None) -> None:
     """Collect evaluation results for all targets to a pickle file.
     Args:
         work_dir (str|Path): Path to the working directory containing target folders.

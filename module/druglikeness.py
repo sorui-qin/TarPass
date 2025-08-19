@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-07-16 16:28:48
+LastEditTime: 2025-08-20 00:14:43
 Description: 
 '''
 import importlib.util
@@ -13,6 +13,7 @@ from rdkit.Chem import QED, AllChem, Crippen, Mol, rdMolDescriptors
 from rdkit.Chem.rdDistGeom import EmbedMolecule
 from module.filter import match_glaxo, match_pains, match_SureChEMBL
 from utils.logger import project_logger
+from utils.preprocess import standard_mol
 
 # Importing the SA_Score module
 module_path = Path(RDConfig.RDContribDir) / 'SA_Score' / 'sascorer.py'
@@ -28,14 +29,15 @@ class DruglikenessCalculator:
     def calculate_all(self, mol:Chem.Mol) -> dict[str, Union[float, int]]:
         if mol is None:
             return {}
+        mol_std = standard_mol(mol)
         
         self.properties = {
             # Physicochemical Properties
-            'clogP': Crippen.MolLogP(mol), # type: ignore
-            'hdonors': rdMolDescriptors.CalcNumHBD(mol),
-            'hacceptors': rdMolDescriptors.CalcNumHBA(mol),
-            'molwt': rdMolDescriptors.CalcExactMolWt(mol),
-            'tpsa': rdMolDescriptors.CalcTPSA(mol),
+            'clogP': Crippen.MolLogP(mol_std), # type: ignore
+            'hdonors': rdMolDescriptors.CalcNumHBD(mol_std),
+            'hacceptors': rdMolDescriptors.CalcNumHBA(mol_std),
+            'molwt': rdMolDescriptors.CalcExactMolWt(mol_std),
+            'tpsa': rdMolDescriptors.CalcTPSA(mol_std),
             'molvol': molvol(mol),
             
             # Global Structural Descriptors
@@ -55,16 +57,16 @@ class DruglikenessCalculator:
             'heteroatom_ratio': self.heteroatom_ratio(),
             'flexibility': self.flexibility(),
             # Druglikeness Properties
-            'qed': QED.qed(mol),
-            'sa_score': sa.calculateScore(mol),
+            'qed': QED.qed(mol_std),
+            'sa_score': sa.calculateScore(mol_std),
             'lipinski': self.lipinski(),
         })
 
         # Structural Alerts
         self.properties.update({
-            'PAINS_alert': match_pains(mol),
-            'SureChEMBL_alert': match_SureChEMBL(mol),
-            'Glaxo_alert': match_glaxo(mol),
+            'PAINS_alert': match_pains(mol_std),
+            'SureChEMBL_alert': match_SureChEMBL(mol_std),
+            'Glaxo_alert': match_glaxo(mol_std),
         })
         return self.properties
     
@@ -128,8 +130,9 @@ def molvol(mol) -> float:
     """Calculate the volume of a molecule."""
     mol_Hs = Chem.AddHs(mol, addCoords=True)
     if mol.GetNumConformers() == 0:
-        state = EmbedMolecule(mol_Hs, 
-                              useRandomCoords=True, 
+        state = EmbedMolecule(mol_Hs,
+                              randomSeed=42,
+                              useRandomCoords=True,
                               maxAttempts=100)
         if state != 0:
             mol_Hs = obmol2rdkit(LigPrep(mol_Hs).obmol_conf(mol_Hs))
