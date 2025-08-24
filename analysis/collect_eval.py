@@ -142,32 +142,32 @@ class MoleculesData:
                     raise ValueError("Unexpected data length in Prop")
 
     def get_molecule(self, index: int) -> dict[str, Any]:
-            """Get all detailed molecule information by index.
-            """
-            num_molecules = len(self.Mol.rdmol)
-            if index < 0 or index >= num_molecules:
-                raise IndexError(f"Index out of range: {index}. Valid range is 0 to {num_molecules - 1}.")
-            return {
-                "Mol": {
-                    "rdmol": self.Mol.rdmol[index],
-                    "pose": self.Mol.pose[index],
-                    "smiles": self.Mol.smiles[index],
-                    "inchikey": self.Mol.inchikey[index]
-                },
-                "Dock": {
-                    "numerical": {k: v[index] for k, v in self.Dock.numericals.items()},
-                    "interactions": {k: v[index] for k, v in self.Dock.interactions.items()}
-                },
-                "Score": {
-                    "numerical": {k: v[index] for k, v in self.Score.numericals.items()},
-                    "interactions": {k: v[index] for k, v in self.Score.interactions.items()}
-                } if self.Score else None,
-                "Prop": {
-                    "Descriptors": {k: v[index] for k, v in self.Prop.descriptors.items()},
-                    "Structural": {k: v[index] for k, v in self.Prop.structural.items()},
-                    "Alerts": {k: v[index] for k, v in self.Prop.alerts.items()}
-                }
+        """Get all detailed molecule information by index.
+        """
+        num_molecules = len(self.Mol.rdmol)
+        if index < 0 or index >= num_molecules:
+            raise IndexError(f"Index out of range: {index}. Valid range is 0 to {num_molecules - 1}.")
+        return {
+            "Mol": {
+                "rdmol": self.Mol.rdmol[index],
+                "pose": self.Mol.pose[index],
+                "smiles": self.Mol.smiles[index],
+                "inchikey": self.Mol.inchikey[index]
+            },
+            "Dock": {
+                "numerical": {k: v[index] for k, v in self.Dock.numericals.items()},
+                "interactions": {k: v[index] for k, v in self.Dock.interactions.items()}
+            },
+            "Score": {
+                "numerical": {k: v[index] for k, v in self.Score.numericals.items()},
+                "interactions": {k: v[index] for k, v in self.Score.interactions.items()}
+            } if self.Score else None,
+            "Prop": {
+                "Descriptors": {k: v[index] for k, v in self.Prop.descriptors.items()},
+                "Structural": {k: v[index] for k, v in self.Prop.structural.items()},
+                "Alerts": {k: v[index] for k, v in self.Prop.alerts.items()}
             }
+        }
 
 
 def collect_eval(results_dir: Path) -> MoleculesData:

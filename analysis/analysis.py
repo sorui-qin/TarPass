@@ -93,7 +93,7 @@ def execute(args):
     refs = read_pkl(REF_PKL)
     decoys = read_pkl(DEC_PKL)
 
-    results = {'pli_dock': [], 'pli_score': [],'dist': [], 'stru': [], 'aler': []}
+    results = {'pli_dock': [], 'pli_score': [], 'dist': [], 'stru': [], 'aler': []}
     external_info = {'smis': {}, 'desc_details': {}}
     
     for target in tqdm(TARGETS, desc='Analysis targets'):
