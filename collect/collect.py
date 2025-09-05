@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-11 11:42:13
-LastEditTime: 2025-07-11 17:40:37
+LastEditTime: 2025-09-05 21:39:24
 Description: 
 '''
 import argparse
@@ -15,6 +15,7 @@ def setup_arguments(parser: argparse.ArgumentParser):
                         Default same to the working directory.')
     parser.add_argument('--prefix', '--pre', type=str, help='Prefix used for naming the output file. \
                         Default same to the name of the working directory.')
+    parser.add_argument('--readable', '-r', action='store_true', help='Whether to save the results in a more readable format.')
     return parser
 
 
@@ -23,4 +24,4 @@ def execute(args):
     path = Path(args.path)
     if args.prefix is None:
         args.prefix = path.name
-    collect_eval_all(path, args.prefix, args.output)
+    collect_eval_all(path, args.prefix, args.output, args.readable)

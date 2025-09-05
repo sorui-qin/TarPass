@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-08-19 00:34:58
+LastEditTime: 2025-09-05 21:38:37
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -119,32 +119,10 @@ class MoleculesData:
     Score: Optional[StructInfo]
     Prop: PropInfo
 
-    def __post_init__(self):
-        """Validate the lengths of all fields in the data class.
-        """
-        num_molecules = len(self.Mol.rdmol)
-        for field in self.Dock.__dict__.values():
-            if isinstance(field, dict):
-                for values in field.values():
-                    if len(values) != num_molecules:
-                        raise ValueError("Unexpected data length in Dock")
-        
-        if self.Score:
-            for field in self.Score.__dict__.values():
-                if isinstance(field, dict):
-                    for values in field.values():
-                        if len(values) != num_molecules:
-                            raise ValueError("Unexpected data length in Score")
-        
-        for category in self.Prop.__dict__.values():
-            for values in category.values():
-                if len(values) != num_molecules:
-                    raise ValueError("Unexpected data length in Prop")
-
-    def get_molecule(self, index: int) -> dict[str, Any]:
+    def __getitem__(self, index: int) -> dict[str, Any]:
         """Get all detailed molecule information by index.
         """
-        num_molecules = len(self.Mol.rdmol)
+        num_molecules = self.__len__()
         if index < 0 or index >= num_molecules:
             raise IndexError(f"Index out of range: {index}. Valid range is 0 to {num_molecules - 1}.")
         return {
@@ -168,10 +146,35 @@ class MoleculesData:
                 "Alerts": {k: v[index] for k, v in self.Prop.alerts.items()}
             }
         }
+    
+    def __len__(self) -> int:
+        return len(self.Mol.rdmol)
+    
+    def __post_init__(self) -> None:
+        """Validate the lengths of all fields in the data class.
+        """
+        num_molecules = len(self.Mol.rdmol)
+        for field in self.Dock.__dict__.values():
+            if isinstance(field, dict):
+                for values in field.values():
+                    if len(values) != num_molecules:
+                        raise ValueError("Unexpected data length in Dock")
+        
+        if self.Score:
+            for field in self.Score.__dict__.values():
+                if isinstance(field, dict):
+                    for values in field.values():
+                        if len(values) != num_molecules:
+                            raise ValueError("Unexpected data length in Score")
+        
+        for category in self.Prop.__dict__.values():
+            for values in category.values():
+                if len(values) != num_molecules:
+                    raise ValueError("Unexpected data length in Prop")
 
 
 def collect_eval(results_dir: Path) -> MoleculesData:
-    """Collect evaluation results from the specified directory.
+    """Collect evaluation results from the specified directory for further analysis.
     
     Args:
         results_dir (Path): Path to the results directory.
@@ -228,8 +231,18 @@ def collect_eval(results_dir: Path) -> MoleculesData:
         Prop=Prop
         )
 
+def collect_readable(reselts_dir: Path) -> list[dict[str, Any]]:
+    """Collect evaluation results from the specified directory and convert them into a readable list of dictionaries, 
+    each containing molecular information presented in molecular order.
 
-def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=None) -> None:
+    Args:
+        reselts_dir (Path): Path to the results directory.
+    """
+    results = collect_eval(reselts_dir)
+    return [results[i] for i in range(len(results))]
+
+
+def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=None, readable:bool=False) -> None:
     """Collect evaluation results for all targets to a pickle file.
     Args:
         work_dir (str|Path): Path to the working directory containing target folders.
@@ -246,7 +259,7 @@ def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=
         if not target_dir.exists():
             project_logger.warning(f"Target folder {target_dir} not found, skipping evaluation.")
             continue
-        results[target] = collect_eval(target_dir / 'results') 
+        results[target] = collect_eval(target_dir / 'results') if not readable else collect_readable(target_dir / 'results')
     
     if save_dir:
         Path(save_dir).mkdir(parents=True, exist_ok=True)
