@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-08 15:38:31
-LastEditTime: 2025-07-09 19:17:17
+LastEditTime: 2025-09-10 11:59:11
 Description: 
 '''
 import json
@@ -27,7 +27,7 @@ def append_pkl(pkl_file, data):
     with open(pkl_file, 'ab') as f:
         pickle.dump(data, f)
 
-def read_pkl(pkl_file) -> Any|list[Any]:
+def read_pkl(pkl_file) -> Any:
     data = []
     with open(pkl_file, 'rb') as f:
         while True:
