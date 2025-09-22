@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-07-28 16:01:07
+LastEditTime: 2025-09-22 11:19:47
 Description: 
 '''
 import numpy as np
@@ -147,14 +147,13 @@ class PropAnalysis(AnalysisBase):
             w_ref, w_decoy, w_ref2decoy = wasserstein_ref_decoy(ref, decoy, test)
             w_shift = (w_ref + w_decoy) / w_ref2decoy
 
-            ks_value, ks_significance = ks_distance(ref, test)
+            ks_value, _ = ks_distance(ref, test)
 
             results.append({
                 'Descriptor': key,
                 'Wasserstein_Ref': w_ref,
                 'Wasserstein_Shift': w_shift,
                 'KS_Ref': ks_value,
-                'Significance': ks_significance <= 0.05
             })
         return pd.DataFrame(results)
     

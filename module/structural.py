@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2024-12-28 19:47:43
-LastEditTime: 2025-07-28 15:59:50
+LastEditTime: 2025-09-22 10:42:35
 Description: Topological and structural properties of a molecule.
 '''
 import copy
@@ -49,25 +49,11 @@ class StructuralCalculator:
             'fused numbers': rings.fused_numbers(),
             'highly fused': rings.is_highly_fused(),
             'rings in fused system': rings.rings_in_fused(),
+            'unexpect ratio': rings.unexpect() > 0,
+            'fused ratio': rings.fused_numbers() > 0,
         }
-
-        self.properties.update({
-            'unexpect ratio': self.unexpect_ratio(),
-            'fused ratio': self.fused_ratio(),
-        })
-        return self.properties
-
-    def unexpect_ratio(self) -> float:
-        if self.properties['ring numbers'] > 0:
-            return self.properties['unexpect rings'] / self.properties['ring numbers'] 
-        else:
-            return 0
         
-    def fused_ratio(self) -> float:
-        if self.properties['ring numbers'] > 0:
-            return self.properties['fused numbers'] / self.properties['ring numbers']
-        else:
-            return 0
+        return self.properties
 
 #### Torsion and Dihedral Angles ####
 
