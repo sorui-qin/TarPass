@@ -1,5 +1,9 @@
 # Tarpass
 
+![Logo](tarpass-logo.png)
+
+Tarpass is a benchmark for target-aware *de novo* molecular generation.
+
 ## Quick Setup
 
 ```bash
