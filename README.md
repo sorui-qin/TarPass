@@ -1,6 +1,10 @@
 # Tarpass
 
-![Logo](tarpass-logo.png)
+
+<div align="center">
+    <img src="tarpass-logo.png" style="width: 30%;">
+</div>
+
 
 Tarpass is a benchmark for target-aware *de novo* molecular generation.
 
