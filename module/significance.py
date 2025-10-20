@@ -1,10 +1,11 @@
 '''
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
-LastEditTime: 2025-07-10 21:05:03
+LastEditTime: 2025-10-20 15:54:49
 Description: 
 '''
 from typing import Literal, Optional, Union
+from numpy.typing import ArrayLike
 import numpy as np
 import pandas as pd
 from utils.stats import (anova, cliff_delta, cohen_d, dunn, dunnett,
@@ -12,6 +13,12 @@ from utils.stats import (anova, cliff_delta, cohen_d, dunn, dunnett,
                          multiple_correction, omega_sq, tamhane,
                          test_normality, test_variance_homogeneity, ttest)
 
+def _is_array_like(x) -> bool:
+    try:
+        np.asarray(x)
+        return True
+    except Exception:
+        return False
 
 def washing_data(*data_groups) -> list[np.ndarray]:
     """Clean and validate input data groups.
@@ -45,12 +52,12 @@ class SignificanceTester:
         control: External control group data (optional if comparing multiple groups)
     """
     def __init__(self,
-                 data_groups: Union[list, np.ndarray],
-                 control: Optional[np.ndarray],
+                 data_groups: Union[list, np.ndarray, ArrayLike],
+                 control: Union[np.ndarray, ArrayLike],
                  metrics_name: Optional[str]=None):
 
         # Handle different input formats for data_groups
-        if isinstance(data_groups, np.ndarray):
+        if _is_array_like(data_groups):
             data_groups = [data_groups]
         self.data_groups = washing_data(*data_groups)
         self.n_groups = len(self.data_groups)
