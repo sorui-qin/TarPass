@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-06-13 20:28:48
-LastEditTime: 2025-08-20 00:14:43
+LastEditTime: 2025-10-17 11:20:14
 Description: 
 '''
 import importlib.util
@@ -87,7 +87,7 @@ class DruglikenessCalculator:
         rule_3 = self.properties.get('hacceptors', 0) <= 10
         logp = self.properties.get('clogP', 0)
         rule_4 = (logp >= -2) & (logp <= 5)
-        rule_5 = self.properties.get('rotatable_bonds', 0) <= 101
+        rule_5 = self.properties.get('rotatable_bonds', 0) <= 10
         return sum([rule_1, rule_2, rule_3, rule_4, rule_5])
     
 #### Common Atoms #####

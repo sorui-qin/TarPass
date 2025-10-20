@@ -11,7 +11,7 @@ Tarpass is a benchmark for target-aware *de novo* molecular generation.
 ## Quick Setup
 
 ```bash
-conda env create -f environment.yml
+conda env create -f tarpass_env.yml
 conda activate tarpass
 pip install -e .
 ```
@@ -48,6 +48,13 @@ conda install -c conda-forge autogrid # >=4.2.7
 
 ```Shell
 python -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3
+```
+
+For other dependency file, please download [autodock_depends.zip](wait for update) and copy to `dock`, then run:
+
+```Shell
+cd dock
+unzip autodock_depends.zip
 ```
 
 </details>
