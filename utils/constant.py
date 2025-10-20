@@ -17,7 +17,7 @@ TARGETS = [
     'BCL2',
     'BRAF',
     'BRD4',
-    'BRD4-holo',
+    'BRD4-apo',
     'BTK',
     'Beta2AR',
     'DRD2',

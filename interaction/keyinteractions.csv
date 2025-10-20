@@ -4,7 +4,7 @@ Target,H-Bond,H-Bond acceptor,H-Bond donor,Halogen bond,Hydrophobic contact,Meta
 BCL2,,,,,Phe104;Tyr108/Arg146;Phe153;Phe112,,,,,,
 BRAF,Cys532,,,,,,,,,,
 BRD4,Asn140,,,,Trp81/Pro82/Phe83;Leu92/Leu94/Val87/Tyr97,,,,,,
-BRD4-holo,Asn140,,,,Trp81/Pro82/Phe83;Leu92/Leu94/Val87/Tyr97,,,,,,
+BRD4-apo,Asn140,,,,Trp81/Pro82/Phe83;Leu92/Leu94/Val87/Tyr97,,,,,,
 BTK,,Met477/GLU475,Met477,,,,,,,,
 Beta2AR,Ser203/Ser207;Asn379/Tyr383,,,,,,,,Phe357,,
 DRD2,,,,,Trp386,,,,,,Asp114
