@@ -1,15 +1,19 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-09-22 11:19:47
+LastEditTime: 2025-10-21 22:00:28
 Description: 
 '''
 import numpy as np
 import pandas as pd
 from analysis.collect_eval import AnalysisBase, DataCroupier
-from module.chemdist import get_median_iqr, ks_distance, wasserstein_ref_decoy
+from module.chemdist import get_median_iqr, ks_distance, wasserstein_ref_rand
 from module.significance import SignificanceTester
 from module.similarity import Similarity
+from utils.constant import ROOT
+
+DATA_DIR = ROOT / 'data'
+fcds = pd.read_csv(DATA_DIR / 'ref-rand_fcd.csv', index_col=0).T
 
 ##### Analysis for molecular distance #####
 
@@ -31,7 +35,7 @@ class MolDisAnalysis(AnalysisBase):
     def _compare_distance(self, idx:int) -> pd.DataFrame:
         key_map = {
             0: 'Ref',
-            1: 'Decoy'
+            1: 'Rand'
         }
         key = key_map[idx]
         simi = Similarity(self.test_smis, self.smis_croupier[idx+1]) # type: ignore
@@ -47,6 +51,9 @@ class MolDisAnalysis(AnalysisBase):
             [self._compare_distance(idx) for idx in range(2)]
         )
         df = pd.concat(dfs, axis=1)
+        df['FCD_Shift'] = (
+            (df['Ref_FCD'] + df['Rand_FCD']).values / fcds[self.target]
+            ).iloc[0] # type: ignore
         df.index = [self.target]  # type: ignore
         return df
 
@@ -79,7 +86,7 @@ class PLIAnalysis(AnalysisBase):
         control_data = self.test_numerical[key]
         data_groups = [i[key] for i in self.numericals[1:]]
         tester = SignificanceTester(data_groups, control_data, key)
-        return tester.ref_decoy_analysis(alternative='less')
+        return tester.ref_rand_analysis(alternative='less')
     
     def _count_interactions(self):
         total = len(self.test_interaction['detected_interactions'])
@@ -132,7 +139,7 @@ class PropAnalysis(AnalysisBase):
         self.props_croupier = [self._split_attr(attr) for attr in self.croupier_keys]
         self.test_desc, self.test_struc, self.alert = self.props_croupier[0] # type: ignore
         self.ref_desc = self.props_croupier[1][0] # type: ignore
-        self.decoy_desc = self.props_croupier[2][0] # type: ignore
+        self.rand_desc = self.props_croupier[2][0] # type: ignore
 
     def descriptor_dist(self) -> pd.DataFrame:
         
@@ -142,10 +149,10 @@ class PropAnalysis(AnalysisBase):
         for key in keys:
             ref = self.ref_desc[key] # type: ignore
             test = self.test_desc[key] #type: ignore
-            decoy = self.decoy_desc[key] #type: ignore
+            rand = self.rand_desc[key] #type: ignore
 
-            w_ref, w_decoy, w_ref2decoy = wasserstein_ref_decoy(ref, decoy, test)
-            w_shift = (w_ref + w_decoy) / w_ref2decoy
+            w_ref, w_rand, w_ref2rand = wasserstein_ref_rand(ref, rand, test)
+            w_shift = (w_ref + w_rand) / w_ref2rand
 
             ks_value, _ = ks_distance(ref, test)
 
@@ -173,5 +180,3 @@ class PropAnalysis(AnalysisBase):
             df.index = [self.target] # type: ignore
         descri_info = desc_df if descriptor_info else pd.DataFrame()
         return dfs, descri_info
-    
-#TODO: Add cross-target analysis

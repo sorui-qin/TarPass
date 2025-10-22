@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:25:29
-LastEditTime: 2025-09-21 17:33:47
+LastEditTime: 2025-10-21 21:15:34
 Description: 
 '''
 from dataclasses import dataclass, field
@@ -273,18 +273,18 @@ def collect_eval_all(work_dir:str|Path, prefix:str, save_dir:Optional[str|Path]=
 
 
 class DataCroupier: # Just a guilty pleasure to use this name.
-    """Collections for evaluation results, including test data, reference, and decoy.
+    """Collections for evaluation results, including test data, reference, and random.
     """
     def __init__(
             self,
             test_data: MoleculesData,
             reference: MoleculesData,
-            decoy: MoleculesData,
+            rand: MoleculesData,
             target: Optional[str]=None
             ):
         self.test_data = test_data
         self.reference = reference
-        self.decoy = decoy
+        self.rand = rand
         self.target = target
 
 
@@ -294,8 +294,8 @@ class AnalysisBase:
     def __init__(self, analysis:DataCroupier, attr_name):
         self.test = getattr(analysis.test_data, attr_name)
         self.ref = getattr(analysis.reference, attr_name)
-        self.decoy = getattr(analysis.decoy, attr_name)
-        self.croupier_keys = ['test', 'ref', 'decoy']
+        self.rand = getattr(analysis.rand, attr_name)
+        self.croupier_keys = ['test', 'ref', 'rand']
         self.target = analysis.target
 
     def _split_attr(self, attr):

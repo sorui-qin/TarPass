@@ -1,24 +1,16 @@
 '''
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
-LastEditTime: 2025-10-20 15:54:49
+LastEditTime: 2025-10-21 21:38:31
 Description: 
 '''
 from typing import Literal, Optional, Union
-from numpy.typing import ArrayLike
 import numpy as np
 import pandas as pd
 from utils.stats import (anova, cliff_delta, cohen_d, dunn, dunnett,
                          epsilon_sq, kruskal, mann_whitney_u,
                          multiple_correction, omega_sq, tamhane,
                          test_normality, test_variance_homogeneity, ttest)
-
-def _is_array_like(x) -> bool:
-    try:
-        np.asarray(x)
-        return True
-    except Exception:
-        return False
 
 def washing_data(*data_groups) -> list[np.ndarray]:
     """Clean and validate input data groups.
@@ -52,12 +44,12 @@ class SignificanceTester:
         control: External control group data (optional if comparing multiple groups)
     """
     def __init__(self,
-                 data_groups: Union[list, np.ndarray, ArrayLike],
-                 control: Union[np.ndarray, ArrayLike],
+                 data_groups: Union[list, np.ndarray],
+                 control: np.ndarray,
                  metrics_name: Optional[str]=None):
 
         # Handle different input formats for data_groups
-        if _is_array_like(data_groups):
+        if isinstance(data_groups, np.ndarray) and data_groups.ndim == 1:
             data_groups = [data_groups]
         self.data_groups = washing_data(*data_groups)
         self.n_groups = len(self.data_groups)
@@ -202,10 +194,10 @@ class SignificanceTester:
         else:
             return self.compare_multiple_groups()
         
-    def ref_decoy_analysis(self, 
+    def ref_rand_analysis(self, 
                           alternative:Literal['two-sided', 'less', 'greater'] = 'two-sided'
                           ) -> pd.DataFrame:
-        """Perform multiple tests for compared specific group to reference and decoy.
+        """Perform multiple tests for compared specific group to reference and random.
         
         Returns:
             List of dictionaries with test results for each group.
@@ -222,11 +214,10 @@ class SignificanceTester:
         p_values = results['p_value'].values
         rejected, corrected_ps = multiple_correction(np.array(p_values), method='fdr_bh')
         results['corrected_p_value'] = corrected_ps
-        results['rejected'] = rejected
-
+        results['rejected'] = rejected & (results['effect_interpretation'] != 'negligible')
         df = results.iloc[:, -4:]
         cols = []
-        for n in ['Ref_', 'decoy_']:
+        for n in ['Ref_', 'Rand_']:
             for i in df.columns.values:
                 cols.append(f'{self.metrics_name}-{n}{i}')
         df_reshape = pd.DataFrame(df.iloc[:, -4:].values.reshape(1, -1))

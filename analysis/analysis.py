@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:22:34
-LastEditTime: 2025-07-28 20:25:59
+LastEditTime: 2025-10-21 21:01:39
 Description: 
 '''
 import argparse
@@ -10,16 +10,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from analysis.analysis_class import (MolDisAnalysis, PLIAnalysis,
+from analysis.analysis_class import (DATA_DIR, MolDisAnalysis, PLIAnalysis,
                                      PLIAnalysisScore, PropAnalysis)
 from analysis.collect_eval import DataCroupier, MoleculesData, collect_eval
-from utils.constant import ROOT, TARGETS
+from utils.constant import TARGETS
 from utils.io import read_pkl, write_pkl
 from utils.logger import log_config, project_logger
 
-DATA_DIR = ROOT / 'data'
 REF_PKL = DATA_DIR / 'Reference_eval_results.pkl'
-DEC_PKL = DATA_DIR / 'Decoy_eval_results.pkl'
+DEC_PKL = DATA_DIR / 'Random_eval_results.pkl'
 
 def df_add_mean(df:pd.DataFrame) -> pd.DataFrame:
     """Add a row of mean values to the DataFrame."""
@@ -42,14 +41,14 @@ def process_sig(sigcol:pd.DataFrame) -> pd.DataFrame:
     assert sigcol.shape[1] == 8, "sigcol should have 8 columns"
     sigcol = sigcol.copy()
     ref_sig = sigcol.iloc[:, :4]
-    decoy_sig = sigcol.iloc[:, 4:]
+    rand_sig = sigcol.iloc[:, 4:]
     
     avg_row = {}
     for i, col in enumerate(sigcol.columns):
         if i == 3:  # ref significance column
             avg_row[col] = count_sig(ref_sig)
-        elif i == 7:  # decoy significance column
-            avg_row[col] = count_sig(decoy_sig)
+        elif i == 7:  # rand significance column
+            avg_row[col] = count_sig(rand_sig)
         else:
             avg_row[col] = 'NaN'
     
@@ -91,7 +90,7 @@ def execute(args):
     tests_data, read_source = _load_test(work_dir)
     
     refs = read_pkl(REF_PKL)
-    decoys = read_pkl(DEC_PKL)
+    rands = read_pkl(DEC_PKL)
 
     results = {'pli_dock': [], 'pli_score': [], 'dist': [], 'stru': [], 'aler': []}
     external_info = {'smis': {}, 'desc_details': {}}
@@ -108,7 +107,7 @@ def execute(args):
             test_target = collect_eval(target_dir / 'results')
         assert isinstance(test_target, MoleculesData), f"Invalid data for target {target}"
 
-        croupier = DataCroupier(test_target, refs[target], decoys[target], target) # type: ignore
+        croupier = DataCroupier(test_target, refs[target], rands[target], target) # type: ignore
 
         prop_results, desc_detail = PropAnalysis(croupier).analysis()
         if croupier.test_data.Score:

@@ -14,7 +14,7 @@ from analysis.collect_eval import MoleculesData, StructInfo
 
 DATA_DIR = ROOT / 'data'
 REF_PKL = DATA_DIR / 'Reference_eval_results.pkl'
-DEC_PKL = DATA_DIR / 'Decoy_eval_results.pkl'
+DEC_PKL = DATA_DIR / 'rand_eval_results.pkl'
 
 class CollectEval:
     def __init__(self, results_dir: str|Path):
@@ -71,20 +71,20 @@ class DataCroupier:
             self,
             test_data: TmpData,
             reference: MoleculesData,
-            decoy: MoleculesData,
+            rand: MoleculesData,
             target: Optional[str]=None
             ):
         self.test_data = test_data
         self.reference = reference
-        self.decoy = decoy
+        self.rand = rand
         self.target = target
 
 class AnalysisBase:
     def __init__(self, analysis:DataCroupier, attr_name):
         self.test = getattr(analysis.test_data, attr_name)
         self.ref = getattr(analysis.reference, attr_name)
-        self.decoy = getattr(analysis.decoy, attr_name)
-        self.croupier_keys = ['test', 'ref', 'decoy']
+        self.rand = getattr(analysis.rand, attr_name)
+        self.croupier_keys = ['test', 'ref', 'rand']
         self.target = analysis.target
 
     def _split_attr(self, attr):
@@ -123,7 +123,7 @@ class PLIAnalysis(AnalysisBase):
         control_data = self.test_numerical[key]
         data_groups = [i[key] for i in self.numericals[1:]]
         tester = SignificanceTester(data_groups, control_data, key)
-        return tester.ref_decoy_analysis(alternative='less')
+        return tester.ref_rand_analysis(alternative='less')
     
     def _count_interactions(self):
         total = len(self.test_interaction['detected_interactions'])
@@ -170,7 +170,7 @@ def execute(path):
     tests_data, read_source = _load_test(work_dir)
     
     refs = read_pkl(REF_PKL)
-    decoys = read_pkl(DEC_PKL)
+    rands = read_pkl(DEC_PKL)
 
     results = {'pli_dock': []}
     
@@ -185,7 +185,7 @@ def execute(path):
                 continue
             test_target = collect_eval(target_dir / 'results')
 
-        croupier = DataCroupier(test_target, refs[target], decoys[target], target) # type: ignore
+        croupier = DataCroupier(test_target, refs[target], rands[target], target) # type: ignore
         pli_info = PLIAnalysis(croupier).analysis()
         results['pli_dock'].append(pli_info)
     results_concat = {k: pd.concat(v, ignore_index=False) for k, v in results.items()}
