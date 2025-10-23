@@ -1,9 +1,10 @@
 '''
 Author: Rui Qin
 Date: 2025-06-20 16:16:54
-LastEditTime: 2025-07-08 19:09:45
+LastEditTime: 2025-10-23 14:27:45
 Description: 
 '''
+import argparse
 from abc import ABC, abstractmethod
 from utils.constant import Path, Mol
 from utils.io import temp_manager, write_sdf
@@ -14,12 +15,12 @@ from rdkit import RDLogger
 from tqdm.contrib.concurrent import process_map
 RDLogger.DisableLog('rdApp.*')  # type: ignore
 
-class DockBase(ABC):
-    SUPPORTED_METHODS = {
-        'vina': ('dock.docking_vina', 'VinaDock'),
-        'gnina': ('dock.docking_gnina', 'GninaDock')
-    }
+METHODS = {
+    'vina': ('dock.docking_vina', 'VinaDock'),
+    'gnina': ('dock.docking_gnina', 'GninaDock')
+}
 
+class DockBase(ABC):
     def __init__(self, target:str, args):
         self.target = target
         self.args = args
@@ -27,10 +28,10 @@ class DockBase(ABC):
         self.method = self._load_method()
     
     def _load_method(self):
-        if self.method_name not in self.SUPPORTED_METHODS:
+        if self.method_name not in METHODS:
             raise ValueError(f"Unsupported method: {self.method_name}")
         
-        module_path, class_name = self.SUPPORTED_METHODS[self.method_name]
+        module_path, class_name = METHODS[self.method_name]
         module = __import__(module_path, fromlist=[class_name])
         return getattr(module, class_name)
 
@@ -107,3 +108,22 @@ class BatchDock(DockBase):
     def _docking(self, ligand: str):
         #TODO: Add progress bar for batch docking mode
         return super()._docking(ligand, in_batch=True)
+
+
+def easydock(mols:list[Mol], target:str):
+    """A simple interface for docking using default parameters with Gnina.
+    Args:
+        mols (list[Chem.Mol]): List of ligands to be docked.
+        target (str): Target name.
+    """
+    args = argparse.Namespace(
+            method='gnina',
+            mode='dock',
+            seed=0,
+            exhaust=8,
+            poses=1,
+            verbose=False,
+            reset=False
+        )
+    dock = BatchDock(mols, target, args)
+    return dock.run()
