@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-20 16:31:27
-LastEditTime: 2025-10-21 22:00:28
+LastEditTime: 2025-11-04 20:23:42
 Description: 
 '''
 import numpy as np
@@ -158,6 +158,7 @@ class PropAnalysis(AnalysisBase):
 
             results.append({
                 'Descriptor': key,
+                'Average': np.mean(test), # type: ignore
                 'Wasserstein_Ref': w_ref,
                 'Wasserstein_Shift': w_shift,
                 'KS_Ref': ks_value,
