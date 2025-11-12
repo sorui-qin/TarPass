@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-07-07 17:22:34
-LastEditTime: 2025-10-21 21:01:39
+LastEditTime: 2025-11-08 18:46:12
 Description: 
 '''
 import argparse
@@ -139,8 +139,6 @@ def execute(args):
     # Other row
     for k in ['dist', 'stru', 'aler']:
         results_concat[k] = df_add_mean(results_concat[k])
-
-    # TODO: cross-target analysis
 
     output_dir = Path(args.output) if args.output else work_dir
     output_dir.mkdir(parents=True, exist_ok=True)
