@@ -8,6 +8,8 @@ TarPass is a comprehensive benchmark designed for target-aware *de novo* molecul
 
 ## Quick Setup
 
+⚠️ **We strongly recommend running TarPass on devices with a GPU**.
+
 ```bash
 conda env create -f tarpass.yml
 conda activate tarpass
@@ -15,8 +17,6 @@ pip install -e .
 ```
 
 ⚠️ It should be noted that the packages required for running Jupyter Notebook are not included.
-
-⚠️ We strongly recommend running it on devices with a GPU.
 
 ### Docking with Gnina (Suggested)
 
@@ -57,7 +57,7 @@ conda install -c conda-forge autogrid # >=4.2.7
 python -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3
 ```
 
-For other dependency file, please download [autodock_depends.zip](wait for update) and copy to `dock`, then run:
+For other dependency file, please download [autodock_depends.zip](https://github.com/sorui-qin/TarPass/releases/download/v0.1.0-alpha.2/autodock_depends.zip) and copy to `dock`, then run:
 
 ```bash
 cd dock
@@ -76,7 +76,8 @@ unzip autodock_depends.zip
 ```text
 test_folder
 ├── 5HT2A
-│   ├── 1.sdf (or smi format, it's also acceptable to store all molecules in a single file)
+│   ├── 1.sdf (or smi format,  
+│   │      it's also acceptable to store all molecules in a single file)
 │   ├── 2.sdf
 │   └── ...
 │ 
@@ -108,10 +109,12 @@ test_folder
 The simplest process for benchmarking with **default** settings is as follows:
 
 ```text
-Packaing generated molecules in designated format -> docking -> evaluation -> analysis -> collecting results (Option)
+Packaing generated molecules in designated format ->  
+docking -> evaluation -> analysis -> collecting results (Optional)
 ```
 
 The following sequence must be strictly followed:
+
 ***
 
 ### Docking
@@ -124,8 +127,6 @@ On devices equipped with GPUs, completing docking across all 20 proteins require
 
 After execution, pkl files `xx-dock_docking_results.pkl` or `xx-score_only_docking_results.pkl` (3D only) containing docking scores, and docking poses will be generated under the `<target>/results` directory.
 
-***
-
 ### Evaluation
 
 ```bash
@@ -134,20 +135,16 @@ tarpass -p <path> eval
 
 After execution, a json file `dock_eval_results.json` with PLI-related results and a csv file `mole_eval_results.csv` for molecular properties will be generated under the `<target>/results` directory.
 
-***
-
 ### Analysis
 
 >**Warning**  
->`Reference_eval_results.pkl` and `Random_eval_results.pkl` must be placed in the `data` folder, which can be obtained from [here](test).
+>[`Reference_eval_results.pkl`](https://github.com/sorui-qin/TarPass/releases/download/v0.1.0-alpha/Random_eval_results.pkl) and [`Random_eval_results.pkl`](https://github.com/sorui-qin/TarPass/releases/download/v0.1.0-alpha/Reference_eval_results.pkl) must be placed in the `data` folder.
 
 ```bash
 tarpass -p <path> analysis
 ```
 
 After execution, a series of csv files of analysis results will be save at `<path>`.
-
-***
 
 ### Collection
 
