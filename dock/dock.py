@@ -1,7 +1,7 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 13:52:13
-LastEditTime: 2025-08-08 16:36:58
+LastEditTime: 2025-11-25 11:46:54
 Description: 
 '''
 import argparse
@@ -41,7 +41,7 @@ def setup_arguments(parser: argparse.ArgumentParser):
     group1.add_argument('--seed', type=int, help='random seed for docking.')
     group1.add_argument('--exhaust', type=int, help='exhaustiveness of docking.')
     group1.add_argument('--poses', type=int, help='number of poses to generate.')
-    group1.add_argument('--config', type=str, default=f'{ROOT}/configs/dock/gnina_dock.yml', help='path to the configuration file.')
+    group1.add_argument('--config', type=str, default=f'{ROOT}/dock/config/gnina_dock.yml', help='path to the configuration file.')
     group1.add_argument('--method', type=str, choices=['gnina', 'vina'], help='docking method to use (default: gnina).')
 
     group2 = parser.add_argument_group("Optional arguments")
