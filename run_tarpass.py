@@ -1,11 +1,12 @@
 '''
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
-LastEditTime: 2025-08-17 11:43:50
+LastEditTime: 2025-12-17 12:08:51
 Description: 
 '''
 import argparse
 import importlib
+import sys
 from pathlib import Path
 from utils.io import read_yaml, temp_dir
 from utils.logger import configure_third_logging
@@ -35,57 +36,47 @@ def main():
     parser.add_argument("-n", "--num", type=int, default=1000, help="number of unique molecules to verify per target (default: 1000).")
     subparsers = parser.add_subparsers(dest="module", required=True, help="Available modules")
     
+    # Define module configurations: command -> (module_name, help_text, function_name)
+    module_configs = {
+        "dock": ("dock", "Docking operations", "execute"),
+        "interaction": ("interaction", "Analyze interactions", "execute"),
+        "eval": ("eval", "Evaluate docking and molecular properties", "eval_execute"),
+        "dockeval": ("eval", "Evaluate docking results", "dockeval_execute"),
+        "moleeval": ("eval", "Evaluate molecular properties", "eval_execute"),
+        "analysis": ("analysis", "Analyze evalution results", "execute"),
+        "collect": ("collect", "Collect evaluation results", "execute"),
+    }
 
-    ### Docking module ###
-    dock_parser = subparsers.add_parser("dock", help="Docking operations")
-    dock_module = importlib.import_module("dock")
-    dock_module.setup_arguments(dock_parser)
+    parsers = {}
+    for cmd, (mod_name, help_text, _) in module_configs.items():
+        parsers[cmd] = subparsers.add_parser(cmd, help=help_text)
 
-    interaction_parser = subparsers.add_parser("interaction", help="Analyze interactions")
-    interaction_module = importlib.import_module("interaction")
-    interaction_module.setup_arguments(interaction_parser)
-
-
-    ### Evaluation module ###
-    eval_module = importlib.import_module("eval")
-    eval_parser = subparsers.add_parser("eval", help="Evaluate docking and molecular properties")
-    eval_module.setup_arguments(eval_parser)
-
-    # Sub-module for evaluation
-    dockeval_parser = subparsers.add_parser("dockeval", help="Evaluate docking results")
-    eval_module.setup_arguments(dockeval_parser)
-    moleeval_parser = subparsers.add_parser("moleeval", help="Evaluate molecular properties")
-    eval_module.setup_arguments(moleeval_parser)
-
-
-    ### Anlysis module ###
-    analysis_parser = subparsers.add_parser("analysis", help="Analyze evalution results")
-    analysis_module = importlib.import_module("analysis")
-    analysis_module.setup_arguments(analysis_parser)
-
-    ### Collect module ###
-    collect_parser = subparsers.add_parser("collect", help="Collect evaluation results")
-    collect_module = importlib.import_module("collect")
-    collect_module.setup_arguments(collect_parser)
-
+    # Lazy load module based on command line arguments
+    selected_cmd = None
+    for arg in sys.argv[1:]:
+        if arg in module_configs:
+            selected_cmd = arg
+            break
+            
+    loaded_modules = {}
+    if selected_cmd:
+        mod_name = module_configs[selected_cmd][0]
+        if mod_name not in loaded_modules:
+            loaded_modules[mod_name] = importlib.import_module(mod_name)
+        loaded_modules[mod_name].setup_arguments(parsers[selected_cmd])
 
     # Merge configuration for dock module
     args = parser.parse_args()
     if args.module == 'dock':
         args = merge_config(args)
 
-    command_mapping = {
-        'dock': (dock_module, 'execute'),
-        'interaction': (interaction_module, 'execute'),
-        'dockeval': (eval_module, 'dockeval_execute'),
-        'moleeval': (eval_module, 'eval_execute'),
-        'eval': (eval_module, 'eval_execute'),
-        'analysis': (analysis_module, 'execute'),
-        'collect': (collect_module, 'execute'),
-    }
-
     # Get the relevant module and function based on the command
-    module, function_name = command_mapping[args.module]
+    mod_name, _, function_name = module_configs[args.module]
+    
+    if mod_name not in loaded_modules:
+        loaded_modules[mod_name] = importlib.import_module(mod_name)
+    
+    module = loaded_modules[mod_name]
 
     if hasattr(module, function_name):
         getattr(module, function_name)(args)
