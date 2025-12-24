@@ -17,4 +17,4 @@ testfile
 tmp
 *.out
 data/*.pkl
-
+.gitignore

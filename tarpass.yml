@@ -1,4 +1,4 @@
-name: tarpass-test
+name: tarpass
 channels:
   - conda-forge
   - defaults
