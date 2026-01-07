@@ -1,14 +1,26 @@
 # TarPass
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![ChemRxiv](https://img.shields.io/badge/ChemRxiv-Preprint-orange)](https://doi.org/10.26434/chemrxiv-2026-dhdqk)
+
+
 <div align="center">
     <img src="tarpass-logo.png" style="width: 30%;">
 </div>
 
 TarPass is a comprehensive benchmark designed for target-aware *de novo* molecular generation.
 
+## Contents
+
+- [Quick Setup](#quick-setup)
+- [Input Folder Structure](#input-folder-structure)
+- [Usage](#usage)
+- [CLI Help](#cli-help)
+- [Notebooks and Scripts](#notebooks-and-scripts)
+
 ## Quick Setup
 
-⚠️ **We strongly recommend running TarPass on devices with a GPU**.
+⚠️ We strongly recommend running TarPass on devices with a GPU.
 
 ```bash
 conda env create -f tarpass.yml
@@ -66,9 +78,9 @@ unzip autodock_depends.zip
 
 </details>
 
-## Input folder structure
+## Input Folder Structure
 >
-> **Warning**  
+> Warning  
 > We strongly recommend that you place the molecule files to be tested according to the following folder structure.  
 > We only accept SDF format files as input for 3D molecules, as reading molecules in MOL or MOL2 format may result in the loss of stereochemical information.
 > For SMILES format input, most of file formats (e.g. `.smi` or `.txt`) are acceptable.
@@ -106,7 +118,7 @@ test_folder
 
 ## Usage
 
-The simplest process for benchmarking with **default** settings is as follows:
+The simplest process for benchmarking with default settings is as follows:
 
 ```text
 Packaing generated molecules in designated format ->  
@@ -114,8 +126,6 @@ docking -> evaluation -> analysis -> collecting results (Optional)
 ```
 
 The following sequence must be strictly followed:
-
-***
 
 ### Docking
 
@@ -137,14 +147,13 @@ After execution, a json file `dock_eval_results.json` with PLI-related results a
 
 ### Analysis
 
->**Warning**  
->[`Reference_eval_results.pkl`](https://github.com/sorui-qin/TarPass/releases/download/v0.1.0-alpha/Random_eval_results.pkl) and [`Random_eval_results.pkl`](https://github.com/sorui-qin/TarPass/releases/download/v0.1.0-alpha/Reference_eval_results.pkl) must be placed in the `data` folder.
+>**Warning**: [`Random_eval_results.pkl`](https://github.com/sorui-qin/TarPass/releases/download/v0.1.0-alpha/Random_eval_results.pkl) and [`Reference_eval_results.pkl`](https://github.com/sorui-qin/TarPass/releases/download/v0.1.0-alpha/Reference_eval_results.pkl) must be placed in the `data` folder.
 
 ```bash
 tarpass -p <path> analysis
 ```
 
-After execution, a series of csv files of analysis results will be save at `<path>`.
+After execution, a series of csv files `analysis_<term>.csv` of analysis results will be save at `<path>`.
 
 ### Collection
 
@@ -152,9 +161,12 @@ After execution, a series of csv files of analysis results will be save at `<pat
 tarpass -p <path> collect
 ```
 
-After running, the results of eval will be saved in `xx_eval_results.pkl` under `<path>`
+After running, the results of eval will be collected into `xx_eval_results.pkl` under `<path>`.  
 
-***
+>**Note**:
+>
+> * The collected pickle files can also be used as input for the `analysis` module; simply replace `<path>` with the specific file path.
+> * For more details on how to work with and make use of this file, please refer to `notebook/read_results.ipynb`.
 
 ### CLI Help
 
@@ -168,3 +180,24 @@ options:
   {module}     modules that need to be executed: dock, interactions, dock_eval, etc.
   --option     Options specific to each module, which may vary between modules.
 ```
+
+## Notebooks and Scripts
+
+In addition to the main CLI tool, we provide several Jupyter Notebooks and auxiliary scripts in the `notebook/` directory for data analysis, filtering, and visualization.
+
+### Notebooks
+
+* `extract_nearby_res.ipynb`: A utility for extracting residues near the binding site, useful for detailed protein-ligand interaction analysis.
+* `filter_with_eval.ipynb`: Provides a stepwise filtering workflow. After running the `eval` module, you can use this notebook to filter molecules based on specific targets and evaluation metrics (e.g., docking scores, PLI criteria).
+* `generation_size.ipynb`: Used for analyzing the scale and distribution of the generated molecular datasets.
+* `read_results.ipynb`: Instructions for using collected results.
+
+### Auxiliary Scripts
+
+The `notebook/scripts/` directory contains several utility scripts for specific tasks:
+
+* `pose_check.py`: A helper script to verify and visualize docking poses.
+* `cross_docking.py`: Facilitates cross-docking experiments between different targets and ligands.
+* `collect_reset.py` / `tmpanaly_reset.py`: Maintenance scripts for conformation-reset docking.
+
+> **Note**: As mentioned in the Setup section, ensure you have `jupyter` and its dependencies installed in your environment to run the `.ipynb` files, as they are not included in the default `tarpass.yml`.

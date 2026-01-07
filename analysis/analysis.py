@@ -86,8 +86,9 @@ def setup_arguments(parser: argparse.ArgumentParser):
 
 def execute(args):
     log_config(project_logger, args)
-    work_dir = Path(args.path)
-    tests_data, read_source = _load_test(work_dir)
+    work_path = Path(args.path)
+    tests_data, read_source = _load_test(work_path)
+    work_dir = work_path.parent if read_source == 'pkl' else work_path
     
     refs = read_pkl(REF_PKL)
     rands = read_pkl(DEC_PKL)
@@ -145,6 +146,6 @@ def execute(args):
 
     for k, v in results_concat.items():
         if not v.empty:
-            v.to_csv(output_dir / f'tarpass_anlysis_{k}.csv', index=True)
+            v.to_csv(output_dir / f'anlysis_{k}.csv', index=True)
     write_pkl(output_dir / 'descriptor_details.pkl', external_info['desc_details'])
     project_logger.info(f"Analysis results were saved to {output_dir}.")

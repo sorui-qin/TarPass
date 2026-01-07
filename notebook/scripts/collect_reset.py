@@ -1,9 +1,12 @@
-import itertools, sys
+import itertools
+import sys
 from pathlib import Path
+
 from eval.dockeval import DockEval
-from utils.io import read_pkl, dump_json
-from utils.preprocess import to_smiles
 from utils.constant import TARGETS
+from utils.io import dump_json, read_pkl
+from utils.preprocess import to_smiles
+
 
 def dock_eval(target_dir:Path) -> list[dict]:
 

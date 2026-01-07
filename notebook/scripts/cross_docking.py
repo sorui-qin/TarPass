@@ -7,11 +7,12 @@ It must be run after finishing the self-docking.
 '''
 import argparse
 from pathlib import Path
+
 from dock.dock_class import easydock
-from utils.io import write_pkl, read_pkl, dump_json
-from utils.logger import project_logger
-from utils.constant import ROOT
 from eval.dockeval import DockEval
+from utils.io import dump_json, read_pkl, write_pkl
+from utils.logger import project_logger
+
 
 def cross_dock_eval(b_dir, target_a):
     results_dir = b_dir / 'crossdocking'

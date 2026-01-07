@@ -5,12 +5,13 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
+
+from analysis.analysis import TARGETS, process_pli, tqdm
+from analysis.collect_eval import MoleculesData, StructInfo
 from module.chemdist import get_median_iqr
 from module.significance import SignificanceTester
+from utils.constant import ROOT
 from utils.io import load_json, read_pkl
-
-from analysis.analysis import ROOT, TARGETS, process_pli, tqdm
-from analysis.collect_eval import MoleculesData, StructInfo
 
 DATA_DIR = ROOT / 'data'
 REF_PKL = DATA_DIR / 'Reference_eval_results.pkl'
