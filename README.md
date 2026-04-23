@@ -1,5 +1,7 @@
 # TarPass
 
+**The official implementation of [Revisiting Target-Aware de novo Molecular Generation with TarPass: Between Rational Design and Texas Sharpshooter](https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.75411)**
+
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 [![ChemRxiv](https://img.shields.io/badge/ChemRxiv-Preprint-orange)](https://doi.org/10.26434/chemrxiv-2026-dhdqk)
 
