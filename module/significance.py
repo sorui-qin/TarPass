@@ -1,20 +1,35 @@
-'''
+"""
 Author: Rui Qin
 Date: 2025-07-02 16:59:50
 LastEditTime: 2025-10-21 21:38:31
-Description: 
-'''
-from typing import Literal, Optional, Union
+Description:
+"""
+
+from typing import Literal
+
 import numpy as np
 import pandas as pd
-from utils.stats import (anova, cliff_delta, cohen_d, dunn, dunnett,
-                         epsilon_sq, kruskal, mann_whitney_u,
-                         multiple_correction, omega_sq, tamhane,
-                         test_normality, test_variance_homogeneity, ttest)
+
+from utils.stats import (
+    anova,
+    cliff_delta,
+    cohen_d,
+    dunn,
+    dunnett,
+    epsilon_sq,
+    kruskal,
+    mann_whitney_u,
+    multiple_correction,
+    omega_sq,
+    tamhane,
+    test_normality,
+    test_variance_homogeneity,
+    ttest,
+)
+
 
 def washing_data(*data_groups) -> list[np.ndarray]:
-    """Clean and validate input data groups.
-    """
+    """Clean and validate input data groups."""
     cleaned = []
     for i, data in enumerate(data_groups):
         data_array = np.asarray(data)
@@ -25,13 +40,19 @@ def washing_data(*data_groups) -> list[np.ndarray]:
 
         # Execute validation checks
         if data_array.size == 0:
-            raise ValueError(f"Data group {i+1} is empty after cleaning.")
+            raise ValueError(f"Data group {i + 1} is empty after cleaning.")
         if data_array.ndim > 1:
-            raise ValueError(f"Data group {i+1} should be 1D, got {data_array.ndim}D.")
-        if data_array.dtype.kind not in 'biufc':
-            raise ValueError(f"Data group {i+1} must be numeric, got {data_array.dtype}.")
+            raise ValueError(
+                f"Data group {i + 1} should be 1D, got {data_array.ndim}D."
+            )
+        if data_array.dtype.kind not in "biufc":
+            raise ValueError(
+                f"Data group {i + 1} must be numeric, got {data_array.dtype}."
+            )
         if data_array.size < 3:
-            raise ValueError(f"Data group {i+1} has insufficient sample size: {data_array.size}")
+            raise ValueError(
+                f"Data group {i + 1} has insufficient sample size: {data_array.size}"
+            )
 
         cleaned.append(data_array)
     return cleaned
@@ -43,10 +64,13 @@ class SignificanceTester:
         data_groups: Test groups (list of arrays or single array)
         control: External control group data (optional if comparing multiple groups)
     """
-    def __init__(self,
-                 data_groups: Union[list, np.ndarray],
-                 control: np.ndarray,
-                 metrics_name: Optional[str]=None):
+
+    def __init__(
+        self,
+        data_groups: list | np.ndarray,
+        control: np.ndarray,
+        metrics_name: str | None = None,
+    ):
 
         # Handle different input formats for data_groups
         if isinstance(data_groups, np.ndarray) and data_groups.ndim == 1:
@@ -59,44 +83,48 @@ class SignificanceTester:
         if self.control is not None:
             self.all_data = [self.control] + self.data_groups
         else:
-            self.all_data = self.data_groups.copy() 
-
+            self.all_data = self.data_groups.copy()
 
     def normality(self) -> tuple[bool, list[float]]:
         """Test normality for all groups.
-        
+
         Returns:
             Tuple of (all_normal, detailed_results)
         """
         p, b = zip(*[test_normality(data) for data in self.all_data])
         return all(p), list(b)
-    
+
     def variance_homogeneity(self) -> tuple[bool, float]:
-        """Test if data groups have equal variance.
-        """
+        """Test if data groups have equal variance."""
         return test_variance_homogeneity(*self.all_data)
-    
-    def compare_two_groups(self, group_index:int=0,
-                           alternative:Literal['two-sided', 'less', 'greater'] = 'two-sided'
-                           ) -> dict:
+
+    def compare_two_groups(
+        self,
+        group_index: int = 0,
+        alternative: Literal["two-sided", "less", "greater"] = "two-sided",
+    ) -> dict:
         """
         Compare control with a specific test group.
-        
+
         Args:
             group_index: Index of test group to compare (0-based)
             alternative: Defines the alternative hypothesis for t-test.
                          Options are 'two-sided', 'less', or 'greater'.
         """
         if group_index >= self.n_groups:
-            raise IndexError(f"Group index {group_index} out of range (0-{self.n_groups-1})")
-        
+            raise IndexError(
+                f"Group index {group_index} out of range (0-{self.n_groups - 1})"
+            )
+
         test_group = self.data_groups[group_index]
         is_normal, normal_p = self.normality()
 
         if is_normal:
             # Use parametric test
             equal_var, _ = self.variance_homogeneity()
-            is_sig, p_val = ttest(self.control, test_group, equal_var=equal_var, alternative=alternative)
+            is_sig, p_val = ttest(
+                self.control, test_group, equal_var=equal_var, alternative=alternative
+            )
             test_name = f"{'Student' if equal_var else 'Welch'} t-test"
             effect_size, effect_interp = cohen_d(self.control, test_group)
         else:
@@ -104,31 +132,30 @@ class SignificanceTester:
             is_sig, p_val = mann_whitney_u(self.control, test_group, alternative)
             test_name = "Mann-Whitney U test"
             effect_size, effect_interp = cliff_delta(self.control, test_group)
-        
+
         return {
-            'metric_name': self.metrics_name,
-            'control_normal': normal_p[0],
-            'test_normal': normal_p[group_index + 1],
-            'equal_variance': locals().get('equal_var', None),
-            'test_name': test_name,
-            'p_value': p_val,
-            'significant': is_sig,
-            'effect_size': effect_size,
-            'effect_interpretation': effect_interp,
+            "metric_name": self.metrics_name,
+            "control_normal": normal_p[0],
+            "test_normal": normal_p[group_index + 1],
+            "equal_variance": locals().get("equal_var", None),
+            "test_name": test_name,
+            "p_value": p_val,
+            "significant": is_sig,
+            "effect_size": effect_size,
+            "effect_interpretation": effect_interp,
         }
-    
 
     def compare_multiple_groups(self) -> list[dict]:
         """
-        Perform overall test for multiple groups.  
+        Perform overall test for multiple groups.
         If control is provided, perform post-hoc tests.
         """
         if self.n_groups < 2:
             raise ValueError("Need at least 2 test groups for multiple comparison")
-        
+
         # Check assumptions
         all_normal, normal_p = self.normality()
-        
+
         # Choose appropriate test
         if all_normal:
             # Use ANOVA
@@ -139,13 +166,17 @@ class SignificanceTester:
             if p_val < 0.05 and self.control is not None:
                 if equal_var:
                     posthoc_name = "Dunnett's test"
-                    posthoc_sigs, posthoc_ps = dunnett(*self.data_groups, control=self.control)
+                    posthoc_sigs, posthoc_ps = dunnett(
+                        *self.data_groups, control=self.control
+                    )
                 else:
                     posthoc_name = "Tamhane's T2"
-                    posthoc_sigs, posthoc_ps = tamhane(*self.data_groups, control=self.control)
-                posthoc_effect_size, posthoc_effect_interp = zip(*[
-                    cohen_d(self.control, group) for group in self.data_groups
-                ])
+                    posthoc_sigs, posthoc_ps = tamhane(
+                        *self.data_groups, control=self.control
+                    )
+                posthoc_effect_size, posthoc_effect_interp = zip(
+                    *[cohen_d(self.control, group) for group in self.data_groups]
+                )
         else:
             # Use Kruskal-Wallis
             is_sig, p_val = kruskal(*self.all_data)
@@ -154,72 +185,78 @@ class SignificanceTester:
             if p_val < 0.05 and self.control is not None:
                 posthoc_name = "Dunn's test"
                 posthoc_sigs, posthoc_ps = dunn(*self.data_groups, control=self.control)
-                posthoc_effect_size, posthoc_effect_interp = zip(*[
-                    cliff_delta(self.control, group) for group in self.data_groups
-                ])
-        
+                posthoc_effect_size, posthoc_effect_interp = zip(
+                    *[cliff_delta(self.control, group) for group in self.data_groups]
+                )
+
         reports = []
         for i in range(self.n_groups):
-
             part1 = {
-                'metric_name': self.metrics_name,
+                "metric_name": self.metrics_name,
                 #'index': i,
-                'total_groups': self.n_groups,
-                'all_normal': all_normal,
-                'normal_p_values': normal_p[i+1 if self.control is not None else i],
-                'equal_variance': locals().get('equal_var', None),
-                'test_name': test_name,
-                'p_value': p_val,
-                'significant': is_sig,
-                'effect_size': effect_size,
-                'effect_interpretation': effect_interp,
+                "total_groups": self.n_groups,
+                "all_normal": all_normal,
+                "normal_p_values": normal_p[i + 1 if self.control is not None else i],
+                "equal_variance": locals().get("equal_var", None),
+                "test_name": test_name,
+                "p_value": p_val,
+                "significant": is_sig,
+                "effect_size": effect_size,
+                "effect_interpretation": effect_interp,
             }
 
-            posthoc = {} if (p_val >= 0.05 or self.control is None) else {
-                'posthoc_name': posthoc_name,
-                'posthoc_significant': posthoc_sigs[i],
-                'posthoc_p_value': posthoc_ps[i],
-                'posthoc_effect_size': posthoc_effect_size[i],
-                'posthoc_effect_interpretation': posthoc_effect_interp[i]
-            }
-            
+            posthoc = (
+                {}
+                if (p_val >= 0.05 or self.control is None)
+                else {
+                    "posthoc_name": posthoc_name,
+                    "posthoc_significant": posthoc_sigs[i],
+                    "posthoc_p_value": posthoc_ps[i],
+                    "posthoc_effect_size": posthoc_effect_size[i],
+                    "posthoc_effect_interpretation": posthoc_effect_interp[i],
+                }
+            )
+
             reports.append({**part1, **posthoc})
         return reports
-    
+
     def auto_analysis(self) -> list[dict]:
-        """Automatically select and perform appropriate tests based on data characteristics.
-        """
+        """Automatically select and perform appropriate tests based on data characteristics."""
         if self.n_groups == 1:
             return [self.compare_two_groups(0)]
         else:
             return self.compare_multiple_groups()
-        
-    def ref_rand_analysis(self, 
-                          alternative:Literal['two-sided', 'less', 'greater'] = 'two-sided'
-                          ) -> pd.DataFrame:
+
+    def ref_rand_analysis(
+        self, alternative: Literal["two-sided", "less", "greater"] = "two-sided"
+    ) -> pd.DataFrame:
         """Perform multiple tests for compared specific group to reference and random.
-        
+
         Returns:
             List of dictionaries with test results for each group.
         """
         if self.control is None:
             raise ValueError("Control group is required for multiple analysis")
-        
+
         results = []
         for i in range(self.n_groups):
             result = self.compare_two_groups(i, alternative=alternative)
             results.append(result)
 
         results = pd.DataFrame(results)
-        p_values = results['p_value'].values
-        rejected, corrected_ps = multiple_correction(np.array(p_values), method='fdr_bh')
-        results['corrected_p_value'] = corrected_ps
-        results['rejected'] = rejected & (results['effect_interpretation'] != 'negligible')
+        p_values = results["p_value"].values
+        rejected, corrected_ps = multiple_correction(
+            np.array(p_values), method="fdr_bh"
+        )
+        results["corrected_p_value"] = corrected_ps
+        results["rejected"] = rejected & (
+            results["effect_interpretation"] != "negligible"
+        )
         df = results.iloc[:, -4:]
         cols = []
-        for n in ['Ref_', 'Rand_']:
+        for n in ["Ref_", "Rand_"]:
             for i in df.columns.values:
-                cols.append(f'{self.metrics_name}-{n}{i}')
+                cols.append(f"{self.metrics_name}-{n}{i}")
         df_reshape = pd.DataFrame(df.iloc[:, -4:].values.reshape(1, -1))
         df_reshape.columns = cols
 
