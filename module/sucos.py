@@ -7,7 +7,7 @@ import os
 
 import numpy as np
 from rdkit import RDConfig
-from rdkit.Chem.FeatMaps import FeatMaps # type: ignore[import-untyped]
+from rdkit.Chem.FeatMaps import FeatMaps  # type: ignore[import-untyped]
 from rdkit.Chem.rdchem import Mol
 from rdkit.Chem.rdMolChemicalFeatures import BuildFeatureFactory
 from rdkit.Chem.rdmolops import AddHs, RemoveHs, SanitizeMol
@@ -43,12 +43,22 @@ def get_feature_map_score(
     """
 
     # list features
-    features_small = [f for f in FACTORY.GetFeaturesForMol(mol_small, confId=conf_id_small) if f.GetFamily() in KEEP]
-    features_large = [f for f in FACTORY.GetFeaturesForMol(mol_large, confId=conf_id_large) if f.GetFamily() in KEEP]
+    features_small = [
+        f
+        for f in FACTORY.GetFeaturesForMol(mol_small, confId=conf_id_small)
+        if f.GetFamily() in KEEP
+    ]
+    features_large = [
+        f
+        for f in FACTORY.GetFeaturesForMol(mol_large, confId=conf_id_large)
+        if f.GetFamily() in KEEP
+    ]
 
     # create feature map based on small molecule
-    feature_map = FeatMaps.FeatMap(feats=features_small, weights=[1] * len(features_small), params=PARAMETERS)
-    feature_map.scoreMode = FeatMaps.FeatMapScoreMode.Best # type: ignore
+    feature_map = FeatMaps.FeatMap(
+        feats=features_small, weights=[1] * len(features_small), params=PARAMETERS
+    )
+    feature_map.scoreMode = FeatMaps.FeatMapScoreMode.Best  # type: ignore
 
     # score features of large molecule present in small molecule
     feature_score = feature_map.ScoreFeats(features_large)
@@ -113,7 +123,7 @@ def get_sucos_score(
     return sucos_score
 
 
-#def check_sucos(mol_pred: Mol, mol_true: Mol, sucos_threshold: float = 0.4) -> dict[str, dict[str, bool | float]]:
+# def check_sucos(mol_pred: Mol, mol_true: Mol, sucos_threshold: float = 0.4) -> dict[str, dict[str, bool | float]]:
 def check_sucos(mol_pred: Mol, mol_true: Mol) -> dict[str, float]:
     """Calculate SuCOS and related metrics between predicted molecule and closest ground truth molecule.
 
@@ -129,23 +139,28 @@ def check_sucos(mol_pred: Mol, mol_true: Mol) -> dict[str, float]:
     assert isinstance(mol_pred, Mol), "Predicted molecule is missing."
     num_conf = mol_true.GetNumConformers()
     assert num_conf > 0, "Ground truth molecule needs at least one conformer."
-    assert mol_pred.GetNumConformers() == 1, "Predicted molecule should only have one conformer."
+    assert mol_pred.GetNumConformers() == 1, (
+        "Predicted molecule should only have one conformer."
+    )
 
     try:
         SanitizeMol(mol_pred)
         SanitizeMol(mol_true)
     except Exception:
         return {"sucos": np.nan}
-                            #"sucos_within_threshold": np.nan}}
+        # "sucos_within_threshold": np.nan}}
 
     # iterate over all true molecules to find best sucos match
-    sucos_scores = [get_sucos_score(mol_true, mol_pred, conf_id_reference=i) for i in range(num_conf)]
+    sucos_scores = [
+        get_sucos_score(mol_true, mol_pred, conf_id_reference=i)
+        for i in range(num_conf)
+    ]
     best_sucos = max(sucos_scores)
-    #sucos_within_threshold = best_sucos >= sucos_threshold
+    # sucos_within_threshold = best_sucos >= sucos_threshold
 
     results = {"sucos": best_sucos}
-               #"sucos_within_threshold": sucos_within_threshold}
-    #return {"results": results}
+    # "sucos_within_threshold": sucos_within_threshold}
+    # return {"results": results}
     return results
 
 

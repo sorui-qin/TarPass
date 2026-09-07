@@ -1,23 +1,33 @@
-'''
+"""
 Author: Rui Qin
 Date: 2025-03-15 15:56:18
 LastEditTime: 2025-12-17 12:08:51
-Description: 
-'''
+Description:
+"""
+
 import argparse
 import importlib
 import sys
-from pathlib import Path
-from utils.io import read_yaml, temp_dir
-from utils.logger import configure_third_logging
 
 # Suppress warnings
 import warnings
-warnings.filterwarnings("ignore", category=RuntimeWarning, message="to-Python converter for boost::shared_ptr")
-warnings.filterwarnings("ignore", category=UserWarning, module="prody.utilities.misctools")
+from pathlib import Path
+
+from utils.io import read_yaml
+from utils.logger import configure_third_logging
+
+warnings.filterwarnings(
+    "ignore",
+    category=RuntimeWarning,
+    message="to-Python converter for boost::shared_ptr",
+)
+warnings.filterwarnings(
+    "ignore", category=UserWarning, module="prody.utilities.misctools"
+)
 configure_third_logging()
 
-def merge_config(args:argparse.Namespace) -> argparse.Namespace:
+
+def merge_config(args: argparse.Namespace) -> argparse.Namespace:
     """Merge command line arguments with configuration file."""
     if args.config:
         if not Path(args.config).exists():
@@ -29,13 +39,30 @@ def merge_config(args:argparse.Namespace) -> argparse.Namespace:
                     setattr(args, key, value)
     return args
 
+
 def main():
-    #temp_dir() # Clean up temp dir. If run in parrallel, this will cause error.
-    parser = argparse.ArgumentParser(description="TarPass, a target-awared molecular generation benchmarking tool.")
-    parser.add_argument('-p', '--path', required=True, type=str, help='path to the folder where generated molecules for testing will be stored.')
-    parser.add_argument("-n", "--num", type=int, default=1000, help="number of unique molecules to verify per target (default: 1000).")
-    subparsers = parser.add_subparsers(dest="module", required=True, help="Available modules")
-    
+    # temp_dir() # Clean up temp dir. If run in parrallel, this will cause error.
+    parser = argparse.ArgumentParser(
+        description="TarPass, a target-awared molecular generation benchmarking tool."
+    )
+    parser.add_argument(
+        "-p",
+        "--path",
+        required=True,
+        type=str,
+        help="path to the folder where generated molecules for testing will be stored.",
+    )
+    parser.add_argument(
+        "-n",
+        "--num",
+        type=int,
+        default=1000,
+        help="number of unique molecules to verify per target (default: 1000).",
+    )
+    subparsers = parser.add_subparsers(
+        dest="module", required=True, help="Available modules"
+    )
+
     # Define module configurations: command -> (module_name, help_text, function_name)
     module_configs = {
         "dock": ("dock", "Docking operations", "execute"),
@@ -57,7 +84,7 @@ def main():
         if arg in module_configs:
             selected_cmd = arg
             break
-            
+
     loaded_modules = {}
     if selected_cmd:
         mod_name = module_configs[selected_cmd][0]
@@ -67,21 +94,22 @@ def main():
 
     # Merge configuration for dock module
     args = parser.parse_args()
-    if args.module == 'dock':
+    if args.module == "dock":
         args = merge_config(args)
 
     # Get the relevant module and function based on the command
     mod_name, _, function_name = module_configs[args.module]
-    
+
     if mod_name not in loaded_modules:
         loaded_modules[mod_name] = importlib.import_module(mod_name)
-    
+
     module = loaded_modules[mod_name]
 
     if hasattr(module, function_name):
         getattr(module, function_name)(args)
     else:
         raise AttributeError(f"Module {module} does not have function {function_name}")
+
 
 if __name__ == "__main__":
     main()

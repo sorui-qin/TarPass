@@ -1,15 +1,18 @@
-'''
+"""
 Author: Rui Qin
 Date: 2025-03-10 12:03:05
 LastEditTime: 2025-08-17 11:43:48
-Description: 
-'''
+Description:
+"""
+
 import logging
 import sys
-from tqdm import tqdm
-from utils.constant import DASHLINE
-from rdkit import RDLogger
+
 from openbabel import openbabel
+from rdkit import RDLogger
+from tqdm import tqdm
+
+from utils.constant import DASHLINE
 
 
 class TqdmHandler(logging.StreamHandler):
@@ -17,9 +20,10 @@ class TqdmHandler(logging.StreamHandler):
         msg = self.format(record)
         tqdm.write(msg, end="\n")
 
+
 def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
-    logger.propagate = False # Disable propagation to avoid duplicate logs
+    logger.propagate = False  # Disable propagation to avoid duplicate logs
     logger.setLevel(logging.DEBUG)
 
     # Console log
@@ -32,21 +36,25 @@ def get_logger(name: str) -> logging.Logger:
     logger.addHandler(console_handler)
     return logger
 
+
 project_logger = get_logger("project")
+
 
 def disable_logger():
     """Ban all logging."""
     project_logger.disabled = True
     project_logger.setLevel(logging.CRITICAL + 1)
 
+
 def log_config(project_logger, args):
     project_logger.info(DASHLINE)
-    project_logger.info("\n" + "="*20 + " CONFIGURATION " + "="*20)
+    project_logger.info("\n" + "=" * 20 + " CONFIGURATION " + "=" * 20)
     for key, value in args.__dict__.items():
-        project_logger.info(f"{key:10} : {str(value):<}")
+        project_logger.info(f"{key:10} : {value!s:<}")
     project_logger.info(DASHLINE)
 
+
 def configure_third_logging():
-    RDLogger.DisableLog('rdApp.*') # type: ignore
-    #openbabel.obErrorLog.SetOutputLevel(openbabel.obError)
+    RDLogger.DisableLog("rdApp.*")  # type: ignore
+    # openbabel.obErrorLog.SetOutputLevel(openbabel.obError)
     openbabel.obErrorLog.StopLogging()

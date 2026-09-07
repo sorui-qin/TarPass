@@ -1,39 +1,44 @@
-'''
+"""
 Author: Rui Qin
 Date: 2025-06-25 13:10:00
 LastEditTime: 2025-07-16 18:09:42
-Description: 
-'''
+Description:
+"""
+
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Mol
+from tqdm.contrib.concurrent import process_map
+
 from module.druglikeness import DruglikenessCalculator
 from module.structural import StructuralCalculator
-from utils.preprocess import read_in, standard_mol
-from utils.constant import Path, DASHLINE, TARGETS
-from tqdm.contrib.concurrent import process_map
+from utils.constant import DASHLINE, TARGETS, Path
 from utils.logger import project_logger
+from utils.preprocess import read_in
 
 
 class MoleEval:
     """Evaluate molecules for druglikeness and structural properties.
-    
+
     Args:
         target_path (str): Path to the target directory containing molecule files.
     """
-    def __init__(self, mols:list[Mol]):
+
+    def __init__(self, mols: list[Mol]):
         self.mols = mols
 
     def evaluate(self) -> list[dict]:
         """Evaluate all molecules in the target directory."""
         props = process_map(
-            all_properties, self.mols, chunksize=1,
-            desc=f"Evaluating molecular properties",
-            )
-        
+            all_properties,
+            self.mols,
+            chunksize=1,
+            desc="Evaluating molecular properties",
+        )
+
         updated_props = []
         for i, mol in enumerate(self.mols):
-            info = {'index': i, 'smi': Chem.MolToSmiles(mol)}
+            info = {"index": i, "smi": Chem.MolToSmiles(mol)}
             info.update(props[i])
             updated_props.append(info)
         return updated_props
@@ -44,7 +49,7 @@ def all_properties(mol: Mol) -> dict:
     Calculate all properties of a molecule, including druglikeness and structural properties.
     Args:
         mol (Chem.rdchem.Mol): Single molecule object from RDKit.
-    
+
     Returns:
         dict: A dictionary containing various properties of the molecule.
     """
@@ -54,38 +59,43 @@ def all_properties(mol: Mol) -> dict:
     return properties
 
 
-def mole_eval(mols:list[Mol]) -> list[dict]:
+def mole_eval(mols: list[Mol]) -> list[dict]:
     """
     Evaluate a list of SMILES strings for druglikeness and structural properties.
-    
+
     Args:
         smis (list[str]): List of SMILES strings to evaluate.
-    
+
     Returns:
         list[dict]: List of dictionaries containing properties for each molecule.
     """
     evaluator = MoleEval(mols)
     return evaluator.evaluate()
 
+
 ############## Execution Functions ##############
+
 
 def moleeval_execute(args):
     work_dir = Path(args.path)
     for target in TARGETS:
-
         # Check if target directory exists
         project_logger.info(DASHLINE)
         target_dir = work_dir / target
         if not target_dir.exists():
-            project_logger.warning(f"Target folder {target_dir} not found, skipping evaluation.")
+            project_logger.warning(
+                f"Target folder {target_dir} not found, skipping evaluation."
+            )
             continue
 
         # Check if results exists
-        project_logger.info(f'Start evaluating molecules for {target}...')
-        results_dir = target_dir / 'results'
-        eval_output = results_dir / f'mole_eval_results.csv'
+        project_logger.info(f"Start evaluating molecules for {target}...")
+        results_dir = target_dir / "results"
+        eval_output = results_dir / "mole_eval_results.csv"
         if eval_output.exists():
-            project_logger.info(f"Evaluation results already exist for {target}, skipping evaluation.")
+            project_logger.info(
+                f"Evaluation results already exist for {target}, skipping evaluation."
+            )
             continue
 
         # Execute evaluation and save results
