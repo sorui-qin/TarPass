@@ -1,0 +1,6 @@
+method: vina
+verbose: 0
+seed: 0
+exhaust: 32
+poses: 1
+mode: dock
